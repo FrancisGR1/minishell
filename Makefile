@@ -35,19 +35,29 @@ $(OBJ): $(HEADER) $(MK)
 
 $(LIB_DIR)/$(LIB):
 	$(MAKE) -C $(LIB_DIR)
-run:
+run: $(NAME)
+	./$(NAME)
 
 leaks: $(NAME)
 	valgrind --track-origins=yes --show-leak-kinds=all --leak-check=full --log-file=valgrind.out ./$(NAME)
 
-norm:
+norm: 
+	norminette | grep "error"
 
 format: 
+	./format.sh $(SRC)
 
 clean:
+	rm -rf $(OBJ_DIR)
+	cd $(LIB_DIR) && make clean
 
 fclean: clean
+	cd $(LIB_DIR) && rm -f $(LIB)
+	rm -f $(NAME)
 
 re: fclean all
 
 watch:
+	@while inotifywait -r -e modify,delete,move src; do \
+		$(MAKE); \
+		done
