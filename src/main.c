@@ -2,5 +2,5 @@
 
 int main(void)
 {
-	printf("start\n");
+	read_loop();
 }
