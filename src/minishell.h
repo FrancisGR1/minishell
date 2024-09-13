@@ -3,6 +3,8 @@
 
 //Our LIB
 #include "../libft/libft.h"
+#include "tokens.h"
+#include "parse.h"
 
 //Readline includes
 #include <readline/readline.h>
@@ -11,6 +13,6 @@
 
 
 //REPL cycle
-void read_loop(void);
+void reader_loop(void);
 
 #endif /*MINISHELL_H*/

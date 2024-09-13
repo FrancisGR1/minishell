@@ -5,7 +5,7 @@ LDFLAGS = -lreadline
 OPTIMIZE = -03
 
 SRC_DIR = src
-SRC_FILES = main.c reader.c
+SRC_FILES = main.c reader.c parse.c tokens.c
 SRC = $(addprefix $(SRC_DIR)/,$(SRC_FILES))
 
 OBJ_DIR = obj

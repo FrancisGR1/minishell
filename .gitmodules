@@ -1,3 +1,9 @@
 [submodule "libft"]
 	path = libft
 	url = https://github.com/FrancisGR1/libft
+[submodule "zsh"]
+	path = zsh
+	url = https://github.com/zsh-users/zsh/
+[submodule "bash"]
+	path = bash
+	url = https://git.savannah.gnu.org/git/bash.git

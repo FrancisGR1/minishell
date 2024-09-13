@@ -2,5 +2,6 @@
 
 int main(void)
 {
-	read_loop();
+	//AFAZER: verificar nº de argumentos
+	reader_loop();
 }

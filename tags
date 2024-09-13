@@ -1651,6 +1651,7 @@ DANDEQ	study_material/zsh/Src/math.c	149;"	d	file:
 DATA	study_material/bash_gnu/lib/sh/snprintf.c	/^struct DATA$/;"	s	file:
 DATE_FMT_LANGINFO	study_material/coreutils/src/date.c	118;"	d	file:
 DATE_FMT_LANGINFO	study_material/coreutils/src/date.c	120;"	d	file:
+DA_INIT_SIZE	libft/libft.h	37;"	d
 DBAR	study_material/zsh/Src/zsh.h	/^    DBAR,$/;"	e	enum:lextok
 DBL_MAX	study_material/bash_gnu/lib/sh/strtod.c	38;"	d	file:
 DBL_MIN	study_material/bash_gnu/lib/sh/strtod.c	39;"	d	file:
@@ -6553,7 +6554,7 @@ SORT_OPTION	study_material/coreutils/src/sort.c	/^  SORT_OPTION,$/;"	e	enum:__an
 SORT_OUT_OF_ORDER	study_material/coreutils/src/sort.c	/^    SORT_OUT_OF_ORDER = 1,$/;"	e	enum:__anon160	file:
 SORT_TABLE	study_material/coreutils/src/sort.c	603;"	d	file:
 SOURCENEST_MAX	study_material/bash_gnu/config-top.h	179;"	d
-SOURCES	libft/Makefile	/^SOURCES = ft_isalpha.c ft_isdigit.c ft_isalnum.c ft_isascii.c ft_isprint.c ft_strlen.c \\$/;"	m
+SOURCES	libft/Makefile	/^SOURCES = ft_isalpha.c ft_isdigit.c ft_isalnum.c ft_isascii.c ft_isprint.c ft_strlen.c ft_isspace.c\\$/;"	m
 SOURCES	study_material/bash_gnu/Makefile	/^SOURCES	 = $(CSOURCES) $(HSOURCES) $(BUILTIN_DEFS)$/;"	m
 SOURCES	study_material/bash_gnu/lib/glob/Makefile	/^SOURCES  = $(CSOURCES) $(HSOURCES) $(DOCSOURCE)$/;"	m
 SOURCES	study_material/bash_gnu/lib/intl/Makefile	/^SOURCES = \\$/;"	m
@@ -11053,6 +11054,7 @@ bashline_reset_event_hook	study_material/bash_gnu/bashline.c	/^bashline_reset_ev
 bashline_set_event_hook	study_material/bash_gnu/bashline.c	/^bashline_set_event_hook ()$/;"	f
 bashlistfirst	study_material/zsh/Src/Zle/zle_tricky.c	/^mod_export int lastambig, bashlistfirst;$/;"	v
 bashrc_file	study_material/bash_gnu/shell.c	/^static char *bashrc_file = DEFAULT_BASHRC;$/;"	v	file:
+basic_pipe_communication	learning/pipes.c	/^static int basic_pipe_communication(void)$/;"	f	file:
 batch_convert	study_material/coreutils/src/date.c	/^batch_convert (char const *input_filename, char const *format,$/;"	f	file:
 baud	study_material/zsh/Src/Zle/zle_main.c	/^static int baud;$/;"	v	file:
 baud_to_value	study_material/coreutils/src/stty.c	/^baud_to_value (speed_t speed)$/;"	f	file:
@@ -11679,6 +11681,7 @@ cancd	study_material/zsh/Src/exec.c	/^cancd(char *s)$/;"	f	file:
 cancd2	study_material/zsh/Src/exec.c	/^cancd2(char *s)$/;"	f	file:
 canscroll	study_material/zsh/Src/Zle/zle_refresh.c	/^    int canscroll;		\/* number of lines we are allowed to scroll *\/$/;"	m	struct:rparams	file:
 caopt	study_material/zsh/Src/Zle/computil.c	/^struct caopt {$/;"	s	file:
+capacity	libft/libft.h	/^	size_t capacity;$/;"	m	struct:s_dynamic_array
 capacity	study_material/coreutils/gl/lib/heap.c	/^  size_t capacity;  \/* Array size *\/$/;"	m	struct:heap	file:
 capcase_p	study_material/bash_gnu/variables.h	148;"	d
 caption	study_material/coreutils/src/df.c	/^  char const *caption;\/* nullptr means use default header of this field.  *\/$/;"	m	struct:field_data_t	file:
@@ -12237,6 +12240,7 @@ cmpsfuncs	study_material/zsh/Src/Modules/zprof.c	/^cmpsfuncs(Pfunc *a, Pfunc *b)
 cmptfuncs	study_material/zsh/Src/Modules/zprof.c	/^cmptfuncs(Pfunc *a, Pfunc *b)$/;"	f	file:
 cnam	study_material/zsh/Src/module.c	/^del_autocond(UNUSED(const char *modnam), const char *cnam, int flags)$/;"	v	file:
 cnsec	study_material/zsh/Src/glob.c	/^    long cnsec;$/;"	m	struct:gmatch	file:
+cnt	libft/libft.h	/^	size_t cnt;$/;"	m	struct:s_dynamic_array
 code	study_material/bash_gnu/lib/glob/collsyms.h	/^  CHAR code;$/;"	m	struct:_COLLSYM
 code	study_material/zsh/Src/text.c	/^    wordcode code;$/;"	m	struct:tstack	file:
 codeset	study_material/bash_gnu/lib/intl/gettextP.h	/^  char *codeset;$/;"	m	struct:binding
@@ -12958,10 +12962,14 @@ d_ino	study_material/zsh/Src/zsh_system.h	253;"	d
 d_name	study_material/bash_gnu/lib/glob/ndir.h	/^  char d_name[MAXNAMLEN + 1];	\/* Name of file. *\/$/;"	m	struct:direct
 d_namlen	study_material/bash_gnu/lib/glob/ndir.h	/^  unsigned short d_namlen;	\/* Length of string in d_name. *\/$/;"	m	struct:direct
 d_reclen	study_material/bash_gnu/lib/glob/ndir.h	/^  unsigned short d_reclen;	\/* Length of this record. *\/$/;"	m	struct:direct
+da_append	libft/dynamic_array.c	/^void da_append(t_da *da, const void *insertion)$/;"	f
+da_free	libft/dynamic_array.c	/^void da_free(t_da *da)$/;"	f
+da_init	libft/dynamic_array.c	/^t_da *da_init(size_t ds)$/;"	f
 dabbrev_expand_active	study_material/bash_gnu/bashline.c	/^static int dabbrev_expand_active = 0;$/;"	v	file:
 dash_gsu	study_material/zsh/Src/params.c	/^static const struct gsu_scalar dash_gsu =$/;"	v	typeref:struct:gsu_scalar	file:
 dat	study_material/zsh/Src/Zle/compctl.c	/^ccmakehookfn(UNUSED(Hookdef dummy), struct ccmakedat *dat)$/;"	s	file:
 dat	study_material/zsh/Src/zsh.h	/^    void *dat;$/;"	m	struct:linknode
+data	libft/libft.h	/^	void *data;$/;"	m	struct:s_dynamic_array
 data	study_material/bash_gnu/hashlib.h	/^  PTR_T data;			\/* What we really want. *\/$/;"	m	struct:bucket_contents
 data	study_material/bash_gnu/include/ocache.h	/^	PTR_T	data;$/;"	m	struct:objcache
 data	study_material/bash_gnu/include/timer.h	/^  PTR_T	*data;					\/* reserved *\/$/;"	m	struct:_shtimer
@@ -12973,6 +12981,7 @@ data	study_material/coreutils/gl/lib/randread.c	/^      } data;$/;"	m	struct:ran
 data	study_material/zsh/Src/Zle/zle_params.c	/^    void *data;$/;"	m	struct:zleparam	file:
 data	study_material/zsh/Src/zsh.h	/^	void *data;		\/* used by special parameter functions    *\/$/;"	m	union:param::__anon47
 data_copy_required	study_material/coreutils/src/copy.h	/^  bool data_copy_required;$/;"	m	struct:cp_options
+data_size	libft/libft.h	/^	size_t data_size;$/;"	m	struct:s_dynamic_array
 datadir	study_material/bash_gnu/Makefile	/^datadir = ${datarootdir}$/;"	m
 datadir	study_material/bash_gnu/builtins/Makefile	/^datadir = ${datarootdir}$/;"	m
 datadir	study_material/bash_gnu/lib/intl/Makefile	/^datadir = ${datarootdir}$/;"	m
@@ -13535,6 +13544,7 @@ dummy	study_material/bash_gnu/lib/intl/osdep.c	/^typedef int dummy;$/;"	t	file:
 dummy	study_material/zsh/Src/mem.c	/^    struct m_shdr *dummy;$/;"	m	struct:m_shdr	typeref:struct:m_shdr::m_shdr	file:
 dummy1	study_material/zsh/Src/mem.c	/^    zlong dummy1;$/;"	m	struct:m_hdr	file:
 dummy2	study_material/zsh/Src/mem.c	/^    zlong dummy2;$/;"	m	struct:m_hdr	file:
+dummy_data	learning/pipes.c	/^	int dummy_data[20];$/;"	m	struct:s_data	file:
 dummy_eprog	study_material/zsh/Src/parse.c	/^mod_export struct eprog dummy_eprog;$/;"	v	typeref:struct:eprog
 dummy_eprog_code	study_material/zsh/Src/parse.c	/^static wordcode dummy_eprog_code;$/;"	v	file:
 dummy_patprog1	study_material/zsh/Src/zsh.h	1776;"	d
@@ -13664,6 +13674,7 @@ emacs_std_cmd_xmap	study_material/bash_gnu/bashline.c	/^static Keymap emacs_std_
 emacsbackwardword	study_material/zsh/Src/Zle/zle_word.c	/^emacsbackwardword(char **args)$/;"	f
 emacsbind	study_material/zsh/Src/Zle/zle_bindings.c	/^int emacsbind[32] = {$/;"	v
 emacsforwardword	study_material/zsh/Src/Zle/zle_word.c	/^emacsforwardword(char **args)$/;"	f
+email	learning/pipes.c	/^	char *email;$/;"	m	struct:s_data	file:
 emit_ancillary_info	study_material/coreutils/src/system.h	/^emit_ancillary_info (char const *program)$/;"	f
 emit_backup_suffix_note	study_material/coreutils/src/system.h	/^emit_backup_suffix_note (void)$/;"	f
 emit_blocksize_note	study_material/coreutils/src/system.h	/^emit_blocksize_note (char const *program)$/;"	f
@@ -15008,6 +15019,7 @@ ft_isalpha	libft/ft_isalpha.c	/^int	ft_isalpha(int c)$/;"	f
 ft_isascii	libft/ft_isascii.c	/^int	ft_isascii(int c)$/;"	f
 ft_isdigit	libft/ft_isdigit.c	/^int	ft_isdigit(int c)$/;"	f
 ft_isprint	libft/ft_isprint.c	/^int	ft_isprint(int c)$/;"	f
+ft_isspace	libft/ft_isspace.c	/^int	ft_isspace(int c)$/;"	f
 ft_itoa	libft/ft_itoa.c	/^char	*ft_itoa(int n)$/;"	f
 ft_lstadd_back	libft/ft_lstadd_back.c	/^void	ft_lstadd_back(t_list **lst, t_list *new)$/;"	f
 ft_lstadd_front	libft/ft_lstadd_front.c	/^void	ft_lstadd_front(t_list **lst, t_list *new)$/;"	f
@@ -15034,6 +15046,7 @@ ft_putnbru_fd	libft/ft_putnbru_fd.c	/^int	ft_putnbru_fd(unsigned int n, int fd)$
 ft_putns	libft/ft_putns.c	/^void	ft_putns(char *s, size_t n)$/;"	f
 ft_puts	libft/ft_puts.c	/^void	ft_puts(char *s)$/;"	f
 ft_putstr_fd	libft/ft_putstr_fd.c	/^int ft_putstr_fd(char *s, int fd)$/;"	f
+ft_realloc	libft/ft_realloc.c	/^void *ft_realloc(void *data, size_t data_size)$/;"	f
 ft_split	libft/ft_split.c	/^char	**ft_split(char const *s, char *delimiter)$/;"	f
 ft_strchr	libft/ft_strchr.c	/^char	*ft_strchr(const char *s, int c)$/;"	f
 ft_strdup	libft/ft_strdup.c	/^char	*ft_strdup(const char *s)$/;"	f
@@ -15359,6 +15372,7 @@ get_sysdep_segment_value	study_material/bash_gnu/lib/intl/loadmsgcat.c	/^get_sys
 get_term_capabilities	study_material/bash_gnu/lib/readline/terminal.c	/^get_term_capabilities (char **bp)$/;"	f	file:
 get_termsig	study_material/bash_gnu/nojobs.c	/^get_termsig (status)$/;"	f	file:
 get_tmpdir	study_material/bash_gnu/lib/sh/tmpfile.c	/^get_tmpdir (flags)$/;"	f	file:
+get_token	src/tokens.c	/^t_token get_token(char *cmd)$/;"	f
 get_tty_settings	study_material/bash_gnu/lib/readline/rltty.c	/^get_tty_settings (int tty, TIOTYPE *tiop)$/;"	f	file:
 get_tty_state	study_material/bash_gnu/jobs.c	/^get_tty_state ()$/;"	f
 get_tty_state	study_material/bash_gnu/nojobs.c	/^get_tty_state ()$/;"	f
@@ -17865,6 +17879,8 @@ mailpath	study_material/zsh/Src/params.c	/^     **mailpath,	\/* $mailpath    *\/
 mailstat	study_material/bash_gnu/lib/sh/mailstat.c	/^mailstat(path, st)$/;"	f
 mailstat	study_material/zsh/Src/utils.c	/^mailstat(char *path, struct stat *st)$/;"	f
 mailstat	study_material/zsh/Src/zsh_system.h	823;"	d
+main	learning/execve.c	/^int main(int argc, char **argv, char **envp)$/;"	f
+main	learning/pipes.c	/^int main(void)$/;"	f
 main	src/main.c	/^int main(void)$/;"	f
 main	study_material/bash_gnu/CWRU/misc/errlist.c	/^main(c, v)$/;"	f
 main	study_material/bash_gnu/CWRU/misc/open-files.c	/^main()$/;"	f
@@ -18777,6 +18793,7 @@ nam	study_material/zsh/Src/Zle/zle_keymap.c	/^    char *nam;		\/* key sequence (
 nam	study_material/zsh/Src/Zle/zle_keymap.c	/^    char *nam;		\/* name of the keymap *\/$/;"	m	struct:keymapname	file:
 nam	study_material/zsh/Src/params.c	/^    char *nam;			\/* hash data                             *\/$/;"	m	struct:iparam	file:
 nam	study_material/zsh/Src/zsh.h	/^    char *nam;			\/* hash key           *\/$/;"	m	struct:hashnode
+name	learning/pipes.c	/^	char *name;$/;"	m	struct:s_data	file:
 name	study_material/bash_gnu/alias.h	/^  char *name;$/;"	m	struct:alias
 name	study_material/bash_gnu/builtins.h	/^  char *name;			\/* The name that the user types. *\/$/;"	m	struct:builtin
 name	study_material/bash_gnu/builtins/mkbuiltins.c	/^  char *name;		\/* The name of this builtin. *\/$/;"	m	struct:__anon224	file:
@@ -19784,6 +19801,7 @@ parflags	study_material/zsh/Src/Zle/compcore.c	/^int parflags;$/;"	v
 paroffs	study_material/zsh/Src/Zle/compcore.c	/^static int parwb, parwe, paroffs;$/;"	v	file:
 parpre	study_material/zsh/Src/Zle/compcore.c	/^char *parpre;$/;"	v
 parq	study_material/zsh/Src/Zle/compcore.c	/^int parq, eparq;$/;"	v
+parse	src/parse.c	/^t_ast  *parse(const char *cmd, t_term *t)$/;"	f
 parse_additional_groups	study_material/coreutils/src/chroot.c	/^parse_additional_groups (char const *groups, GETGROUPS_T **pgids,$/;"	f	file:
 parse_and_execute	study_material/bash_gnu/builtins/evalstring.c	/^parse_and_execute (string, from_file, flags)$/;"	f
 parse_and_execute_cleanup	study_material/bash_gnu/builtins/evalstring.c	/^parse_and_execute_cleanup (old_running_trap)$/;"	f
@@ -21012,7 +21030,6 @@ read_input	study_material/coreutils/src/csplit.c	/^read_input (char *dest, idx_t
 read_input	study_material/coreutils/src/shuf.c	/^read_input (FILE *in, char eolbyte, char ***pline)$/;"	f	file:
 read_input_reservoir_sampling	study_material/coreutils/src/shuf.c	/^read_input_reservoir_sampling (FILE *in, char eolbyte, size_t k,$/;"	f	file:
 read_line	study_material/coreutils/src/pr.c	/^read_line (COLUMN *p)$/;"	f	file:
-read_loop	src/reader.c	/^void read_loop(void)$/;"	f
 read_loop	study_material/zsh/Src/utils.c	/^read_loop(int fd, char *buf, size_t len)$/;"	f
 read_man_page	study_material/bash_gnu/support/man2html.c	/^read_man_page(char *filename)$/;"	f	file:
 read_octal	study_material/bash_gnu/builtins/common.c	/^read_octal (string)$/;"	f
@@ -21024,6 +21041,7 @@ read_token	study_material/bash_gnu/y.tab.c	/^read_token (command)$/;"	f	file:
 read_token_word	study_material/bash_gnu/y.tab.c	/^read_token_word (character)$/;"	f	file:
 readarray_doc	study_material/bash_gnu/builtins/builtins.c	/^char * const readarray_doc[] = {$/;"	v
 readdir_ignoring_dot_and_dotdot	study_material/coreutils/src/system.h	/^readdir_ignoring_dot_and_dotdot (DIR *dirp)$/;"	f
+reader_loop	src/reader.c	/^void reader_loop(void)$/;"	f
 reader_loop	study_material/bash_gnu/eval.c	/^reader_loop ()$/;"	f
 readfd	study_material/zsh/Src/builtin.c	/^static int readfd;$/;"	v	file:
 readhistfile	study_material/zsh/Src/hist.c	/^readhistfile(char *fn, int err, int readflags)$/;"	f
@@ -21982,6 +22000,8 @@ s:cpo_save	study_material/zsh/Util/ztst-ftplugin.vim	/^let s:cpo_save = &cpo$/;"
 s:cpo_save	study_material/zsh/Util/ztst-syntax.vim	/^let s:cpo_save = &cpo$/;"	v
 s:cpo_save	study_material/zsh/Util/zyodl.vim	/^let s:cpo_save = &cpo$/;"	v
 s_arena	libft/arena.h	/^typedef struct s_arena {$/;"	s
+s_data	learning/pipes.c	/^struct s_data$/;"	s	file:
+s_dynamic_array	libft/libft.h	/^typedef struct s_dynamic_array$/;"	s
 s_line_str	libft/get_next_line.c	/^typedef struct s_line_str$/;"	s	file:
 s_list	libft/libft.h	/^typedef struct s_list$/;"	s
 sa_flags	study_material/bash_gnu/lib/readline/signals.c	/^typedef struct { SigHandler *sa_handler; int sa_mask, sa_flags; } sighandler_cxt;$/;"	m	struct:__anon213	file:
@@ -23817,6 +23837,7 @@ struct_filename	study_material/bash_gnu/builtins/mkbuiltins.c	/^char *struct_fil
 struct_month_cmp	study_material/coreutils/src/sort.c	/^struct_month_cmp (void const *m1, void const *m2)$/;"	f	file:
 structfile_footer	study_material/bash_gnu/builtins/mkbuiltins.c	/^char *structfile_footer[] = {$/;"	v
 structfile_header	study_material/bash_gnu/builtins/mkbuiltins.c	/^char *structfile_header[] = {$/;"	v
+structs_through_pipes	learning/pipes.c	/^static void structs_through_pipes(void)$/;"	f	file:
 struncpy	study_material/zsh/Src/utils.c	/^struncpy(char **s, char *t, int n)$/;"	f
 strvargetfn	study_material/zsh/Src/params.c	/^strvargetfn(Param pm)$/;"	f
 strvarsetfn	study_material/zsh/Src/params.c	/^strvarsetfn(Param pm, char *x)$/;"	f
@@ -24049,6 +24070,7 @@ t2h_anchor	study_material/bash_gnu/support/texi2html	/^sub t2h_anchor {$/;"	s
 t2h_print_label	study_material/bash_gnu/support/texi2html	/^sub t2h_print_label$/;"	s
 t2h_print_lines	study_material/bash_gnu/support/texi2html	/^sub t2h_print_lines {$/;"	s
 t_arena	libft/arena.h	/^} t_arena;$/;"	t	typeref:struct:s_arena
+t_da	libft/libft.h	/^}	t_da;$/;"	t	typeref:struct:s_dynamic_array
 t_dsusp	study_material/bash_gnu/lib/readline/rltty.h	/^  unsigned char t_dsusp;$/;"	m	struct:_rl_tty_chars
 t_eof	study_material/bash_gnu/lib/readline/rltty.h	/^  unsigned char t_eof;$/;"	m	struct:_rl_tty_chars
 t_eol	study_material/bash_gnu/lib/readline/rltty.h	/^  unsigned char t_eol;$/;"	m	struct:_rl_tty_chars
@@ -24058,7 +24080,7 @@ t_flush	study_material/bash_gnu/lib/readline/rltty.h	/^  unsigned char t_flush;$
 t_intr	study_material/bash_gnu/lib/readline/rltty.h	/^  unsigned char t_intr;$/;"	m	struct:_rl_tty_chars
 t_kill	study_material/bash_gnu/lib/readline/rltty.h	/^  unsigned char t_kill;$/;"	m	struct:_rl_tty_chars
 t_line	libft/get_next_line.c	/^}	t_line;$/;"	t	typeref:struct:s_line_str	file:
-t_list	libft/libft.h	/^}t_list;$/;"	t	typeref:struct:s_list
+t_list	libft/libft.h	/^}	t_list;$/;"	t	typeref:struct:s_list
 t_lnext	study_material/bash_gnu/lib/readline/rltty.h	/^  unsigned char t_lnext;$/;"	m	struct:_rl_tty_chars
 t_prefix	study_material/coreutils/dist-check.mk	/^t_prefix = $(tp)\/a$/;"	m
 t_quit	study_material/bash_gnu/lib/readline/rltty.h	/^  unsigned char t_quit;$/;"	m	struct:_rl_tty_chars
