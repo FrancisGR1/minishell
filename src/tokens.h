@@ -12,12 +12,11 @@ typedef enum e_tk_type
 	//comandos
 	TK_CMD,			// <cmd> <args>
 	TK_STR_LITERAL,		//"<texto>"
-	TK_VAR,			// <var>
+	TK_ASSIGNMENT,		// <var>=<value>
 	//expansíveis
 	TK_DOLLAR,		// $
 	TK_STAR, 		// *
 	//atribuição
-	TK_EQUALS,		// =
 	//operandos
 	TK_AND_AND,		// &&
 	TK_OR_OR,		// ||

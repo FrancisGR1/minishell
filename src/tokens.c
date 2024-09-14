@@ -2,15 +2,15 @@
 
 //Tokenizes the next tokenizable cmd in the str
 
-static bool is_var(char cmd);
 static bool is_operand(char *cmd);
+static bool is_quote(char c);
 static void desambiguate_type(t_token *token);
 
 t_token get_token(char *cmd)
 {
 	t_token tk;
 //	static size_t parens;
-//	static t_stack quotes;
+//	static char quote
 	tk.start = NULL;
 	tk.current = NULL;
 	tk.type = TK_NONE;
@@ -18,11 +18,13 @@ t_token get_token(char *cmd)
 		return (tk);
 	tk.start = cmd;
 	tk.current = cmd;
-	while (*cmd && (!is_operand(cmd) && !is_var(*cmd) /*(e não está entre "" ou '')*/))
+	while (*cmd && (!is_operand(cmd)/*(e não está entre "" ou '')*/))
 	{
 		tk.current = cmd;
+		if (*cmd == '=') //Meter aqui o is_operand?
+			break ;
 		//verificar se está entre () -> var contador
-		//verificar se é " ou '  -> pilha
+		//verificar se é " ou '  -> var char
 		cmd++;
 	} 
 	desambiguate_type(&tk);
@@ -44,21 +46,21 @@ static bool is_operand(char *cmd)
 {
 	if (!cmd || !*cmd) 
 		return (false);
-	return (*cmd == '|' || *cmd == '>' || *cmd == '<' || (*cmd == '&' && *(cmd + 1) == '&'));
+	return (*cmd == '|' || *cmd == '>' || *cmd == '<' || (*cmd == '&' && *(cmd + 1) == '&') || *cmd == '$');
 }
 
-static bool is_var(char cmd)
+static bool is_quote(char c)
 {
-	if (!cmd)
-		return (false);
-	return (cmd == '$' || cmd == '=');
+	return (c == '\'' || c == '\"');
 }
 
 static void desambiguate_type(t_token *token)
 {
+	if (!token->start || !token->current)
+		return ;
 	if (is_operand(token->start))
 	{
-		if (*token->start == *(token->start+1))	//operador de duplo carateres 
+		if ((token->start + 1) != NULL && *token->start == *(token->start+1)) // 2 chars
 		{
 			if (*token->start == '|')
 				token->type = TK_OR_OR;
@@ -72,18 +74,22 @@ static void desambiguate_type(t_token *token)
 				token->type = TK_ERROR;
 			token->current++;
 		}
-		else if (token->start == token->current)//operador de único caráter 
+		else if (token->start == token->current) //1 char
 		{
 			if (*token->start == '|')
 				token->type = TK_PIPE;
 			else if (*token->start == '*')
 				token->type = TK_STAR;
-			else if (*token->start == '=')
-				token->type = TK_EQUALS;
 			else if (*token->start == '<')
 				token->type = TK_LESS;
 			else if (*token->start == '>')
 				token->type = TK_MORE;
+			else if (*token->start == '$')
+			{
+				token->type = TK_DOLLAR;
+				while (*token->current && ft_isalnum(*(++token->current))) //fim da var
+						;
+			}
 			else
 				token->type = TK_ERROR;
 		}
@@ -91,36 +97,33 @@ static void desambiguate_type(t_token *token)
 			token->type = TK_ERROR;
 
 	}
-	else if (is_var(*token->start))
+	else if (*token->current == '=') //temos uma variável
 	{
-		if (*token->start == '=')
-			token->type = TK_EQUALS;
+		token->type = TK_ASSIGNMENT;
+		if ((token->current-1) == NULL || !ft_isalnum(*(token->current-1))) //char antes
+			token->type = TK_ERROR;
+		else if ((token->current+1) == NULL || (!ft_isalnum(*(token->current+1)) && !is_quote(*(token->current+1)))) //char depois
+			token->type = TK_ERROR;
 		else
 		{
+			char quote = '\0';
 			token->current++;
-			while (ft_isalnum(*token->current)) 	//apontar para o fim da variável 
+			if (*token->current == '\"' || *token->current =='\'')
+			{
+				quote = *token->current;
 				token->current++;
-			token->type = TK_DOLLAR;
-			printf("IS VAR\n");
+				while (*token->current && *token->current != quote)
+					token->current++;
+			}
+			else
+			{
+				while (token->current && ft_isalnum(*(token->current))) //fim do rvalue
+					token->current++;
+			}
 		}
+
 	}
-	else if (*(token->start - 1) == '=' && (*(token->start) == '\"' || ft_isalnum(*(token->start))))
-		token->type = TK_STR_LITERAL;
-	else if (*(token->current+1) == '=')
-		token->type = TK_VAR;
 	else
 		token->type = TK_CMD;
 }
 
-//EXEMPLOS:
-//cmd operando cmd
-//operando
-//cmd
-//var atribuição cmd 
-//var
-//
-//Passar os espaços
-//	Agora pode ser:
-//		A declaração de uma variável
-//		Um comando
-//		Um operando
