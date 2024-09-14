@@ -9,26 +9,41 @@ static void desambiguate_type(t_token *token);
 t_token get_token(char *cmd)
 {
 	t_token tk;
-//	static size_t parens;
-//	static char quote
+	bool inside_quotes;
+	char quote;
+	static int parens;
 	tk.start = NULL;
 	tk.current = NULL;
 	tk.type = TK_NONE;
+	inside_quotes = false;
+	quote = '\0';
 	if (!cmd || !*cmd)
 		return (tk);
 	tk.start = cmd;
 	tk.current = cmd;
-	while (*cmd && (!is_operand(cmd)/*(e não está entre "" ou '')*/))
+	while (*cmd && (!is_operand(cmd) || inside_quotes || *cmd == ')'))
 	{
 		tk.current = cmd;
-		if (*cmd == '=') //Meter aqui o is_operand?
+		if (*cmd == '=') 
 			break ;
-		//verificar se está entre () -> var contador
-		//verificar se é " ou '  -> var char
+		if (*cmd == '(' && !inside_quotes)
+			parens++;
+		if (is_quote(*cmd) && (*cmd == quote || !quote))
+		{
+			if (*cmd == quote)
+				inside_quotes = false;
+			else
+				inside_quotes = true;
+			quote = *cmd;
+		}
 		cmd++;
 	} 
+	tk.parens = parens;
+	while (*cmd++ == ')') //passar as parênteses
+		parens--;
 	desambiguate_type(&tk);
 	ft_putns(tk.start, tk.current+1 - tk.start);
+	printf("\t\tnested level: %d\n", tk.parens);
 	return (tk);
 }
 
@@ -88,12 +103,12 @@ static void desambiguate_type(t_token *token)
 			{
 				token->type = TK_DOLLAR;
 				while (*token->current && ft_isalnum(*(++token->current))) //fim da var
-						;
+					;
 			}
 			else
 				token->type = TK_ERROR;
 		}
-		else
+		else //Teoricamente nunca devíamos chegar aqui
 			token->type = TK_ERROR;
 
 	}

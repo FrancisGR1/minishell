@@ -33,6 +33,7 @@ typedef struct s_token
 {
 	char *start;
 	char *current;
+	int parens;
 	tk_type type;
 }	t_token;
 
