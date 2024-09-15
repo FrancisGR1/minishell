@@ -117,22 +117,24 @@ static void desambiguate_type(t_token *token)
 		token->type = TK_ASSIGNMENT;
 		if ((token->current-1) == NULL || !ft_isalnum(*(token->current-1))) //char antes
 			token->type = TK_ERROR;
-		else if ((token->current+1) == NULL || (!ft_isalnum(*(token->current+1)) && !is_quote(*(token->current+1)))) //char depois
+		else if ((token->current+1) == NULL || (!ft_isalnum(*(token->current+1)) && !is_quote(*(token->current+1)) &&  *(token->current+1) != '$')) //char depois
 			token->type = TK_ERROR;
 		else
 		{
 			char quote = '\0';
 			token->current++;
-			if (*token->current == '\"' || *token->current =='\'')
+			if (*token->current == '\"' || *token->current =='\'') //se o rvalue começar com aspas
 			{
 				quote = *token->current;
 				token->current++;
-				while (*token->current && *token->current != quote)
+				while (*token->current && *token->current != quote) 
 					token->current++;
 			}
-			else
+			else							
 			{
-				while (token->current && ft_isalnum(*(token->current))) //fim do rvalue
+				if (*token->current == '$')
+					token->current++;
+				while (token->current && (ft_isalnum(*(token->current)) || *(token->current) == '(' || *(token->current) == ')')) //fim do rvalue; AFAZER: verificar nº de parens
 					token->current++;
 			}
 		}
