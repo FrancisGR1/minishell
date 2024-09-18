@@ -4,26 +4,32 @@
 
 static bool is_operand(char *cmd);
 static bool is_quote(char c);
+static bool is_redirection(tk_type type);
 static void desambiguate_type(t_token *token);
 
-t_token get_token(char *cmd)
+t_token *get_token(char *cmd, t_terminal *t)
 {
-	t_token tk;
+	t_token *tk;
 	bool inside_quotes;
 	char quote;
 	static int parens;
-	tk.start = NULL;
-	tk.current = NULL;
-	tk.type = TK_NONE;
+
+	//init_token()?
+	tk = malloc(sizeof(t_token));
+	tk->start = NULL;
+	tk->current = NULL;
+	tk->type = TK_NONE;
+	tk->next = NULL;
+	tk->prev = NULL;
 	inside_quotes = false;
 	quote = '\0';
 	if (!cmd || !*cmd)
 		return (tk);
-	tk.start = cmd;
-	tk.current = cmd;
+	tk->start = cmd;
+	tk->current = cmd;
 	while (*cmd && (!is_operand(cmd) || inside_quotes || *cmd == ')'))
 	{
-		tk.current = cmd;
+		tk->current = cmd;
 		if (*cmd == '=') 
 			break ;
 		if (*cmd == '(' && !inside_quotes)
@@ -38,30 +44,43 @@ t_token get_token(char *cmd)
 		}
 		cmd++;
 	} 
-	tk.parens = parens;
+	tk->parens = parens;
 	while (*cmd++ == ')') //passar as parênteses
 		parens--;
-	desambiguate_type(&tk);
-	//ft_putns(tk.start, tk.current+1 - tk.start);
-	//printf("\t\tnested level: %d\n", tk.parens);
-
+	desambiguate_type(tk);
 	//CLEANUP TOKEN
-	while ((*tk.start == '(' || *tk.start == ' ') && tk.start)
-		tk.start++;
-	while ((*tk.current == ')' || *tk.current == ' ') && tk.current)
-		tk.current--;
+	while ((*tk->start == '(' || *tk->start == ' ') && tk->start)
+		tk->start++;
+	while ((*tk->current == ')' || *tk->current == ' ') && tk->current)
+		tk->current--;
+	//se o último comando foi um comando simples ou um comando com redireção
+	//E o comando atual inclui uma redireção, então vamos ligar os dois comandos e formar
+	//uma lista ligada dupla
+	if (t->last && (t->last->type == TK_CMD || t->last->type == TK_CMD_REDIR) && is_redirection(tk->type))
+	{
+		t->last = TK_CMD_REDIR;
+		t->last->next = tk;
+		tk->prev = t->last;
+	}
+	t->last = tk;
+	ft_putns(tk->start, tk->current+1 - tk->start);
+	printf("\t\tnested level: %d\n", tk->parens);
 	return (tk);
 }
 
-void next_token(char **cmd, t_token tk)
+void next_token(char **cmd, t_token *tk)
 {
-	if (!cmd || !*cmd || !**cmd)
+	if (!cmd || !*cmd || !**cmd || !tk->current)
 		return ;
-	*cmd = ++tk.current;
+	*cmd = (tk->current +1);
 	while (**cmd != '\0' && (ft_isspace(**cmd) || **cmd == ')'))
 		(*cmd)++;
 }
 
+static bool is_redirection(tk_type type)
+{
+	return (type >= TK_LESS && type <= TK_MORE_MORE);
+}
 
 static bool is_operand(char *cmd)
 {

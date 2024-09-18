@@ -9,9 +9,20 @@
 //Our LIB
 #include "../libft/libft.h"
 
+//Estrutura principal
+typedef struct s_struct t_terminal;
+
+//Tokens
+typedef struct s_token t_token;
+
 //Src includes
 #include "tokens.h"
 #include "parse.h"
+
+struct s_struct
+{
+	t_token *last;
+};
 
 //REPL cycle
 void reader_loop(void);
