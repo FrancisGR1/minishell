@@ -42,8 +42,14 @@ t_token get_token(char *cmd)
 	while (*cmd++ == ')') //passar as parênteses
 		parens--;
 	desambiguate_type(&tk);
-	ft_putns(tk.start, tk.current+1 - tk.start);
-	printf("\t\tnested level: %d\n", tk.parens);
+	//ft_putns(tk.start, tk.current+1 - tk.start);
+	//printf("\t\tnested level: %d\n", tk.parens);
+
+	//CLEANUP TOKEN
+	while ((*tk.start == '(' || *tk.start == ' ') && tk.start)
+		tk.start++;
+	while ((*tk.current == ')' || *tk.current == ' ') && tk.current)
+		tk.current--;
 	return (tk);
 }
 
@@ -52,7 +58,7 @@ void next_token(char **cmd, t_token tk)
 	if (!cmd || !*cmd || !**cmd)
 		return ;
 	*cmd = ++tk.current;
-	while (**cmd != '\0' && ft_isspace(**cmd))
+	while (**cmd != '\0' && (ft_isspace(**cmd) || **cmd == ')'))
 		(*cmd)++;
 }
 
@@ -125,7 +131,7 @@ static void desambiguate_type(t_token *token)
 			token->current++;
 			if (*token->current == '\"' || *token->current =='\'') //se o rvalue começar com aspas
 			{
-				quote = *token->current;
+			quote = *token->current;
 				token->current++;
 				while (*token->current && *token->current != quote) 
 					token->current++;

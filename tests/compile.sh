@@ -1,2 +1,4 @@
 #!/bin/bash 
-cc obj/parse.o obj/reader.o obj/tokens.o main_tests.c -lreadline ../libft/libft.a  -o main
+cp ../obj/* .
+rm main.o
+cc  -g *.o main_tests.c -lreadline ../libft/libft.a  -o test
