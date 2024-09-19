@@ -56,15 +56,21 @@ t_token *get_token(char *cmd, t_terminal *t)
 	//se o último comando foi um comando simples ou um comando com redireção
 	//E o comando atual inclui uma redireção, então vamos ligar os dois comandos e formar
 	//uma lista ligada dupla
-	if (t->last && (t->last->type == TK_CMD || t->last->type == TK_CMD_REDIR) && is_redirection(tk->type))
+	if (t->last && (t->last->type == TK_CMD || t->last->type == TK_CMD_REDIR || is_redirection(t->last->type)) && (is_redirection(tk->type) || tk->type == TK_CMD))
 	{
-		t->last = TK_CMD_REDIR;
+		t->last->type = TK_CMD_REDIR;
 		t->last->next = tk;
 		tk->prev = t->last;
 	}
 	t->last = tk;
-	ft_putns(tk->start, tk->current+1 - tk->start);
-	printf("\t\tnested level: %d\n", tk->parens);
+	//if (!tk->prev)
+	//	ft_putns(tk->start, tk->current+1 - tk->start);
+	//else
+	//{
+	//	ft_fprintf(OUT, "-> ");
+	//	ft_putns(tk->start, tk->current + 1 - tk->start);
+	//}
+	//printf("\t\tnested level: %d\n", tk->parens);
 	return (tk);
 }
 
@@ -150,7 +156,7 @@ static void desambiguate_type(t_token *token)
 			token->current++;
 			if (*token->current == '\"' || *token->current =='\'') //se o rvalue começar com aspas
 			{
-			quote = *token->current;
+				quote = *token->current;
 				token->current++;
 				while (*token->current && *token->current != quote) 
 					token->current++;
