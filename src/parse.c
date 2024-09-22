@@ -1,38 +1,40 @@
 #include "minishell.h"
 
-t_ast  *parse(const char* const cmd)
-{
-	char *s;
-	t_ast *tree;
-	t_token *tk;
-	t_terminal *t;
+static void substitute_seps(char *cmd);
 
-	tree = NULL;
-	s = (char *)cmd;	//preserva o string original
-	t = init_term();
-	t_da *tks = da_init(sizeof(*tk));
-	while (*s)   				//processa o comando
-	{
-		tk = get_token(s, t); 		//obtém o próximo token no string	
-		printf("%s\n", tk->start);
-		//guardar todos os tokens temporariamente
-		//para debuggin
-		if (!tk->prev)
-			da_append(tks, tk);
-		printf("added:\n");
-		ft_putns(tk->start, tk->current+1 - tk->start);
-		//insert_node(tk, &tree); 	//insere o token na árvore
-		next_token(&s, tk);		//passa espaços e parênteses
-	}
-	size_t total = tks->cnt;
-	printf("\n\n\n\n");
-	printf("enter\n");
-	for (size_t i = 0; i < total; i++)
-	{
-		printf("it: %zu\n", i);
-		t_token *token = &((t_token *)(tks->data))[i];
-		ft_putns(token->start, token->current + 1 - token->start);
-	}
-	return (tree);
+t_string *parse(t_string cmd)
+{
+	const t_string delimiters = new_str(DELIMITERS);
+	const t_string delimiters_no_spc = new_str(DELIMITERS_NO_SPC);
+	size_t idx;
+	t_string *cmds;
+	t_darr *seps;
+
+	idx = 0;
+	while (idx < cmd.len)
+		substitute_seps(&cmd.s[idx++]);
+	cmds = string_split(cmd, delimiters);
+	seps = string_findall(cmd, delimiters_no_spc);
+	(void ) seps;
+//	for (int i = 0; cmds[i].s; i++)
+//		string_put(cmds[i], OUT);
+//	for (size_t i = 0; i < seps->len; i++)
+//		ft_fprintf(OUT, ":%d\n", ((int *)seps->data)[i]);
+	return (cmds);
 }
 
+
+static void substitute_seps(char *cmd)
+{
+	if (!cmd)
+		return ;
+	if (*cmd == '<')
+		*cmd = LESS;
+	else if (*cmd == '>')
+		*cmd = MORE;
+	else if (*cmd == '|')
+		*cmd = PIPE;
+	else if (*cmd == ' ')
+		*cmd = SPACE;
+	return ;
+}

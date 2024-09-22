@@ -5,7 +5,7 @@ LDFLAGS = -lreadline
 OPTIMIZE = -03
 
 SRC_DIR = src
-SRC_FILES = main.c reader.c parse.c tokens.c terminal.c
+SRC_FILES = main.c reader.c parse.c exec.c terminal.c
 SRC = $(addprefix $(SRC_DIR)/,$(SRC_FILES))
 
 OBJ_DIR = obj
@@ -27,7 +27,7 @@ $(NAME): $(OBJ) $(LIB_DIR)/$(LIB)
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HEADERS) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@ 
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)%.c | $(OBJ_DIR)

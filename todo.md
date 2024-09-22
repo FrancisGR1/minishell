@@ -17,3 +17,24 @@ ABORDAGENS:
         árvore:
                 >
     echo hello      file.txt
+
+
+Objetivos:
+    -->Arranjar testes
+    Reformatar parsing (simplificação)
+        --> reformatar espaços e incoerências de formato
+        --> verificar erros
+    Fazer árvore binária
+    Organizar structs
+    Expandir libft
+
+Tenho de arranjar maneira de dividir os comandos todos logicamente:
+    exemplo:
+
+    echo todo > file.md | echo hello
+
+    echo todo
+    >
+    file.md
+    |
+    echo hello

@@ -8,23 +8,36 @@
 #include <readline/history.h>
 #include <readline/history.h>
 
+//wait() 
+#include <sys/wait.h>
+
 //Our LIB
 #include "../libft/libft.h"
 
+//Delimiter codes
+#define PIPE '\1'
+#define LESS '\2'
+#define MORE '\3'
+#undef SPACE
+#define SPACE '\4'
+
+#define DELIMITERS "\1\2\3\4"
+#define DELIMITERS_NO_SPC "\1\2\3"
 
 //Estrutura principal
-typedef struct s_struct t_terminal;
+typedef struct s_terminal t_terminal;
 
-//Tokens
-typedef struct s_token t_token;
+//Toda os dados e meta-dados de um comando
+typedef struct s_command t_cmd;
 
-//Src includes
-#include "tokens.h"
-#include "parse.h"
-
-struct s_struct
+struct s_command
 {
-	t_token *last;
+	t_string *args;
+};
+
+struct s_terminal
+{
+	char *last;
 };
 
 //REPL cycle
@@ -33,4 +46,9 @@ void reader_loop(void);
 //terminal
 t_terminal *init_term(void);
 
+//parse
+t_string *parse(t_string cmd);
+
+//exec
+int *exec(t_string *cmd);
 #endif /*MINISHELL_H*/
