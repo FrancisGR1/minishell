@@ -2,24 +2,39 @@
 
 static void substitute_seps(char *cmd);
 
-t_string *parse(t_string cmd)
+t_cmd *parse(t_string input, t_terminal *t)
 {
 	const t_string delimiters = new_str(DELIMITERS);
-	const t_string delimiters_no_spc = new_str(DELIMITERS_NO_SPC);
+	//const t_string delimiters_no_spc = new_str(DELIMITERS_NO_SPC);
+	const t_string delimiters_pipe = new_str("\1");
 	size_t idx;
-	t_string *cmds;
-	t_darr *seps;
+	t_cmd *cmds;
+	t_string *pipe_sides;
 
 	idx = 0;
-	while (idx < cmd.len)
-		substitute_seps(&cmd.s[idx++]);
-	cmds = string_split(cmd, delimiters);
-	seps = string_findall(cmd, delimiters_no_spc);
-	(void ) seps;
-//	for (int i = 0; cmds[i].s; i++)
-//		string_put(cmds[i], OUT);
-//	for (size_t i = 0; i < seps->len; i++)
-//		ft_fprintf(OUT, ":%d\n", ((int *)seps->data)[i]);
+	while (idx < input.len)
+	{
+		substitute_seps(&input.s[idx]);
+		if (input.s[idx] == PIPE)
+			t->cmds_num++;
+		idx++;
+	}
+	cmds = malloc((t->cmds_num + 1) * sizeof(t_cmd));
+	pipe_sides = string_split(input, delimiters_pipe);
+	idx = 0;
+	while (idx < t->cmds_num)
+	{
+		t_string *tmp = string_split(pipe_sides[idx], delimiters);
+		cmds[idx].binary = tmp[0];
+		ft_fprintf(OUT, "bin: %S\n", cmds[idx].binary);
+		cmds[idx].args = tmp;
+		string_put(cmds[idx].binary, OUT);
+		printf("\t");
+		string_put(cmds[idx].args[1], OUT);
+		printf("\n");
+		idx++;
+	}
+	cmds[idx].binary = new_str(NULL);
 	return (cmds);
 }
 
