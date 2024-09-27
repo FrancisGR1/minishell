@@ -26,12 +26,7 @@ t_cmd *parse(t_string input, t_terminal *t)
 	{
 		t_string *tmp = string_split(pipe_sides[idx], delimiters);
 		cmds[idx].binary = tmp[0];
-		ft_fprintf(OUT, "bin: %S\n", cmds[idx].binary);
 		cmds[idx].args = tmp;
-		string_put(cmds[idx].binary, OUT);
-		printf("\t");
-		string_put(cmds[idx].args[1], OUT);
-		printf("\n");
 		idx++;
 	}
 	cmds[idx].binary = new_str(NULL);

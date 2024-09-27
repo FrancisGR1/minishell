@@ -14,6 +14,10 @@
 //Our LIB
 #include "../libft/libft.h"
 
+
+//Pipes
+#define CHILD 0
+
 //Delimiter codes
 #define PIPE '\1'
 #define LESS '\2'
@@ -32,23 +36,24 @@ typedef struct s_command t_cmd;
 
 struct s_command
 {
+	t_string binary;
 	t_string *args;
 };
 
 struct s_terminal
 {
 	char *last;
+	t_cmd *cmds;
+	size_t cmds_num;
 };
 
 //REPL cycle
 void reader_loop(void);
 
-//terminal
-t_terminal *init_term(void);
-
 //parse
-t_string *parse(t_string cmd);
+t_cmd *parse(t_string input, t_terminal *t);
 
 //exec
-int *exec(t_string *cmd);
+//int exec(t_cmd *cmds, t_terminal *t);
+int exec(t_cmd *cmds, t_terminal *t);
 #endif /*MINISHELL_H*/
