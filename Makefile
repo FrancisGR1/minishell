@@ -39,8 +39,8 @@ $(LIB_DIR)/$(LIB):
 run: $(NAME)
 	./$(NAME)
 
-leaks: $(NAME)
-	valgrind --track-origins=yes --show-leak-kinds=all --leak-check=full --log-file=valgrind.out ./$(NAME)
+leaks: $(NAME) $(VAL_SUPP)
+	valgrind --track-origins=yes --show-leak-kinds=all --suppressions=readline.supp --leak-check=full --log-file=valgrind.out ./$(NAME)
 
 norm: 
 	norminette | grep "error"

@@ -131,7 +131,7 @@ digit_count	libft/ft_itoa.c	/^static int	digit_count(long int n)$/;"	f	file:
 end	libft/arena.h	/^	void	*end;$/;"	m	struct:s_arena
 end	libft/libft.h	/^	char *end;$/;"	m	struct:s_string
 exec	src/exec.c	/^int exec(t_cmd *cmds, t_terminal *t)$/;"	f
-exec	src/tmp.c	/^int exec(char ***args)$/;"	f
+free_args	src/exec.c	/^static void free_args(char ***args)$/;"	f	file:
 freen	libft/freen.c	/^void freen(void **data)$/;"	f
 freen_arr	libft/freen.c	/^void freen_arr(void **data)$/;"	f
 ft_atoi	libft/ft_atoi.c	/^int	ft_atoi(const char *nptr)$/;"	f
@@ -215,6 +215,7 @@ limit	libft/arena.h	/^	size_t limit;$/;"	m	struct:s_arena
 main	src/main.c	/^int main(void)$/;"	f
 main	src/tmp.c	/^int main (void)$/;"	f
 memory	libft/arena.h	/^	void	*memory;$/;"	m	struct:s_arena
+my_exec	src/tmp.c	/^int my_exec(char ***args)$/;"	f
 new	libft/get_next_line.c	/^	char *new;$/;"	m	struct:s_line_str	file:
 new_str	libft/strings.c	/^t_string	new_str(char *s)$/;"	f
 next	libft/arena.h	/^	struct s_arena *next;$/;"	m	struct:s_arena	typeref:struct:s_arena::s_arena
@@ -227,6 +228,7 @@ print_fmt	libft/ft_fprintf.c	/^static int	print_fmt(int fd, char fmt, va_list al
 putnbr	libft/ft_itoa.c	/^static char	*putnbr(long int n, char *ptr, int len)$/;"	f	file:
 reader_loop	src/reader.c	/^void reader_loop(void)$/;"	f
 res	libft/get_next_line.c	/^static char *res(t_line *line)$/;"	f	file:
+reset_term	src/reader.c	/^static void reset_term(t_terminal **t)$/;"	f	file:
 s	libft/libft.h	/^	char *s;$/;"	m	struct:s_string
 s_arena	libft/arena.h	/^typedef struct s_arena {$/;"	s
 s_command	src/minishell.h	/^struct s_command$/;"	s

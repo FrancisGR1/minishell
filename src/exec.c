@@ -1,13 +1,12 @@
 #include "minishell.h"
 
 char ***get_args(t_cmd *cmds, size_t size);
+static void free_args(char ***args);
 
-// 0  1    2  3    4  5 
-//[0, 1], [0, 1], [0, 1]
 int exec(t_cmd *cmds, t_terminal *t)
 {
-	int fds[2 * t->cmds_num];
 	const int last_command = t->cmds_num - 1;
+	int fds[2 * last_command];
 	char ***args = get_args(cmds, t->cmds_num);
 	int i;
 	int j;
@@ -43,6 +42,7 @@ int exec(t_cmd *cmds, t_terminal *t)
 		close(fds[j++]);
 	while (wait(NULL) > 0)
 		;
+	free_args(args);
 	return (0);
 }
 
@@ -77,4 +77,22 @@ char ***get_args(t_cmd *cmds, size_t size)
 	return (classic_strs);
 }
 
+static void free_args(char ***args)
+{
+	int i;
+	int j;
 
+	i = 0;
+	while (args[i])
+	{
+		j = 0;
+		while (args[i][j])
+		{
+			free(args[i][j]);
+			j++;
+		}
+		free(args[i]);
+		i++;
+	}
+	free(args);
+}

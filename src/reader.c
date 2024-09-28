@@ -1,6 +1,7 @@
 #include "minishell.h"
 
 static t_terminal *init_term(void);
+static void reset_term(t_terminal **t);
 
 void reader_loop(void)
 {
@@ -9,27 +10,50 @@ void reader_loop(void)
 	t_string input_cpy;
 	t_terminal *t;
 
+	t = init_term();
 	while (true)
 	{
-		t = init_term();
 		input = readline("> ");
 		input_cpy = cstr_to_str(input);
 		add_history(input);
 		free(input);
 		cmds = parse(input_cpy, t);
 		exec(cmds, t);
+		t->cmds = cmds;
+		reset_term(&t);
+		freen((void *)&input_cpy.s);
+		break ; //temporário para verificar leaks sem ter de apanhar sinais
 	}
+	free(t);
 }
 
 static t_terminal *init_term(void)
 {
 	t_terminal *t;
 
+	//AFAZER: libertar
 	t = malloc(sizeof(t_terminal));
 	t->last = NULL;
-	//AFAZER: libertar
 	t->cmds = NULL;
 	t->cmds_num = 1;
 	return (t);
 }
 
+static void reset_term(t_terminal **t)
+{
+	size_t i;
+
+	if (!t || !*t)
+		return ;
+	if ((*t)->cmds)
+	{
+		i = 0;
+		while (i < (*t)->cmds_num)
+		{
+			free((*t)->cmds[i].args);
+			i++;
+		}
+		free((*t)->cmds);
+		(*t)->cmds = NULL;
+	}
+}

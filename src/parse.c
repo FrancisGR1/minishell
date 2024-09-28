@@ -5,7 +5,6 @@ static void substitute_seps(char *cmd);
 t_cmd *parse(t_string input, t_terminal *t)
 {
 	const t_string delimiters = new_str(DELIMITERS);
-	//const t_string delimiters_no_spc = new_str(DELIMITERS_NO_SPC);
 	const t_string delimiters_pipe = new_str("\1");
 	size_t idx;
 	t_cmd *cmds;
@@ -30,6 +29,9 @@ t_cmd *parse(t_string input, t_terminal *t)
 		idx++;
 	}
 	cmds[idx].binary = new_str(NULL);
+	free(pipe_sides);
+	free(delimiters_pipe.s);
+	free(delimiters.s);
 	return (cmds);
 }
 
