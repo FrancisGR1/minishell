@@ -38,14 +38,30 @@ struct s_command
 {
 	t_string binary;
 	t_string *args;
+	t_queue *redirs;
 };
 
 struct s_terminal
 {
-	char *last;
+	t_string *first_cmd;
+	t_string *last_cmd;
 	t_cmd *cmds;
 	size_t cmds_num;
 };
+
+enum e_redir_type
+{
+	TRUNC,
+	APPEND,
+	INPUT,
+	HEREDOC,
+};
+
+typedef struct s_redirections
+{
+	enum e_redir_type type;
+	t_string file;
+}	t_redir;
 
 //REPL cycle
 void reader_loop(void);
@@ -53,7 +69,5 @@ void reader_loop(void);
 //parse
 t_cmd *parse(t_string input, t_terminal *t);
 
-//exec
-//int exec(t_cmd *cmds, t_terminal *t);
 int exec(t_cmd *cmds, t_terminal *t);
 #endif /*MINISHELL_H*/

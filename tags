@@ -5,6 +5,7 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
 ALLOC_SIZE	libft/arena.h	7;"	d
+APPEND	src/minishell.h	/^	APPEND,$/;"	e	enum:e_redir_type
 ARENA_H	libft/arena.h	2;"	d
 BBLK	libft/colors.h	29;"	d
 BBLU	libft/colors.h	33;"	d
@@ -57,12 +58,14 @@ HCYN	libft/colors.h	75;"	d
 HEADER	libft/Makefile	/^HEADER = libft.h$/;"	m
 HEADERS	Makefile	/^HEADERS = $(addprefix $(SRC_DIR)\/,$(HEADER_FILES))$/;"	m
 HEADER_FILES	Makefile	/^HEADER_FILES = minishell.h$/;"	m
+HEREDOC	src/minishell.h	/^	HEREDOC,$/;"	e	enum:e_redir_type
 HGRN	libft/colors.h	71;"	d
 HMAG	libft/colors.h	74;"	d
 HRED	libft/colors.h	70;"	d
 HWHT	libft/colors.h	76;"	d
 HYEL	libft/colors.h	72;"	d
 IN	libft/libft.h	38;"	d
+INPUT	src/minishell.h	/^	INPUT,$/;"	e	enum:e_redir_type
 LDFLAGS	Makefile	/^LDFLAGS = -lreadline$/;"	m
 LESS	src/minishell.h	23;"	d
 LIB	Makefile	/^LIB = libft.a$/;"	m
@@ -87,13 +90,14 @@ RED	libft/colors.h	20;"	d
 REDB	libft/colors.h	50;"	d
 REDHB	libft/colors.h	60;"	d
 RESET	libft/colors.h	89;"	d
-SOURCES	libft/Makefile	/^SOURCES = ft_isalpha.c ft_isdigit.c ft_isalnum.c ft_isascii.c ft_isprint.c ft_strlen.c ft_isspace.c \\$/;"	m
+SOURCES	libft/Makefile	/^SOURCES = ft_isalpha.c ft_isdigit.c ft_isalnum.c ft_isascii.c ft_isprint.c ft_strlen.c ft_isspace.c array_len.c \\$/;"	m
 SPACE	src/minishell.h	25;"	d
 SPACE	src/minishell.h	26;"	d
 SRC	Makefile	/^SRC = $(addprefix $(SRC_DIR)\/,$(SRC_FILES))$/;"	m
 SRC_DIR	Makefile	/^SRC_DIR = src$/;"	m
 SRC_FILES	Makefile	/^SRC_FILES = main.c reader.c parse.c exec.c terminal.c$/;"	m
 TRUE	libft/libft.h	34;"	d
+TRUNC	src/minishell.h	/^	TRUNC,$/;"	e	enum:e_redir_type
 UBLK	libft/colors.h	39;"	d
 UBLU	libft/colors.h	43;"	d
 UCYN	libft/colors.h	45;"	d
@@ -114,6 +118,8 @@ arena_destroy	libft/arena.c	/^void arena_destroy(t_arena *arena)$/;"	f
 arena_init	libft/arena.c	/^t_arena *arena_init(size_t size)$/;"	f
 arena_visualizer	libft/arena.c	/^void arena_visualizer(t_arena *region) $/;"	f
 args	src/minishell.h	/^	t_string *args;$/;"	m	struct:s_command
+array_len	libft/array_len.c	/^size_t array_len(void **arr)$/;"	f
+array_len	src/tmp.c	/^size_t array_len(void **arr)$/;"	f
 binary	src/minishell.h	/^	t_string binary;$/;"	m	struct:s_command
 capacity	libft/libft.h	/^	size_t capacity;$/;"	m	struct:s_dynamic_array
 cmds	src/minishell.h	/^	t_cmd *cmds;$/;"	m	struct:s_terminal
@@ -122,15 +128,18 @@ content	libft/libft.h	/^	void			*content;$/;"	m	struct:s_list
 cstr_to_str	libft/strings.c	/^t_string cstr_to_str(char *raw_str)$/;"	f
 cstr_to_str_ptr	libft/strings.c	/^t_string cstr_to_str_ptr(char *raw_str, size_t size)$/;"	f
 current_size	libft/arena.h	/^	size_t current_size;$/;"	m	struct:s_arena
-darr_append	libft/dynamic_array.c	/^void darr_append(t_darr *da, const void *insertion)$/;"	f
-darr_free	libft/dynamic_array.c	/^void darr_free(t_darr *da)$/;"	f
-darr_init	libft/dynamic_array.c	/^t_darr *darr_init(size_t ds)$/;"	f
+darr_append	libft/dynamic_array.c	/^void darr_append(t_dynamic_array *da, const void *insertion)$/;"	f
+darr_free	libft/dynamic_array.c	/^void darr_free(t_dynamic_array *da)$/;"	f
+darr_init	libft/dynamic_array.c	/^t_dynamic_array *darr_init(size_t ds)$/;"	f
 data	libft/libft.h	/^	void *data;$/;"	m	struct:s_dynamic_array
 data_size	libft/libft.h	/^	size_t data_size;$/;"	m	struct:s_dynamic_array
 digit_count	libft/ft_itoa.c	/^static int	digit_count(long int n)$/;"	f	file:
+e_redir_type	src/minishell.h	/^enum e_redir_type$/;"	g
 end	libft/arena.h	/^	void	*end;$/;"	m	struct:s_arena
 end	libft/libft.h	/^	char *end;$/;"	m	struct:s_string
 exec	src/exec.c	/^int exec(t_cmd *cmds, t_terminal *t)$/;"	f
+file	src/minishell.h	/^	t_string file;$/;"	m	struct:s_redirections
+first_cmd	src/minishell.h	/^	t_string *first_cmd;$/;"	m	struct:s_terminal
 free_args	src/exec.c	/^static void free_args(char ***args)$/;"	f	file:
 freen	libft/freen.c	/^void freen(void **data)$/;"	f
 freen_arr	libft/freen.c	/^void freen_arr(void **data)$/;"	f
@@ -208,14 +217,13 @@ init_term	src/terminal.c	/^t_terminal *init_term(void)$/;"	f
 is_base	libft/ft_atoi_base.c	/^static int	is_base(char c, int base, const char *base_str, int *value)$/;"	f	file:
 is_charset	libft/ft_strtrim.c	/^static int	is_charset(char const c, char const *set)$/;"	f	file:
 is_delimiter	libft/ft_split.c	/^static int	is_delimiter(char c, char *delimiter)$/;"	f	file:
-last	src/minishell.h	/^	char *last;$/;"	m	struct:s_terminal
+last_cmd	src/minishell.h	/^	t_string *last_cmd;$/;"	m	struct:s_terminal
 len	libft/libft.h	/^	size_t len;$/;"	m	struct:s_dynamic_array
 len	libft/libft.h	/^	size_t len;$/;"	m	struct:s_string
 limit	libft/arena.h	/^	size_t limit;$/;"	m	struct:s_arena
 main	src/main.c	/^int main(void)$/;"	f
-main	src/tmp.c	/^int main (void)$/;"	f
+main	src/tmp.c	/^int main(void)$/;"	f
 memory	libft/arena.h	/^	void	*memory;$/;"	m	struct:s_arena
-my_exec	src/tmp.c	/^int my_exec(char ***args)$/;"	f
 new	libft/get_next_line.c	/^	char *new;$/;"	m	struct:s_line_str	file:
 new_str	libft/strings.c	/^t_string	new_str(char *s)$/;"	f
 next	libft/arena.h	/^	struct s_arena *next;$/;"	m	struct:s_arena	typeref:struct:s_arena::s_arena
@@ -226,7 +234,15 @@ parse	src/parse.c	/^t_cmd *parse(t_string input, t_terminal *t)$/;"	f
 print_bits	libft/print_bits.c	/^void	print_bits(char c, int fd)$/;"	f
 print_fmt	libft/ft_fprintf.c	/^static int	print_fmt(int fd, char fmt, va_list al)$/;"	f	file:
 putnbr	libft/ft_itoa.c	/^static char	*putnbr(long int n, char *ptr, int len)$/;"	f	file:
+q_destroy	libft/queues.c	/^void q_destroy(t_queue **q, void (*del) (void *))$/;"	f
+q_is_empty	libft/queues.c	/^bool q_is_empty(t_queue *q)$/;"	f
+q_last_element	libft/queues.c	/^bool q_last_element(t_queue *q)$/;"	f
+q_peek	libft/queues.c	/^void *q_peek(t_queue *q)$/;"	f
+q_pop	libft/queues.c	/^void *q_pop(t_queue **q)$/;"	f
+q_push	libft/queues.c	/^void q_push(t_queue **q, void *content)$/;"	f
+q_size	libft/queues.c	/^int q_size(t_queue *q)$/;"	f
 reader_loop	src/reader.c	/^void reader_loop(void)$/;"	f
+redirs	src/minishell.h	/^	t_queue *redirs;$/;"	m	struct:s_command
 res	libft/get_next_line.c	/^static char *res(t_line *line)$/;"	f	file:
 reset_term	src/reader.c	/^static void reset_term(t_terminal **t)$/;"	f	file:
 s	libft/libft.h	/^	char *s;$/;"	m	struct:s_string
@@ -235,18 +251,22 @@ s_command	src/minishell.h	/^struct s_command$/;"	s
 s_dynamic_array	libft/libft.h	/^typedef struct s_dynamic_array$/;"	s
 s_line_str	libft/get_next_line.c	/^typedef struct s_line_str$/;"	s	file:
 s_list	libft/libft.h	/^typedef struct s_list$/;"	s
+s_redirections	src/minishell.h	/^typedef struct s_redirections$/;"	s
 s_string	libft/libft.h	/^typedef struct s_string$/;"	s
 s_terminal	src/minishell.h	/^struct s_terminal$/;"	s
-string_find	libft/strings.c	/^int string_find(t_string str, size_t start, size_t n, t_string delimiters)$/;"	f
-string_findall	libft/strings.c	/^t_darr *string_findall(t_string str, t_string targets)$/;"	f
+string_find	libft/strings.c	/^int string_find(t_string str, size_t start, size_t n, char *delimiters)$/;"	f
+string_findall	libft/strings.c	/^t_dynamic_array *string_findall(t_string str, char *delimiters)$/;"	f
 string_put	libft/strings.c	/^int string_put(t_string s, int fd)$/;"	f
-string_split	libft/strings.c	/^t_string *string_split(t_string str, t_string delimiters)$/;"	f
+string_split	libft/strings.c	/^t_string *string_split(t_string str, char *delimiters)$/;"	f
 substitute_seps	src/parse.c	/^static void substitute_seps(char *cmd)$/;"	f	file:
 t_arena	libft/arena.h	/^} t_arena;$/;"	t	typeref:struct:s_arena
 t_cmd	src/minishell.h	/^typedef struct s_command t_cmd;$/;"	t	typeref:struct:s_command
-t_darr	libft/libft.h	/^}	t_darr;$/;"	t	typeref:struct:s_dynamic_array
+t_dynamic_array	libft/libft.h	/^}	t_dynamic_array;$/;"	t	typeref:struct:s_dynamic_array
 t_line	libft/get_next_line.c	/^}	t_line;$/;"	t	typeref:struct:s_line_str	file:
 t_list	libft/libft.h	/^}	t_list;$/;"	t	typeref:struct:s_list
+t_queue	libft/libft.h	/^typedef t_list t_queue; \/\/Dynamic sized queue using a linked list internally$/;"	t
+t_redir	src/minishell.h	/^}	t_redir;$/;"	t	typeref:struct:s_redirections
 t_string	libft/libft.h	/^} t_string;$/;"	t	typeref:struct:s_string
 t_terminal	src/minishell.h	/^typedef struct s_terminal t_terminal;$/;"	t	typeref:struct:s_terminal
+type	src/minishell.h	/^	enum e_redir_type type;$/;"	m	struct:s_redirections	typeref:enum:s_redirections::e_redir_type
 word_count	libft/ft_split.c	/^int	word_count(char const *s, char *delimiter)$/;"	f

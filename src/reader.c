@@ -33,7 +33,7 @@ static t_terminal *init_term(void)
 
 	//AFAZER: libertar
 	t = malloc(sizeof(t_terminal));
-	t->last = NULL;
+	t->last_cmd = NULL;
 	t->cmds = NULL;
 	t->cmds_num = 1;
 	return (t);
@@ -45,12 +45,14 @@ static void reset_term(t_terminal **t)
 
 	if (!t || !*t)
 		return ;
+	//libertar comandos
 	if ((*t)->cmds)
 	{
 		i = 0;
 		while (i < (*t)->cmds_num)
 		{
 			free((*t)->cmds[i].args);
+			q_destroy(&(*t)->cmds[i].redirs, NULL);
 			i++;
 		}
 		free((*t)->cmds);
