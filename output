@@ -1,1 +1,3 @@
-> < redir1 > redir2 < redir2 > redir2 cat <input >out
+format.sh
+minishell
+minishell.pdf

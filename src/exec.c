@@ -1,12 +1,19 @@
 #include "minishell.h"
 
-char ***get_args(t_cmd *cmds, size_t size);
+static char ***get_args(t_cmd *cmds, size_t size);
+static int	set_redirs(t_queue *redirs);
 static void free_args(char ***args);
 
+
+void segv(int)
+{
+	printf("child segfaulted\n");
+	exit(0);
+}
 int exec(t_cmd *cmds, t_terminal *t)
 {
-	const int command_c = t->cmds_num - 1; //mudar nome "last command para algo mais intuitivo
-	int fds[command_c][2];
+	const int command_c = t->cmds_num - 1;
+	int fds[t->cmds_num][2];
 	char ***args = get_args(cmds, t->cmds_num);
 	int i;
 	int j;
@@ -21,15 +28,18 @@ int exec(t_cmd *cmds, t_terminal *t)
 		pid = fork();
 		if (pid == CHILD)
 		{
+			//AFAZER: estabelecer sinais aqui
+			signal(SIGSEGV, segv); //temporário para detetar segfaults
 			if (i == 0)
-				dup2(fds[i][1], OUT);
+				dup2(fds[i][PIPE_WRITE], STDOUT);
 			else if (i == command_c)
-				dup2(fds[i - 1][0], IN);
+				dup2(fds[i - 1][PIPE_READ], STDIN);
 			else
 			{
-				dup2(fds[i - 1][0], IN);
-				dup2(fds[i][1], OUT);
+				dup2(fds[i - 1][PIPE_READ], STDIN);
+				dup2(fds[i][PIPE_WRITE], STDOUT);
 			}
+			set_redirs(cmds[i].redirs);
 			j = -1;
 			while (++j < command_c)
 			{
@@ -52,7 +62,7 @@ int exec(t_cmd *cmds, t_terminal *t)
 	return (0);
 }
 
-char ***get_args(t_cmd *cmds, size_t size)
+static char ***get_args(t_cmd *cmds, size_t size)
 {
 	size_t i;
 	size_t j;
@@ -81,6 +91,43 @@ char ***get_args(t_cmd *cmds, size_t size)
 	}
 	classic_strs[i] = NULL;
 	return (classic_strs);
+}
+
+static int	set_redirs(t_queue *redirs)
+{
+	t_redir r;
+	int	redir_fd;
+	char	file_name[FILENAME_MAX];
+
+	while (!q_is_empty(redirs))
+	{
+		r = *(t_redir *)q_pop(&redirs);
+		ft_strlcpy(file_name, r.fd.s, r.fd.len + 1);
+		if (r.type == REDIR_INPUT)
+		{
+			printf("input from: %s\n", file_name);
+			redir_fd = open(file_name, O_RDONLY);
+			dup2(redir_fd, STDIN);
+			close(redir_fd);
+		}
+		else if (r.type == REDIR_OUTPUT)
+		{
+			redir_fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC);
+			dup2(redir_fd, STDOUT);
+			close(redir_fd);
+		}
+		else if (r.type == REDIR_APPEND)
+		{
+			redir_fd = open(file_name, O_WRONLY | O_CREAT | O_APPEND);
+			dup2(redir_fd, STDOUT);
+			close(redir_fd);
+		}
+		else if (r.type == REDIR_HEREDOC)
+			printf("TODO <<\n");
+		else //isto pode acontecer?
+		{printf("error\n");}/*dá error*/;
+	}
+	return (0);
 }
 
 static void free_args(char ***args)

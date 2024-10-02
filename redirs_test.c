@@ -22,6 +22,7 @@ int main(int argc, char **argv)
 		execvp(argv[0], argv);
 	}
 	close(fd_out);
+	close(fd_in);
 	while (wait(NULL) > 0)
 		;
 }

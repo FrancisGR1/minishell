@@ -9,8 +9,10 @@ list5.txt
 list.txt
 list.txt2
 Makefile
+minishell
 minishell.pdf
 newlist.txt
+obj
 out
 out1
 out2
@@ -27,6 +29,7 @@ resources
 src
 tags
 test.txt
+tmp2.c
 tmp.file
 todo.md
 valgrind.out

@@ -2,10 +2,6 @@
 
 static void substitute_seps(char *cmd);
 
-
-//echo todo > output > out2 > out3
-//fila= out3, out2 
-
 t_cmd *parse(t_string input, t_terminal *t)
 {
 	size_t idx;
@@ -36,28 +32,33 @@ t_cmd *parse(t_string input, t_terminal *t)
 		i = 0;
 		while (i < ptrs->len)
 		{
-			printf("last idx %zu\n", last_idx);
 			t_string ptr = ((t_string *)ptrs->data)[i];
 			size_t tmp_idx = 0;
-			t_redir redir;
+			t_redir *redir = malloc(sizeof(t_redir));
 			while (tmp[tmp_idx].s && tmp[tmp_idx].s < ptr.s)
 			{
 				tmp_idx++;
 			}
-			redir.file = tmp[tmp_idx]; //trim (remover espaços iniciais)
-			redir.type = *ptr.s == '\2' ? INPUT : TRUNC;
-			ft_fprintf(OUT, "redir file: %S\nredir type: %s\n", redir.file, redir.type == INPUT ? "<" : ">");
-			q_push(&cmds[idx].redirs, &redir);
-			int l = 0;
-			printf("before:\n");
-			while (tmp[l].s)
-				ft_fprintf(OUT, "\t%S\n", tmp[l++]);
+			redir->fd = tmp[tmp_idx]; //trim (remover espaços iniciais)
+			if (*ptr.s == '\2' && *(ptr.s + 1) == '\2')
+			{
+				redir->type = REDIR_HEREDOC;
+				i++;
+			}
+			else if (*ptr.s == '\3' && *(ptr.s + 1) == '\3')
+			{
+				redir->type = REDIR_APPEND;
+				i++;
+			}
+			else if (*ptr.s == '\2')
+				redir->type = REDIR_INPUT;
+			else if (*ptr.s == '\3')
+				redir->type = REDIR_OUTPUT;
+			else
+				redir->type = -1;
+			q_push(&cmds[idx].redirs, redir);
 			ft_memmove(&tmp[tmp_idx], &tmp[tmp_idx + 1], (last_idx + 1 - tmp_idx) * (sizeof(t_string)));
 			tmp[last_idx--].s = NULL;
-			printf("after:\n");
-			l = 0;
-			while (tmp[l].s)
-				ft_fprintf(OUT, "\t%S\n", tmp[l++]);
 			i++;
 		}
 		cmds[idx].binary = tmp[0];

@@ -28,6 +28,11 @@
 #define DELIMITERS "\1\2\3\4"
 #define DELIMITERS_NO_SPC "\1\2\3"
 
+
+//Pipe
+#define PIPE_WRITE 1
+#define PIPE_READ 0
+
 //Estrutura principal
 typedef struct s_terminal t_terminal;
 
@@ -51,16 +56,16 @@ struct s_terminal
 
 enum e_redir_type
 {
-	TRUNC,
-	APPEND,
-	INPUT,
-	HEREDOC,
+	REDIR_INPUT,
+	REDIR_OUTPUT,
+	REDIR_APPEND,
+	REDIR_HEREDOC,
 };
 
 typedef struct s_redirections
 {
 	enum e_redir_type type;
-	t_string file;
+	t_string fd;
 }	t_redir;
 
 //REPL cycle
