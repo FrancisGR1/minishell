@@ -5,16 +5,16 @@ static void free_args(char ***args);
 
 int exec(t_cmd *cmds, t_terminal *t)
 {
-	const int last_command = t->cmds_num - 1;
-	int fds[2 * last_command];
+	const int command_c = t->cmds_num - 1; //mudar nome "last command para algo mais intuitivo
+	int fds[command_c][2];
 	char ***args = get_args(cmds, t->cmds_num);
 	int i;
 	int j;
 	pid_t pid;
 
 	i = -1;
-	while (++i < last_command)
-		pipe(fds + i * 2);
+	while (++i < command_c)
+		pipe(fds[i]);
 	i = 0;
 	while (cmds[i].binary.s)
 	{
@@ -22,24 +22,30 @@ int exec(t_cmd *cmds, t_terminal *t)
 		if (pid == CHILD)
 		{
 			if (i == 0)
-				dup2(fds[i * 2 + 1], OUT);
-			else if (i == last_command)
-				dup2(fds[i * 2 - 2], IN);
+				dup2(fds[i][1], OUT);
+			else if (i == command_c)
+				dup2(fds[i - 1][0], IN);
 			else
 			{
-				dup2(fds[i * 2 - 2], IN);
-				dup2(fds[i * 2 + 1], OUT);
+				dup2(fds[i - 1][0], IN);
+				dup2(fds[i][1], OUT);
 			}
-			j = 0;
-			while (j < (2 * last_command))
-				close(fds[j++]);
+			j = -1;
+			while (++j < command_c)
+			{
+				close(fds[j][0]);
+				close(fds[j][1]);
+			}
 			execvp(args[i][0], args[i]); //substituir por execve
 		}
 		i++;
 	}
-	j = 0;
-	while (j < (2 * last_command))
-		close(fds[j++]);
+	j = -1;
+	while (++j < command_c)
+	{
+		close(fds[j][0]);
+		close(fds[j][1]);
+	}
 	while (wait(NULL) > 0)
 		;
 	free_args(args);
