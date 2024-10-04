@@ -10,10 +10,10 @@
 
 //wait() 
 #include <sys/wait.h>
-
+//open() 
+#include <fcntl.h> 
 //Our LIB
 #include "../libft/libft.h"
-
 
 //Pipes
 #define CHILD 0
@@ -33,10 +33,10 @@
 #define PIPE_WRITE 1
 #define PIPE_READ 0
 
-//Estrutura principal
+//Main struct
 typedef struct s_terminal t_terminal;
 
-//Toda os dados e meta-dados de um comando
+//All the data and meta-data of a commad
 typedef struct s_command t_cmd;
 
 struct s_command
@@ -74,5 +74,9 @@ void reader_loop(void);
 //parse
 t_cmd *parse(t_string input, t_terminal *t);
 
+//execution
 int exec(t_cmd *cmds, t_terminal *t);
+
+//redirection: heredoc
+int heredoc(char *delimiter, int heredoc_file);
 #endif /*MINISHELL_H*/

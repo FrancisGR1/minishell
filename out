@@ -1,1 +1,1 @@
-hello
+cc -Wall -Werror -Wextra -g3 -c src/exec.c -o obj/exec.o 
