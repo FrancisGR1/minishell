@@ -105,7 +105,6 @@ static int	set_redirs(t_queue *redirs)
 		ft_strlcpy(file_name, r.fd.s, r.fd.len + 1);
 		if (r.type == REDIR_INPUT)
 		{
-			printf("input from: %s\n", file_name);
 			redir_fd = open(file_name, O_RDONLY);
 			dup2(redir_fd, STDIN);
 			close(redir_fd);
@@ -123,7 +122,7 @@ static int	set_redirs(t_queue *redirs)
 			close(redir_fd);
 		}
 		else if (r.type == REDIR_HEREDOC)
-			printf("TODO <<\n");
+			heredoc(file_name);
 		else //isto pode acontecer?
 		{printf("error\n");}/*dá error*/;
 	}

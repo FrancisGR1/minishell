@@ -74,5 +74,9 @@ void reader_loop(void);
 //parse
 t_cmd *parse(t_string input, t_terminal *t);
 
+//execution
 int exec(t_cmd *cmds, t_terminal *t);
+
+//redirection: heredoc
+int heredoc(char *delimiter);
 #endif /*MINISHELL_H*/

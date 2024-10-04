@@ -98,7 +98,7 @@ SPACE	src/minishell.h	25;"	d
 SPACE	src/minishell.h	26;"	d
 SRC	Makefile	/^SRC = $(addprefix $(SRC_DIR)\/,$(SRC_FILES))$/;"	m
 SRC_DIR	Makefile	/^SRC_DIR = src$/;"	m
-SRC_FILES	Makefile	/^SRC_FILES = main.c reader.c parse.c exec.c terminal.c$/;"	m
+SRC_FILES	Makefile	/^SRC_FILES = main.c reader.c parse.c exec.c terminal.c heredoc.c$/;"	m
 STDERR	libft/libft.h	45;"	d
 STDIN	libft/libft.h	44;"	d
 STDOUT	libft/libft.h	43;"	d
@@ -216,6 +216,7 @@ get_len	libft/ft_strtrim.c	/^static int	get_len(char const *s, char const *set)$
 get_len	libft/ft_substr.c	/^static int	get_len(char const *s, unsigned int start, size_t len)$/;"	f	file:
 get_next_line	libft/get_next_line.c	/^char	*get_next_line(int fd)$/;"	f
 handle_zero	libft/ft_itoa.c	/^static char	*handle_zero(char *p)$/;"	f	file:
+heredoc	src/heredoc.c	/^int heredoc(char *delimiter)$/;"	f
 init	libft/get_next_line.c	/^static void init(t_line **line)$/;"	f	file:
 init_term	src/reader.c	/^static t_terminal *init_term(void)$/;"	f	file:
 init_term	src/terminal.c	/^t_terminal *init_term(void)$/;"	f
