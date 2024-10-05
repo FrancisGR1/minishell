@@ -13,7 +13,7 @@ void reader_loop(void)
 	t = init_term();
 	while (true)
 	{
-		input = readline("> ");
+		input = readline("mini> ");
 		input_cpy = cstr_to_str(input);
 		add_history(input);
 		free(input);
@@ -22,7 +22,7 @@ void reader_loop(void)
 		t->cmds = cmds;
 		reset_term(&t);
 		freen((void *)&input_cpy.s);
-		break ; //temporário para verificar leaks sem ter de apanhar sinais
+		//break ; //temporário para verificar leaks sem ter de apanhar sinais
 	}
 	free(t);
 }
@@ -35,6 +35,7 @@ static t_terminal *init_term(void)
 	t = malloc(sizeof(t_terminal));
 	t->cmds = NULL;
 	t->cmds_num = 1;
+	t->terminal_fd = dup(STDOUT);
 	return (t);
 }
 

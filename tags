@@ -144,7 +144,6 @@ end	libft/arena.h	/^	void	*end;$/;"	m	struct:s_arena
 end	libft/libft.h	/^	char *end;$/;"	m	struct:s_string
 exec	src/exec.c	/^int exec(t_cmd *cmds, t_terminal *t)$/;"	f
 fd	src/minishell.h	/^	t_string fd;$/;"	m	struct:s_redirections
-first_cmd	src/minishell.h	/^	t_string *first_cmd;$/;"	m	struct:s_terminal
 free_args	src/exec.c	/^static void free_args(char ***args)$/;"	f	file:
 freen	libft/freen.c	/^void freen(void **data)$/;"	f
 freen_arr	libft/freen.c	/^void freen_arr(void **data)$/;"	f
@@ -216,14 +215,14 @@ get_len	libft/ft_strtrim.c	/^static int	get_len(char const *s, char const *set)$
 get_len	libft/ft_substr.c	/^static int	get_len(char const *s, unsigned int start, size_t len)$/;"	f	file:
 get_next_line	libft/get_next_line.c	/^char	*get_next_line(int fd)$/;"	f
 handle_zero	libft/ft_itoa.c	/^static char	*handle_zero(char *p)$/;"	f	file:
-heredoc	src/heredoc.c	/^int heredoc(char *delimiter, int heredoc_fd)$/;"	f
+heredoc	src/heredoc.c	/^int heredoc(char *delimiter, bool is_last_redir)$/;"	f
 init	libft/get_next_line.c	/^static void init(t_line **line)$/;"	f	file:
 init_term	src/reader.c	/^static t_terminal *init_term(void)$/;"	f	file:
 init_term	src/terminal.c	/^t_terminal *init_term(void)$/;"	f
 is_base	libft/ft_atoi_base.c	/^static int	is_base(char c, int base, const char *base_str, int *value)$/;"	f	file:
 is_charset	libft/ft_strtrim.c	/^static int	is_charset(char const c, char const *set)$/;"	f	file:
 is_delimiter	libft/ft_split.c	/^static int	is_delimiter(char c, char *delimiter)$/;"	f	file:
-last_cmd	src/minishell.h	/^	t_string *last_cmd;$/;"	m	struct:s_terminal
+last_input_ptr	src/minishell.h	/^	t_redir *last_input_ptr;$/;"	m	struct:s_command
 len	libft/libft.h	/^	size_t len;$/;"	m	struct:s_dynamic_array
 len	libft/libft.h	/^	size_t len;$/;"	m	struct:s_string
 limit	libft/arena.h	/^	size_t limit;$/;"	m	struct:s_arena
@@ -262,7 +261,7 @@ s_redirections	src/minishell.h	/^typedef struct s_redirections$/;"	s
 s_string	libft/libft.h	/^typedef struct s_string$/;"	s
 s_terminal	src/minishell.h	/^struct s_terminal$/;"	s
 segv	src/exec.c	/^void segv(int nahnah)$/;"	f
-set_redirs	src/exec.c	/^static int	set_redirs(t_queue *redirs, int heredoc_file)$/;"	f	file:
+set_redirs	src/exec.c	/^static int	set_redirs(t_queue *redirs, t_redir *last_input_ptr)$/;"	f	file:
 string_find	libft/strings.c	/^int string_find(t_string str, size_t start, size_t n, char *delimiters)$/;"	f
 string_findall	libft/strings.c	/^t_dynamic_array *string_findall(t_string str, char *delimiters)$/;"	f
 string_put	libft/strings.c	/^int string_put(t_string s, int fd)$/;"	f

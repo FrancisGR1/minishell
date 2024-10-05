@@ -65,6 +65,7 @@ struct s_terminal
 {
 	t_cmd *cmds;
 	size_t cmds_num;
+	int terminal_fd;
 };
 //REPL cycle
 void reader_loop(void);
@@ -76,5 +77,5 @@ t_cmd *parse(t_string input, t_terminal *t);
 int exec(t_cmd *cmds, t_terminal *t);
 
 //redirection: heredoc
-int heredoc(char *delimiter, int heredoc_file, bool is_last_redir);
+int heredoc(char *delimiter, bool is_last_redir, int *write_ptr, int terminal_fd);
 #endif /*MINISHELL_H*/

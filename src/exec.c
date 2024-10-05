@@ -1,7 +1,7 @@
 #include "minishell.h"
 
 static char ***get_args(t_cmd *cmds, size_t size);
-static int	set_redirs(t_queue *redirs, int heredoc_file, t_redir *last_input_ptr);
+static int	set_redirs(t_queue *redirs, t_redir *last_input_ptr, int *write_ptr, int terminal_fd);
 static void free_args(char ***args);
 
 
@@ -11,6 +11,7 @@ void segv(int nahnah)
 	printf("child segfaulted\n");
 	exit(0);
 }
+
 int exec(t_cmd *cmds, t_terminal *t)
 {
 	const int command_c = t->cmds_num - 1;
@@ -19,6 +20,7 @@ int exec(t_cmd *cmds, t_terminal *t)
 	int i;
 	int j;
 	pid_t pid;
+	int *write_ptr = NULL;
 
 	i = -1;
 	while (++i < command_c)
@@ -26,8 +28,7 @@ int exec(t_cmd *cmds, t_terminal *t)
 	//criacao do ficheiro temporario
 	//nota: abordagem de implementacao rapida,
 	//enrobustecer a criacao do ficheiro no futuro
-	int out_fd = open("tmp", O_CREAT, 0600); 
-	int out_fd2 = open("tmp2", O_CREAT, 0600); 
+	int out_fd = open("tmp", O_CREAT, 0600);  //substituir tmp por gerador de strings aleat
 	i = 0;
 	while (cmds[i].binary.s)
 	{
@@ -37,15 +38,22 @@ int exec(t_cmd *cmds, t_terminal *t)
 			//AFAZER: estabelecer sinais aqui
 			signal(SIGSEGV, segv); //temporário para detetar segfaults
 			if (i == 0)
+			{
 				dup2(fds[i][PIPE_WRITE], STDOUT);
+				if (t->cmds_num > 1)
+					write_ptr = &fds[i][PIPE_WRITE];
+			}
 			else if (i == command_c)
+			{
 				dup2(fds[i - 1][PIPE_READ], STDIN);
+			}
 			else
 			{
 				dup2(fds[i - 1][PIPE_READ], STDIN);
 				dup2(fds[i][PIPE_WRITE], STDOUT);
+				write_ptr = &fds[i][PIPE_WRITE];
 			}
-			set_redirs(cmds[i].redirs, out_fd, cmds[i].last_input_ptr);
+			set_redirs(cmds[i].redirs, cmds[i].last_input_ptr, write_ptr, t->terminal_fd);
 			j = -1;
 			while (++j < command_c)
 			{
@@ -62,15 +70,15 @@ int exec(t_cmd *cmds, t_terminal *t)
 		close(fds[j][0]);
 		close(fds[j][1]);
 	}
+	close(out_fd);
 	while (wait(NULL) > 0)
 		;
-	close(out_fd2);
 	//unlink("tmp");
 	free_args(args);
 	return (0);
 }
 
-static int	set_redirs(t_queue *redirs, int heredoc_file, t_redir *last_input_ptr)
+static int	set_redirs(t_queue *redirs, t_redir *last_input_ptr, int *write_ptr, int terminal_fd)
 {
 	t_redir *r;
 	int	redir_fd;
@@ -87,7 +95,7 @@ static int	set_redirs(t_queue *redirs, int heredoc_file, t_redir *last_input_ptr
 			close(redir_fd);
 		}
 		else if (r->type == REDIR_HEREDOC)
-			heredoc(file_name, heredoc_file, last_input_ptr == r);
+			heredoc(file_name, last_input_ptr == r, write_ptr, terminal_fd);
 		else if (r->type == REDIR_OUTPUT)
 		{
 			redir_fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC);
@@ -102,7 +110,7 @@ static int	set_redirs(t_queue *redirs, int heredoc_file, t_redir *last_input_ptr
 		}
 		else //isto pode acontecer?
 		{printf("error\n");}/*dá error*/;
-		freen((void *)&r);
+		free(r);
 	}
 	return (0);
 }
