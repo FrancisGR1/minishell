@@ -33,7 +33,6 @@ static t_terminal *init_term(void)
 
 	//AFAZER: libertar
 	t = malloc(sizeof(t_terminal));
-	t->last_cmd = NULL;
 	t->cmds = NULL;
 	t->cmds_num = 1;
 	return (t);

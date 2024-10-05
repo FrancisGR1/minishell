@@ -10,10 +10,10 @@
 
 //wait() 
 #include <sys/wait.h>
-
+//open() 
+#include <fcntl.h> 
 //Our LIB
 #include "../libft/libft.h"
-
 
 //Pipes
 #define CHILD 0
@@ -33,26 +33,11 @@
 #define PIPE_WRITE 1
 #define PIPE_READ 0
 
-//Estrutura principal
+//Main struct
 typedef struct s_terminal t_terminal;
 
-//Toda os dados e meta-dados de um comando
+//All the data and meta-data of a commad
 typedef struct s_command t_cmd;
-
-struct s_command
-{
-	t_string binary;
-	t_string *args;
-	t_queue *redirs;
-};
-
-struct s_terminal
-{
-	t_string *first_cmd;
-	t_string *last_cmd;
-	t_cmd *cmds;
-	size_t cmds_num;
-};
 
 enum e_redir_type
 {
@@ -68,6 +53,19 @@ typedef struct s_redirections
 	t_string fd;
 }	t_redir;
 
+struct s_command
+{
+	t_string binary;
+	t_string *args;
+	t_queue *redirs;
+	t_redir *last_input_ptr;
+};
+
+struct s_terminal
+{
+	t_cmd *cmds;
+	size_t cmds_num;
+};
 //REPL cycle
 void reader_loop(void);
 
@@ -78,5 +76,5 @@ t_cmd *parse(t_string input, t_terminal *t);
 int exec(t_cmd *cmds, t_terminal *t);
 
 //redirection: heredoc
-int heredoc(char *delimiter);
+int heredoc(char *delimiter, int heredoc_file, bool is_last_redir);
 #endif /*MINISHELL_H*/

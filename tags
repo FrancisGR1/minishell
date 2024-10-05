@@ -216,7 +216,7 @@ get_len	libft/ft_strtrim.c	/^static int	get_len(char const *s, char const *set)$
 get_len	libft/ft_substr.c	/^static int	get_len(char const *s, unsigned int start, size_t len)$/;"	f	file:
 get_next_line	libft/get_next_line.c	/^char	*get_next_line(int fd)$/;"	f
 handle_zero	libft/ft_itoa.c	/^static char	*handle_zero(char *p)$/;"	f	file:
-heredoc	src/heredoc.c	/^int heredoc(char *delimiter)$/;"	f
+heredoc	src/heredoc.c	/^int heredoc(char *delimiter, int heredoc_fd)$/;"	f
 init	libft/get_next_line.c	/^static void init(t_line **line)$/;"	f	file:
 init_term	src/reader.c	/^static t_terminal *init_term(void)$/;"	f	file:
 init_term	src/terminal.c	/^t_terminal *init_term(void)$/;"	f
@@ -261,8 +261,8 @@ s_list	libft/libft.h	/^typedef struct s_list$/;"	s
 s_redirections	src/minishell.h	/^typedef struct s_redirections$/;"	s
 s_string	libft/libft.h	/^typedef struct s_string$/;"	s
 s_terminal	src/minishell.h	/^struct s_terminal$/;"	s
-segv	src/exec.c	/^void segv(int)$/;"	f
-set_redirs	src/exec.c	/^static int	set_redirs(t_queue *redirs)$/;"	f	file:
+segv	src/exec.c	/^void segv(int nahnah)$/;"	f
+set_redirs	src/exec.c	/^static int	set_redirs(t_queue *redirs, int heredoc_file)$/;"	f	file:
 string_find	libft/strings.c	/^int string_find(t_string str, size_t start, size_t n, char *delimiters)$/;"	f
 string_findall	libft/strings.c	/^t_dynamic_array *string_findall(t_string str, char *delimiters)$/;"	f
 string_put	libft/strings.c	/^int string_put(t_string s, int fd)$/;"	f

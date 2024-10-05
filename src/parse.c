@@ -43,6 +43,7 @@ t_cmd *parse(t_string input, t_terminal *t)
 			if (*ptr.s == '\2' && *(ptr.s + 1) == '\2')
 			{
 				redir->type = REDIR_HEREDOC;
+				cmds[idx].last_input_ptr = redir;
 				i++;
 			}
 			else if (*ptr.s == '\3' && *(ptr.s + 1) == '\3')
@@ -51,7 +52,10 @@ t_cmd *parse(t_string input, t_terminal *t)
 				i++;
 			}
 			else if (*ptr.s == '\2')
+			{
 				redir->type = REDIR_INPUT;
+				cmds[idx].last_input_ptr = redir;
+			}
 			else if (*ptr.s == '\3')
 				redir->type = REDIR_OUTPUT;
 			else
