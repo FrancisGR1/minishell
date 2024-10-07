@@ -1,8 +1,6 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-
-
 //Readline includes
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -67,8 +65,6 @@ struct s_terminal
 	size_t cmds_num;
 	int terminal_fd;
 };
-//REPL cycle
-void reader_loop(void);
 
 //parse
 t_cmd *parse(t_string input, t_terminal *t);
@@ -77,5 +73,9 @@ t_cmd *parse(t_string input, t_terminal *t);
 int exec(t_cmd *cmds, t_terminal *t);
 
 //redirection: heredoc
-int heredoc(char *delimiter, bool is_last_redir, int *write_ptr, int terminal_fd);
+int heredoc(char *delimiter, bool is_last_redir, int terminal_fd);
+
+//debug utils
+void debug_fds(const char *message);
+
 #endif /*MINISHELL_H*/

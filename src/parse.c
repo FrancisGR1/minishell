@@ -18,7 +18,6 @@ t_cmd *parse(t_string input, t_terminal *t)
 		idx++;
 	}
 	cmds = malloc((t->cmds_num + 1) * sizeof(t_cmd));
-	cmds->redirs = NULL;
 	pipe_sides = string_split(input, "\1");
 	idx = 0;
 	while (idx < t->cmds_num)
@@ -26,19 +25,21 @@ t_cmd *parse(t_string input, t_terminal *t)
 		t_dynamic_array *ptrs = string_findall(pipe_sides[idx], "\2\3");
 		t_string *tmp = string_split(pipe_sides[idx], DELIMITERS);
 		size_t tmp_n = 0;
-		while (tmp[tmp_n].s)
+		while (tmp && tmp[tmp_n].s)
 			tmp_n++;
-		size_t last_idx = tmp_n - 1;
+		size_t last_idx = 0;
+		if (tmp_n > 0)
+			last_idx = tmp_n - 1;
 		i = 0;
-		while (i < ptrs->len)
+		cmds[idx].redirs = NULL;
+		while (ptrs && i < ptrs->len)
 		{
 			t_string ptr = ((t_string *)ptrs->data)[i];
 			size_t tmp_idx = 0;
 			t_redir *redir = malloc(sizeof(t_redir));
+			printf("alloced: %p\n", redir);
 			while (tmp[tmp_idx].s && tmp[tmp_idx].s < ptr.s)
-			{
 				tmp_idx++;
-			}
 			redir->fd = tmp[tmp_idx]; //trim (remover espaços iniciais)
 			if (*ptr.s == '\2' && *(ptr.s + 1) == '\2')
 			{
@@ -60,6 +61,7 @@ t_cmd *parse(t_string input, t_terminal *t)
 				redir->type = REDIR_OUTPUT;
 			else
 				redir->type = -1;
+			printf("pushing..\n");
 			q_push(&cmds[idx].redirs, redir);
 			ft_memmove(&tmp[tmp_idx], &tmp[tmp_idx + 1], (last_idx + 1 - tmp_idx) * (sizeof(t_string)));
 			tmp[last_idx--].s = NULL;

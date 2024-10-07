@@ -1,14 +1,14 @@
 #include "minishell.h"
 
 static char ***get_args(t_cmd *cmds, size_t size);
-static int	set_redirs(t_queue *redirs, t_redir *last_input_ptr, int *write_ptr, int terminal_fd);
+static int	set_redirs(t_queue *redirs, t_redir *last_input_ptr, int terminal_fd);
 static void free_args(char ***args);
 
 
 void segv(int nahnah)
 {
 	(void) nahnah;
-	printf("child segfaulted\n");
+	printf("child segfaulted at pid %d\n", getpid());
 	exit(0);
 }
 
@@ -20,7 +20,6 @@ int exec(t_cmd *cmds, t_terminal *t)
 	int i;
 	int j;
 	pid_t pid;
-	int *write_ptr = NULL;
 
 	i = -1;
 	while (++i < command_c)
@@ -40,8 +39,6 @@ int exec(t_cmd *cmds, t_terminal *t)
 			if (i == 0)
 			{
 				dup2(fds[i][PIPE_WRITE], STDOUT);
-				if (t->cmds_num > 1)
-					write_ptr = &fds[i][PIPE_WRITE];
 			}
 			else if (i == command_c)
 			{
@@ -51,15 +48,15 @@ int exec(t_cmd *cmds, t_terminal *t)
 			{
 				dup2(fds[i - 1][PIPE_READ], STDIN);
 				dup2(fds[i][PIPE_WRITE], STDOUT);
-				write_ptr = &fds[i][PIPE_WRITE];
 			}
-			set_redirs(cmds[i].redirs, cmds[i].last_input_ptr, write_ptr, t->terminal_fd);
+			set_redirs(cmds[i].redirs, cmds[i].last_input_ptr, t->terminal_fd);
 			j = -1;
 			while (++j < command_c)
 			{
 				close(fds[j][0]);
 				close(fds[j][1]);
 			}
+			//debug_fds(ft_itoa(getppid()));
 			execvp(args[i][0], args[i]); //substituir por execve
 		}
 		i++;
@@ -73,12 +70,12 @@ int exec(t_cmd *cmds, t_terminal *t)
 	close(out_fd);
 	while (wait(NULL) > 0)
 		;
-	//unlink("tmp");
+	unlink("tmp");
 	free_args(args);
 	return (0);
 }
 
-static int	set_redirs(t_queue *redirs, t_redir *last_input_ptr, int *write_ptr, int terminal_fd)
+static int	set_redirs(t_queue *redirs, t_redir *last_input_ptr, int terminal_fd)
 {
 	t_redir *r;
 	int	redir_fd;
@@ -95,7 +92,7 @@ static int	set_redirs(t_queue *redirs, t_redir *last_input_ptr, int *write_ptr, 
 			close(redir_fd);
 		}
 		else if (r->type == REDIR_HEREDOC)
-			heredoc(file_name, last_input_ptr == r, write_ptr, terminal_fd);
+			heredoc(file_name, last_input_ptr == r, terminal_fd);
 		else if (r->type == REDIR_OUTPUT)
 		{
 			redir_fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC);
@@ -108,8 +105,9 @@ static int	set_redirs(t_queue *redirs, t_redir *last_input_ptr, int *write_ptr, 
 			dup2(redir_fd, STDOUT);
 			close(redir_fd);
 		}
-		else //isto pode acontecer?
-		{printf("error\n");}/*dá error*/;
+		else //teoricamente isto não deve acontecer
+			printf("error\n");
+		printf("freeing: %p\n", r);
 		free(r);
 	}
 	return (0);

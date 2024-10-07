@@ -1,4 +1,4 @@
-#include "src/minishell.h"
+#include "../src/minishell.h"
 
 void debug_fds(const char *message) {
     char proc_path[64];
@@ -21,6 +21,8 @@ int main(void)
 {
 	char *args[] = {"cat", "-e", NULL};
 	int input_fd = open("tmp", O_RDONLY);
+	int fd[2];
+	pipe(fd);
 	int orig = dup(STDIN);
 	fprintf(stdout, "before dup2:\n\tinput_fd: %d\n\tSTDIN: %d\n\torig:%d\n", input_fd, STDIN, orig);
 	debug_fds("BEFORE");

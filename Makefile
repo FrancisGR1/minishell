@@ -5,7 +5,7 @@ LDFLAGS = -lreadline
 OPTIMIZE = -03
 
 SRC_DIR = src
-SRC_FILES = main.c reader.c parse.c exec.c terminal.c heredoc.c
+SRC_FILES = main.c parse.c exec.c terminal.c heredoc.c
 SRC = $(addprefix $(SRC_DIR)/,$(SRC_FILES))
 
 OBJ_DIR = obj
@@ -40,7 +40,10 @@ run: $(NAME)
 	./$(NAME)
 
 leaks: $(NAME) $(VAL_SUPP)
-	valgrind --track-origins=yes --show-leak-kinds=all --suppressions=readline.supp --leak-check=full --log-file=valgrind.out ./$(NAME)
+	valgrind --track-origins=yes --show-leak-kinds=all --track-fds=yes --suppressions=readline.supp --leak-check=full --log-file=valgrind.out ./$(NAME)
+
+leaks-gdb: $(NAME) $(VAL_SUPP)
+	valgrind --vgdb=yes --vgdb-error=0 --track-origins=yes --show-leak-kinds=all --track-fds=yes --suppressions=readline.supp --leak-check=full ./$(NAME)
 
 norm: 
 	norminette | grep "error"
