@@ -32,6 +32,7 @@ t_cmd *parse(t_string input, t_terminal *t)
 			last_idx = tmp_n - 1;
 		i = 0;
 		cmds[idx].redirs = NULL;
+		cmds[idx].has_heredoc = false;
 		while (ptrs && i < ptrs->len)
 		{
 			t_string ptr = ((t_string *)ptrs->data)[i];
@@ -56,6 +57,7 @@ t_cmd *parse(t_string input, t_terminal *t)
 			{
 				redir->type = REDIR_INPUT;
 				cmds[idx].last_input_ptr = redir;
+				cmds[idx].has_heredoc = true;
 			}
 			else if (*ptr.s == '\3')
 				redir->type = REDIR_OUTPUT;

@@ -57,6 +57,7 @@ struct s_command
 	t_string *args;
 	t_queue *redirs;
 	t_redir *last_input_ptr;
+	bool has_heredoc;
 };
 
 struct s_terminal

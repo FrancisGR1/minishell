@@ -59,6 +59,10 @@ int exec(t_cmd *cmds, t_terminal *t)
 			//debug_fds(ft_itoa(getppid()));
 			execvp(args[i][0], args[i]); //substituir por execve
 		}
+		if (cmds[i].has_heredoc)
+		{
+			waitpid(pid, 0, 0); //por agora server
+		}
 		i++;
 	}
 	j = -1;

@@ -13,8 +13,7 @@ int main(void)
 	t_terminal *t;
 
 	t = init_term();
-	int i = 0;
-	while (i < 3)
+	while (true)
 	{
 		input = readline("mini> ");
 		input_cpy = cstr_to_str(input);
@@ -25,8 +24,7 @@ int main(void)
 		t->cmds = cmds;
 		reset_term(&t);
 		freen((void *)&input_cpy.s);
-		i++;
-		break ; //temporário para verificar leaks sem ter de apanhar sinais
+		//break ; //temporário para verificar leaks sem ter de apanhar sinais
 	}
 	close(t->terminal_fd);
 	free(t);
