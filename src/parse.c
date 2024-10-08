@@ -1,6 +1,7 @@
 #include "minishell.h"
 
-static void substitute_seps(char *cmd);
+static void substitute_seps(char *cmd, bool inside_quotes);
+static int handle_quotes(t_string *s);
 
 t_cmd *parse(t_string input, t_terminal *t)
 {
@@ -8,11 +9,17 @@ t_cmd *parse(t_string input, t_terminal *t)
 	size_t i;
 	t_cmd *cmds;
 	t_string *pipe_sides;
+	char quote;
 
 	idx = 0;
+	quote = '\0';
 	while (idx < input.len)
 	{
-		substitute_seps(&input.s[idx]);
+		if (!quote && (input.s[idx] == '\'' || input.s[idx] == '\"'))
+			quote = input.s[idx];
+		else if (input.s[idx] == quote)
+			quote = '\0';
+		substitute_seps(&input.s[idx], quote);
 		if (input.s[idx] == PIPE)
 			t->cmds_num++;
 		idx++;
@@ -23,9 +30,9 @@ t_cmd *parse(t_string input, t_terminal *t)
 	while (idx < t->cmds_num)
 	{
 		t_dynamic_array *ptrs = string_findall(pipe_sides[idx], "\2\3");
-		t_string *tmp = string_split(pipe_sides[idx], DELIMITERS);
+		t_string *args_ptr = string_split(pipe_sides[idx], DELIMITERS);
 		size_t tmp_n = 0;
-		while (tmp && tmp[tmp_n].s)
+		while (args_ptr && args_ptr[tmp_n].s)
 			tmp_n++;
 		size_t last_idx = 0;
 		if (tmp_n > 0)
@@ -33,15 +40,16 @@ t_cmd *parse(t_string input, t_terminal *t)
 		i = 0;
 		cmds[idx].redirs = NULL;
 		cmds[idx].has_heredoc = false;
+		//trata das redireções
 		while (ptrs && i < ptrs->len)
 		{
 			t_string ptr = ((t_string *)ptrs->data)[i];
 			size_t tmp_idx = 0;
 			t_redir *redir = malloc(sizeof(t_redir));
 			printf("alloced: %p\n", redir);
-			while (tmp[tmp_idx].s && tmp[tmp_idx].s < ptr.s)
+			while (args_ptr[tmp_idx].s && args_ptr[tmp_idx].s < ptr.s)
 				tmp_idx++;
-			redir->fd = tmp[tmp_idx]; //trim (remover espaços iniciais)
+			redir->fd = args_ptr[tmp_idx]; //trim (remover espaços iniciais)
 			if (*ptr.s == '\2' && *(ptr.s + 1) == '\2')
 			{
 				redir->type = REDIR_HEREDOC;
@@ -65,24 +73,65 @@ t_cmd *parse(t_string input, t_terminal *t)
 				redir->type = -1;
 			printf("pushing..\n");
 			q_push(&cmds[idx].redirs, redir);
-			ft_memmove(&tmp[tmp_idx], &tmp[tmp_idx + 1], (last_idx + 1 - tmp_idx) * (sizeof(t_string)));
-			tmp[last_idx--].s = NULL;
+			ft_memmove(&args_ptr[tmp_idx], &args_ptr[tmp_idx + 1], (last_idx + 1 - tmp_idx) * (sizeof(t_string)));
+			args_ptr[last_idx--].s = NULL;
 			i++;
 		}
-		cmds[idx].binary = tmp[0];
-		cmds[idx].args = tmp;
+		cmds[idx].binary = args_ptr[0];
+		cmds[idx].args = args_ptr;
+		handle_quotes(cmds[idx].args);
+		for (int i = 0; cmds[i].binary.s; i++)
+			for (int j = 0; cmds[i].args[j].s; j++)
+				ft_fprintf(STDOUT, "%S\n", cmds[i].args[j]);
 		darr_free(ptrs);
 		idx++;
 	}
 	cmds[idx].binary = new_str(NULL);
 	free(pipe_sides);
+	printf("returning\n");
 	return (cmds);
 }
 
 
-static void substitute_seps(char *cmd)
+static int handle_quotes(t_string *args)
 {
-	if (!cmd)
+	size_t i;
+	size_t j;
+	size_t k;
+	size_t removed;
+
+	i = 0;
+	while (args[i].s)
+	{
+		if (string_find(args[i], 0, args[i].len, "\"\'") == -1)
+		{
+			i++;
+			continue ;
+		}
+		j = 0;
+		k = 0;
+		removed = 0;
+		while (j < args[i].len)
+		{
+			if (args[i].s[j] != '\"' && args[i].s[j] != '\'')
+			{
+				args[i].s[k] = args[i].s[j];
+				k++;
+			}
+			else
+				removed++;
+			j++;
+		}
+		args[i].len -= removed;
+		args[i].end -= removed;
+		i++;
+	}
+	return (0);
+}
+
+static void substitute_seps(char *cmd, bool inside_quotes)
+{
+	if (!cmd || inside_quotes)
 		return ;
 	if (*cmd == '<')
 		*cmd = LESS;
