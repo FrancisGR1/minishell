@@ -80,50 +80,53 @@ t_cmd *parse(t_string input, t_terminal *t)
 		cmds[idx].binary = args_ptr[0];
 		cmds[idx].args = args_ptr;
 		handle_quotes(cmds[idx].args);
-		for (int i = 0; cmds[i].binary.s; i++)
-			for (int j = 0; cmds[i].args[j].s; j++)
-				ft_fprintf(STDOUT, "%S\n", cmds[i].args[j]);
+		//AFAZER: expandir aqui
+		//NOTA: posso tornar o handle quotes e a expansão num só loop
+		//
+		//printing debug de argumentos:
+		//for (int i = 0; cmds[i].binary.s; i++)
+		//	for (int j = 0; cmds[i].args[j].s; j++)
+		//		ft_fprintf(STDOUT, "%S\n", cmds[i].args[j]);
 		darr_free(ptrs);
 		idx++;
 	}
 	cmds[idx].binary = new_str(NULL);
 	free(pipe_sides);
-	printf("returning\n");
 	return (cmds);
 }
-
 
 static int handle_quotes(t_string *args)
 {
 	size_t i;
 	size_t j;
 	size_t k;
-	size_t removed;
+	char quote;
 
 	i = 0;
 	while (args[i].s)
 	{
-		if (string_find(args[i], 0, args[i].len, "\"\'") == -1)
-		{
-			i++;
-			continue ;
-		}
 		j = 0;
 		k = 0;
-		removed = 0;
+		quote = '\0';
 		while (j < args[i].len)
 		{
-			if (args[i].s[j] != '\"' && args[i].s[j] != '\'')
+			if (!quote && (args[i].s[j] == '\'' || args[i].s[j] == '\"'))
+			{
+				quote = args[i].s[j];
+			}
+			else if (quote && args[i].s[j] == quote)
+			{
+				quote = '\0';
+			}
+			else
 			{
 				args[i].s[k] = args[i].s[j];
 				k++;
 			}
-			else
-				removed++;
 			j++;
 		}
-		args[i].len -= removed;
-		args[i].end -= removed;
+		args[i].len -= j - k;
+		args[i].end -= j - k;
 		i++;
 	}
 	return (0);
