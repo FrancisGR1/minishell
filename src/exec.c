@@ -61,7 +61,7 @@ int exec(t_cmd *cmds, t_terminal *t)
 		}
 		if (cmds[i].has_heredoc)
 		{
-			waitpid(pid, 0, 0); //por agora server
+			waitpid(pid, 0, 0);
 		}
 		i++;
 	}

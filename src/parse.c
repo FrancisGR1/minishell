@@ -49,11 +49,12 @@ t_cmd *parse(t_string input, t_terminal *t)
 			printf("alloced: %p\n", redir);
 			while (args_ptr[tmp_idx].s && args_ptr[tmp_idx].s < ptr.s)
 				tmp_idx++;
-			redir->fd = args_ptr[tmp_idx]; //trim (remover espaços iniciais)
+			redir->fd = args_ptr[tmp_idx]; //trim (remover espaços iniciais?)
 			if (*ptr.s == '\2' && *(ptr.s + 1) == '\2')
 			{
 				redir->type = REDIR_HEREDOC;
 				cmds[idx].last_input_ptr = redir;
+				cmds[idx].has_heredoc = true;
 				i++;
 			}
 			else if (*ptr.s == '\3' && *(ptr.s + 1) == '\3')
@@ -65,7 +66,6 @@ t_cmd *parse(t_string input, t_terminal *t)
 			{
 				redir->type = REDIR_INPUT;
 				cmds[idx].last_input_ptr = redir;
-				cmds[idx].has_heredoc = true;
 			}
 			else if (*ptr.s == '\3')
 				redir->type = REDIR_OUTPUT;
