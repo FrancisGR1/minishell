@@ -8,7 +8,7 @@ static void free_args(char ***args);
 void segv(int nahnah)
 {
 	(void) nahnah;
-	printf("child segfaulted at pid %d\n", getpid());
+	printf("subprocess segfaulted at pid %d\n", getpid());
 	exit(0);
 }
 
@@ -16,6 +16,7 @@ int exec(t_cmd *cmds, t_terminal *t)
 {
 	const int command_c = t->cmds_num - 1;
 	int fds[t->cmds_num][2];
+	pid_t subprocesses[t->cmds_num];
 	char ***args = get_args(cmds, t->cmds_num);
 	int i;
 	int j;
@@ -32,9 +33,8 @@ int exec(t_cmd *cmds, t_terminal *t)
 	while (cmds[i].binary.s)
 	{
 		pid = fork();
-		if (pid == CHILD)
+		if (pid == SUBPROCESS)
 		{
-			//AFAZER: estabelecer sinais aqui
 			signal(SIGSEGV, segv); //temporário para detetar segfaults
 			if (i == 0)
 			{
@@ -59,6 +59,7 @@ int exec(t_cmd *cmds, t_terminal *t)
 			//debug_fds(ft_itoa(getppid()));
 			execvp(args[i][0], args[i]); //substituir por execve
 		}
+		subprocesses[i] = pid;
 		if (cmds[i].has_heredoc)
 		{
 			waitpid(pid, 0, 0);
@@ -72,8 +73,13 @@ int exec(t_cmd *cmds, t_terminal *t)
 		close(fds[j][1]);
 	}
 	close(out_fd);
-	while (wait(NULL) > 0)
-		;
+	i = 0;
+	while (i < (int) t->cmds_num)
+	{
+		if (!cmds[i].has_heredoc)
+			waitpid(subprocesses[i], 0, 0);
+		i++;
+	};
 	unlink("tmp");
 	free_args(args);
 	return (0);
@@ -110,7 +116,7 @@ static int	set_redirs(t_queue *redirs, t_redir *last_input_ptr, int terminal_fd)
 			close(redir_fd);
 		}
 		else //teoricamente isto não deve acontecer
-			printf("error\n");
+			ft_fprintf(ERROR, "error\n");
 		printf("freeing: %p\n", r);
 		free(r);
 	}

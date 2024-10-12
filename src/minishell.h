@@ -6,15 +6,19 @@
 #include <readline/history.h>
 #include <readline/history.h>
 
+//manipulate terminal output
+#include <termios.h>
+
 //wait() 
 #include <sys/wait.h>
 //open() 
 #include <fcntl.h> 
+
 //Our LIB
 #include "../libft/libft.h"
 
-//Pipes
-#define CHILD 0
+//Variável global com último valor de saída
+extern int g_sig_received;
 
 //Delimiter codes
 #define PIPE '\1'
@@ -26,10 +30,12 @@
 #define DELIMITERS "\1\2\3\4"
 #define DELIMITERS_NO_SPC "\1\2\3"
 
-
 //Pipe
 #define PIPE_WRITE 1
 #define PIPE_READ 0
+
+//Pid of subprocess spawned is 0
+#define SUBPROCESS 0
 
 //Main struct
 typedef struct s_terminal t_terminal;
@@ -78,5 +84,13 @@ int heredoc(char *delimiter, bool is_last_redir, int terminal_fd);
 
 //debug utils
 void debug_fds(const char *message);
+
+//signals
+void load_signals(void);
+void load_signals_2();
+void signals_handler(int signum, siginfo_t *inf, void *ctx);
+void signals_handler_2(int signum, siginfo_t *inf, void *ctx);
+void load_signals_subprocess(void);
+void signals_handler_subprocess(int signum, siginfo_t *inf, void *ctx);
 
 #endif /*MINISHELL_H*/
