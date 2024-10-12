@@ -45,11 +45,13 @@ t_cmd *parse(t_string input, t_terminal *t)
 		{
 			t_string ptr = ((t_string *)ptrs->data)[i];
 			size_t tmp_idx = 0;
+			//como é que raio isto está a dar leaks?????
 			t_redir *redir = malloc(sizeof(t_redir));
-			printf("alloced: %p\n", redir);
+			printf("stored: %p\n", (void *)redir);
+			printf("redir alloced: %p\n", redir);
 			while (args_ptr[tmp_idx].s && args_ptr[tmp_idx].s < ptr.s)
 				tmp_idx++;
-			redir->fd = args_ptr[tmp_idx]; //trim (remover espaços iniciais?)
+			redir->fd = args_ptr[tmp_idx];
 			if (*ptr.s == '\2' && *(ptr.s + 1) == '\2')
 			{
 				redir->type = REDIR_HEREDOC;
@@ -71,8 +73,8 @@ t_cmd *parse(t_string input, t_terminal *t)
 				redir->type = REDIR_OUTPUT;
 			else
 				redir->type = -1;
-			printf("pushing..\n");
-			q_push(&cmds[idx].redirs, redir);
+			printf("redir pushing..\n");
+			ft_lstadd_back(&cmds[idx].redirs, ft_lstnew(redir));
 			ft_memmove(&args_ptr[tmp_idx], &args_ptr[tmp_idx + 1], (last_idx + 1 - tmp_idx) * (sizeof(t_string)));
 			args_ptr[last_idx--].s = NULL;
 			i++;

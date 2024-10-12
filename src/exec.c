@@ -1,7 +1,7 @@
 #include "minishell.h"
 
 static char ***get_args(t_cmd *cmds, size_t size);
-static int	set_redirs(t_queue *redirs, t_redir *last_input_ptr, int terminal_fd);
+static int	set_redirs(t_list *redirs, t_redir *last_input_ptr, int terminal_fd);
 static void free_args(char ***args);
 
 
@@ -36,7 +36,9 @@ int exec(t_cmd *cmds, t_terminal *t)
 		if (pid == SUBPROCESS)
 		{
 			signal(SIGSEGV, segv); //temporário para detetar segfaults
-			if (i == 0)
+			if (t->cmds_num == 1)
+				/*não é preciso fazer nada*/;
+			else if (i == 0)
 			{
 				dup2(fds[i][PIPE_WRITE], STDOUT);
 			}
@@ -85,15 +87,15 @@ int exec(t_cmd *cmds, t_terminal *t)
 	return (0);
 }
 
-static int	set_redirs(t_queue *redirs, t_redir *last_input_ptr, int terminal_fd)
+static int	set_redirs(t_list *redirs, t_redir *last_input_ptr, int terminal_fd)
 {
 	t_redir *r;
 	int	redir_fd;
 	char	file_name[FILENAME_MAX];
 
-	while (!q_is_empty(redirs))
+	while (redirs)
 	{
-		r = (t_redir *)q_pop(&redirs);
+		r = (t_redir *)redirs->content;
 		ft_strlcpy(file_name, r->fd.s, r->fd.len + 1);
 		if (r->type == REDIR_INPUT)
 		{
@@ -117,8 +119,7 @@ static int	set_redirs(t_queue *redirs, t_redir *last_input_ptr, int terminal_fd)
 		}
 		else //teoricamente isto não deve acontecer
 			ft_fprintf(ERROR, "error\n");
-		printf("freeing: %p\n", r);
-		free(r);
+		redirs = redirs->next;
 	}
 	return (0);
 }

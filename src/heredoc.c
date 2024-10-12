@@ -23,7 +23,7 @@ int heredoc(char *delimiter, bool is_last_redir, int terminal_fd)
 			write(write_fd, input, ft_strlen(input));
 			write(write_fd, "\n", 1);
 		}
-		free(input);
+		freen((void *)&input);
 	}
 	if (is_last_redir)
 	{

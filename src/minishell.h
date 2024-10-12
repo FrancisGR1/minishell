@@ -61,7 +61,7 @@ struct s_command
 {
 	t_string binary;
 	t_string *args;
-	t_queue *redirs;
+	t_list *redirs;
 	t_redir *last_input_ptr;
 	bool has_heredoc;
 };
@@ -72,6 +72,9 @@ struct s_terminal
 	size_t cmds_num;
 	int terminal_fd;
 };
+
+extern t_redir *redir_ptrs_DELETE[1000];
+extern int redir_i;
 
 //parse
 t_cmd *parse(t_string input, t_terminal *t);

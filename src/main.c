@@ -5,6 +5,10 @@ static void reset_term(t_terminal **t);
 
 int g_sig_received = 0;
 
+
+t_redir *redir_ptrs_DELETE[1000];
+int redir_i = 0;
+
 int main(void)
 { 
 
@@ -41,6 +45,20 @@ int main(void)
 	rl_clear_history();
 	close(t->terminal_fd);
 	free(t);
+	//int i = 0;
+//	while (redir_ptrs_DELETE[i])
+//	{
+//		if (redir_ptrs_DELETE[i])
+//		{
+//			printf("not null (%p)\n", redir_ptrs_DELETE[i]);
+//		printf("freeing: %p\n", redir_ptrs_DELETE[i]);
+//			free(redir_ptrs_DELETE[i]);
+//		}
+//
+//		else
+//			printf("member %d null (%p)\n", i, redir_ptrs_DELETE[i]);
+//		i++;
+//	}
 }
 static t_terminal *init_term(void)
 {
@@ -67,7 +85,7 @@ static void reset_term(t_terminal **t)
 		while (i < (*t)->cmds_num)
 		{
 			free((*t)->cmds[i].args);
-			q_destroy(&(*t)->cmds[i].redirs, NULL);
+			ft_lstclear(&(*t)->cmds[i].redirs, free);
 			i++;
 		}
 		free((*t)->cmds);

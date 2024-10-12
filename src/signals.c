@@ -9,6 +9,7 @@ void load_signals(void)
 {
 	struct sigaction sa;
 
+	sigemptyset(&sa.sa_mask);
 	signal(SIGQUIT, SIG_IGN);
 	sa.sa_flags = SA_SIGINFO | SA_RESTART;
 	sa.sa_sigaction = signals_handler;
