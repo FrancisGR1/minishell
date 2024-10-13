@@ -18,6 +18,7 @@ int main(void)
 	while (true)
 	{
 		input = readline("minishell> ");
+		printf("ur input %s\n", input);
 		input_cpy = cstr_to_str(input);
 		if (!input_cpy.s)
 		{
@@ -37,13 +38,12 @@ int main(void)
 		cmds = parse(input_cpy, t);
 		ft_fprintf(ERROR, "PARSING DONE\n");
 		if (cmds)
-			;//exec(cmds, t);
+			exec(cmds, t);
 		else
 			ft_fprintf(ERROR, "Format error\n");
 		t->cmds = cmds;
 		reset_term(&t);
 		freen((void *)&input_cpy.s);
-		break ;
 	}
 	rl_clear_history();
 	close(t->terminal_fd);

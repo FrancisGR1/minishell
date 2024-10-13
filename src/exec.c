@@ -58,8 +58,13 @@ int exec(t_cmd *cmds, t_terminal *t)
 				close(fds[j][0]);
 				close(fds[j][1]);
 			}
-			//debug_fds(ft_itoa(getppid()));
-			execvp(args[i][0], args[i]); //substituir por execve
+			if (execvp(args[i][0], args[i]) == -1) //substituir por execve
+			{
+				if (errno == ENOENT)
+					ft_fprintf(ERROR, "%s: Command not found\n", args[i][0]);
+				else
+					perror(args[i][0]);
+			}
 		}
 		subprocesses[i] = pid;
 		if (cmds[i].has_heredoc)

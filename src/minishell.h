@@ -14,10 +14,13 @@
 //open() 
 #include <fcntl.h> 
 
+//error handling
+#include <errno.h>
+
 //Our LIB
 #include "../libft/libft.h"
 
-//Variável global com último valor de saída
+//Variável global com último valor de sinal recebido 
 extern int g_sig_received;
 
 //Delimiter codes
