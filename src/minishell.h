@@ -73,9 +73,6 @@ struct s_terminal
 	int terminal_fd;
 };
 
-extern t_redir *redir_ptrs_DELETE[1000];
-extern int redir_i;
-
 //parse
 t_cmd *parse(t_string input, t_terminal *t);
 

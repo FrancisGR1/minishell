@@ -24,13 +24,34 @@ t_cmd *parse(t_string input, t_terminal *t)
 			t->cmds_num++;
 		idx++;
 	}
+	if (quote)
+	{
+		ft_fprintf(ERROR, "Quotes unclosed\n");
+		return (NULL);
+	}
 	cmds = malloc((t->cmds_num + 1) * sizeof(t_cmd));
 	pipe_sides = string_split(input, "\1");
+	if (!pipe_sides)
+	{
+		free(cmds);
+		free(pipe_sides);
+		ft_fprintf(ERROR, "Missing command\n");
+		return (NULL);
+	}
 	idx = 0;
 	while (idx < t->cmds_num)
 	{
-		t_dynamic_array *ptrs = string_findall(pipe_sides[idx], "\2\3");
+		t_dynamic_array *redir_ptrs = string_findall(pipe_sides[idx], "\2\3");
 		t_string *args_ptr = string_split(pipe_sides[idx], DELIMITERS);
+		if (!args_ptr)
+		{
+			free(cmds);
+			free(pipe_sides);
+			darr_free(redir_ptrs);
+			free(args_ptr);
+			ft_fprintf(ERROR, "Missing command\n");
+			return (NULL);
+		}
 		size_t tmp_n = 0;
 		while (args_ptr && args_ptr[tmp_n].s)
 			tmp_n++;
@@ -40,18 +61,28 @@ t_cmd *parse(t_string input, t_terminal *t)
 		i = 0;
 		cmds[idx].redirs = NULL;
 		cmds[idx].has_heredoc = false;
-		//trata das redireções
-		while (ptrs && i < ptrs->len)
+		//Redireções
+		while (redir_ptrs && i < redir_ptrs->len)
 		{
-			t_string ptr = ((t_string *)ptrs->data)[i];
+			t_string ptr = ((t_string *)redir_ptrs->data)[i];
 			size_t tmp_idx = 0;
-			//como é que raio isto está a dar leaks?????
 			t_redir *redir = malloc(sizeof(t_redir));
-			printf("stored: %p\n", (void *)redir);
-			printf("redir alloced: %p\n", redir);
 			while (args_ptr[tmp_idx].s && args_ptr[tmp_idx].s < ptr.s)
 				tmp_idx++;
 			redir->fd = args_ptr[tmp_idx];
+			if (!redir->fd.s)
+			{
+				free(pipe_sides);
+				darr_free(redir_ptrs);
+				free(args_ptr);
+				free(redir);
+				for (int i = idx; i >= 0; i--)
+					ft_lstclear(&cmds[i].redirs, free);
+				free(cmds);
+				ft_fprintf(ERROR, "No redirection file\n");
+				return (NULL);
+
+			}
 			if (*ptr.s == '\2' && *(ptr.s + 1) == '\2')
 			{
 				redir->type = REDIR_HEREDOC;
@@ -73,7 +104,6 @@ t_cmd *parse(t_string input, t_terminal *t)
 				redir->type = REDIR_OUTPUT;
 			else
 				redir->type = -1;
-			printf("redir pushing..\n");
 			ft_lstadd_back(&cmds[idx].redirs, ft_lstnew(redir));
 			ft_memmove(&args_ptr[tmp_idx], &args_ptr[tmp_idx + 1], (last_idx + 1 - tmp_idx) * (sizeof(t_string)));
 			args_ptr[last_idx--].s = NULL;
@@ -89,7 +119,17 @@ t_cmd *parse(t_string input, t_terminal *t)
 		//for (int i = 0; cmds[i].binary.s; i++)
 		//	for (int j = 0; cmds[i].args[j].s; j++)
 		//		ft_fprintf(STDOUT, "%S\n", cmds[i].args[j]);
-		darr_free(ptrs);
+		darr_free(redir_ptrs);
+		if (!cmds[idx].binary.s)
+		{
+			free(pipe_sides);
+			free(args_ptr);
+			for (int i = idx; i >= 0; i--)
+				ft_lstclear(&cmds[i].redirs, free);
+			free(cmds);
+			ft_fprintf(ERROR, "No command\n");
+			return (NULL);
+		}
 		idx++;
 	}
 	cmds[idx].binary = new_str(NULL);

@@ -5,10 +5,6 @@ static void reset_term(t_terminal **t);
 
 int g_sig_received = 0;
 
-
-t_redir *redir_ptrs_DELETE[1000];
-int redir_i = 0;
-
 int main(void)
 { 
 
@@ -25,40 +21,33 @@ int main(void)
 		input_cpy = cstr_to_str(input);
 		if (!input_cpy.s)
 		{
-			free(input_cpy.s);
+			freen((void *)&input_cpy.s);
+			reset_term(&t);
 			break ;
 		}
 		if (g_sig_received)
 		{
-			free(input_cpy.s);
+			freen((void *)&input_cpy.s);
 			g_sig_received = 0;
+			reset_term(&t);
 			continue ;
 		}
 		add_history(input);
 		free(input);
 		cmds = parse(input_cpy, t);
-		exec(cmds, t);
+		ft_fprintf(ERROR, "PARSING DONE\n");
+		if (cmds)
+			;//exec(cmds, t);
+		else
+			ft_fprintf(ERROR, "Format error\n");
 		t->cmds = cmds;
 		reset_term(&t);
 		freen((void *)&input_cpy.s);
+		break ;
 	}
 	rl_clear_history();
 	close(t->terminal_fd);
 	free(t);
-	//int i = 0;
-//	while (redir_ptrs_DELETE[i])
-//	{
-//		if (redir_ptrs_DELETE[i])
-//		{
-//			printf("not null (%p)\n", redir_ptrs_DELETE[i]);
-//		printf("freeing: %p\n", redir_ptrs_DELETE[i]);
-//			free(redir_ptrs_DELETE[i]);
-//		}
-//
-//		else
-//			printf("member %d null (%p)\n", i, redir_ptrs_DELETE[i]);
-//		i++;
-//	}
 }
 static t_terminal *init_term(void)
 {

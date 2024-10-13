@@ -1,5 +1,5 @@
 NAME = minishell
-DEBUG = -g3
+DEBUG = -g3 #-DDEBUG_REPLACE=1
 CFLAGS = -Wall -Werror -Wextra $(DEBUG)
 LDFLAGS = -lreadline
 OPTIMIZE = -03
