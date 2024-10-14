@@ -26,7 +26,8 @@ t_cmd *parse(t_string input, t_terminal *t)
 	}
 	if (quote)
 	{
-		ft_fprintf(ERROR, "Quotes unclosed\n");
+		ft_fprintf(ERROR, "Format error: Quotes unclosed\n");
+		t->exit_code = 2;
 		return (NULL);
 	}
 	cmds = malloc((t->cmds_num + 1) * sizeof(t_cmd));
@@ -35,7 +36,8 @@ t_cmd *parse(t_string input, t_terminal *t)
 	{
 		free(cmds);
 		free(pipe_sides);
-		ft_fprintf(ERROR, "Missing command\n");
+		//não é erro. Só não tem input
+		t->exit_code = 0;
 		return (NULL);
 	}
 	idx = 0;
@@ -49,7 +51,8 @@ t_cmd *parse(t_string input, t_terminal *t)
 			free(pipe_sides);
 			darr_free(redir_ptrs);
 			free(args_ptr);
-			ft_fprintf(ERROR, "Missing command\n");
+			t->exit_code = 2;
+			ft_fprintf(ERROR, "Format error: Missing command\n");
 			return (NULL);
 		}
 		size_t tmp_n = 0;
@@ -79,7 +82,8 @@ t_cmd *parse(t_string input, t_terminal *t)
 				for (int i = idx; i >= 0; i--)
 					ft_lstclear(&cmds[i].redirs, free);
 				free(cmds);
-				ft_fprintf(ERROR, "No redirection file\n");
+				ft_fprintf(ERROR, "Format error: No redirection file\n");
+				t->exit_code = 2;
 				return (NULL);
 
 			}
@@ -127,7 +131,8 @@ t_cmd *parse(t_string input, t_terminal *t)
 			for (int i = idx; i >= 0; i--)
 				ft_lstclear(&cmds[i].redirs, free);
 			free(cmds);
-			ft_fprintf(ERROR, "No command\n");
+			ft_fprintf(ERROR, "Format error: No command\n");
+			t->exit_code = 2;
 			return (NULL);
 		}
 		idx++;

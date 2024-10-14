@@ -1,49 +1,45 @@
 #include "minishell.h"
 
 static t_terminal *init_term(void);
-static void reset_term(t_terminal **t);
 
 int g_sig_received = 0;
 
 int main(void)
 { 
 
-	t_cmd *cmds;
 	char *input;
-	t_string input_cpy;
 	t_terminal *t;
 
 	t = init_term();
 	load_signals();
 	while (true)
 	{
+		printf("exit code: %d\n", t->exit_code);
 		input = readline("minishell> ");
-		printf("ur input %s\n", input);
-		input_cpy = cstr_to_str(input);
-		if (!input_cpy.s)
+		t->input_cpy = cstr_to_str(input);
+		if (!t->input_cpy.s)
 		{
-			freen((void *)&input_cpy.s);
+			freen((void *)&t->input_cpy.s);
 			reset_term(&t);
 			break ;
 		}
 		if (g_sig_received)
 		{
-			freen((void *)&input_cpy.s);
-			g_sig_received = 0;
+			freen((void *)&t->input_cpy.s);
 			reset_term(&t);
+			t->exit_code = 130;
+			g_sig_received = 0;
 			continue ;
 		}
 		add_history(input);
 		free(input);
-		cmds = parse(input_cpy, t);
-		ft_fprintf(ERROR, "PARSING DONE\n");
-		if (cmds)
-			exec(cmds, t);
+		t->cmds = parse(t->input_cpy, t);
+		if (t->cmds)
+			t->exit_code = exec(t->cmds, t);
 		else
-			ft_fprintf(ERROR, "Format error\n");
-		t->cmds = cmds;
+		{};/*não faz nada*///ft_fprintf(ERROR, "Format error\n");
 		reset_term(&t);
-		freen((void *)&input_cpy.s);
+		freen((void *)&t->input_cpy.s);
 	}
 	rl_clear_history();
 	close(t->terminal_fd);
@@ -57,11 +53,12 @@ static t_terminal *init_term(void)
 	t->cmds = NULL;
 	t->cmds_num = 1;
 	t->terminal_fd = dup(STDOUT);
+	t->exit_code = 0;
 	rl_catch_signals = 1;
 	return (t);
 }
 
-static void reset_term(t_terminal **t)
+void reset_term(t_terminal **t)
 {
 	size_t i;
 

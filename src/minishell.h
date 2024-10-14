@@ -74,6 +74,8 @@ struct s_terminal
 	t_cmd *cmds;
 	size_t cmds_num;
 	int terminal_fd;
+	int exit_code;
+	t_string input_cpy;
 };
 
 //parse
@@ -84,6 +86,9 @@ int exec(t_cmd *cmds, t_terminal *t);
 
 //redirection: heredoc
 int heredoc(char *delimiter, bool is_last_redir, int terminal_fd);
+
+//main struct utils
+void reset_term(t_terminal **t);
 
 //debug utils
 void debug_fds(const char *message);
