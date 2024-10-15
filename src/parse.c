@@ -2,6 +2,8 @@
 
 static void substitute_seps(char *cmd, bool inside_quotes);
 static int handle_quotes(t_string *s);
+static void write_path(char dest[], char *src);
+static char *rand_string(void);
 
 t_cmd *parse(t_string input, t_terminal *t)
 {
@@ -113,16 +115,19 @@ t_cmd *parse(t_string input, t_terminal *t)
 			args_ptr[last_idx--].s = NULL;
 			i++;
 		}
+		if (cmds[idx].last_input_ptr && cmds[idx].last_input_ptr->type != REDIR_HEREDOC)
+			cmds[idx].heredoc_file[0] = '\0';
+		else
+		{
+			write_path(cmds[idx].heredoc_file, rand_string());
+			printf("%s\n", cmds[idx].heredoc_file);
+		}
 		cmds[idx].binary = args_ptr[0];
 		cmds[idx].args = args_ptr;
 		handle_quotes(cmds[idx].args);
 		//AFAZER: expandir aqui
 		//NOTA: posso tornar o handle quotes e a expansão num só loop
 		//
-		//printing debug de argumentos:
-		//for (int i = 0; cmds[i].binary.s; i++)
-		//	for (int j = 0; cmds[i].args[j].s; j++)
-		//		ft_fprintf(STDOUT, "%S\n", cmds[i].args[j]);
 		darr_free(redir_ptrs);
 		if (!cmds[idx].binary.s)
 		{
@@ -192,4 +197,43 @@ static void substitute_seps(char *cmd, bool inside_quotes)
 	else if (*cmd == ' ')
 		*cmd = SPACE;
 	return ;
+}
+
+
+static void write_path(char dest[], char *src)
+{
+	const char *current_path = (const char *)getcwd(NULL, 0);
+	const size_t current_path_size = ft_strlen(current_path);
+	const size_t src_size = ft_strlen(src);
+	const size_t total_size = current_path_size + src_size + 1;
+
+	if (!current_path || total_size >= PATH_MAX ||
+		ft_strlcpy(dest, current_path, current_path_size + 1) == 0 )
+	{
+		dest[0] = '\0';
+		return ;
+	}
+	ft_strlcat(dest, "/", current_path_size + 2);
+	ft_strlcat(dest, src, current_path_size + 2 + src_size);
+	return ;
+}
+
+int ft_rand(void) 
+{
+	static unsigned long next = 1;
+	next = next * 1103515245 + 12345;
+	return((unsigned)(next/65536) % 32768);
+}
+
+//Esta função é horrível mas para os meus propósitos é mais do que suficiente
+static char *rand_string(void)
+{
+	static char rs[21];
+	int i;
+
+	i = 0;
+	while (i < 30)
+		rs[i++] = ft_rand() % 25 + 97;
+	rs[i] = '\0';
+	return (rs);
 }

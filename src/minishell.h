@@ -67,6 +67,7 @@ struct s_command
 	t_list *redirs;
 	t_redir *last_input_ptr;
 	bool has_heredoc;
+	char heredoc_file[PATH_MAX];
 };
 
 struct s_terminal
@@ -85,7 +86,7 @@ t_cmd *parse(t_string input, t_terminal *t);
 int exec(t_cmd *cmds, t_terminal *t);
 
 //redirection: heredoc
-int heredoc(char *delimiter, bool is_last_redir, int terminal_fd);
+int heredoc(char *delimiter, bool is_last_redir, char *heredoc_file);
 
 //main struct utils
 void reset_term(t_terminal **t);
@@ -95,10 +96,6 @@ void debug_fds(const char *message);
 
 //signals
 void load_signals(void);
-void load_signals_2();
 void signals_handler(int signum, siginfo_t *inf, void *ctx);
-void signals_handler_2(int signum, siginfo_t *inf, void *ctx);
-void load_signals_subprocess(void);
-void signals_handler_subprocess(int signum, siginfo_t *inf, void *ctx);
 
 #endif /*MINISHELL_H*/

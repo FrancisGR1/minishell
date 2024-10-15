@@ -1,7 +1,7 @@
 #include "minishell.h"
 
 static char ***get_args(t_cmd *cmds, size_t size);
-static int	set_redirs(t_list *redirs, t_redir *last_input_ptr, int terminal_fd);
+static int	set_redirs(t_list *redirs, t_redir *last_input_ptr, char *heredoc_file);
 static void free_args(char ***args);
 
 
@@ -31,7 +31,6 @@ int exec(t_cmd *cmds, t_terminal *t)
 	//criacao do ficheiro temporario
 	//nota: abordagem de implementacao rapida,
 	//enrobustecer a criacao do ficheiro no futuro
-	int out_fd = open("tmp", O_CREAT, 0600);  //substituir tmp por gerador de strings aleat
 	i = 0;
 	while (cmds[i].binary.s)
 	{
@@ -54,7 +53,7 @@ int exec(t_cmd *cmds, t_terminal *t)
 				dup2(fds[i - 1][PIPE_READ], STDIN);
 				dup2(fds[i][PIPE_WRITE], STDOUT);
 			}
-			if (set_redirs(cmds[i].redirs, cmds[i].last_input_ptr, t->terminal_fd) == -1)
+			if (set_redirs(cmds[i].redirs, cmds[i].last_input_ptr, cmds[i].heredoc_file) == -1)
 				should_exit = true;
 			j = -1;
 			while (++j < command_c)
@@ -65,7 +64,6 @@ int exec(t_cmd *cmds, t_terminal *t)
 			if (should_exit)
 			{
 				close(t->terminal_fd);
-				close(out_fd);
 				free_args(args);
 				freen((void *)&t->input_cpy.s);
 				reset_term(&t);
@@ -79,7 +77,6 @@ int exec(t_cmd *cmds, t_terminal *t)
 				else
 					perror(args[i][0]);
 				close(t->terminal_fd);
-				close(out_fd);
 				free_args(args);
 				freen((void *)&t->input_cpy.s);
 				reset_term(&t);
@@ -100,23 +97,23 @@ int exec(t_cmd *cmds, t_terminal *t)
 		close(fds[j][0]);
 		close(fds[j][1]);
 	}
-	close(out_fd);
 	i = 0;
 	while (i < (int) t->cmds_num)
 	{
 		int wstatus = 0;
 		if (!cmds[i].has_heredoc)
 			waitpid(subprocesses[i], &wstatus, 0);
+		else
+			unlink(cmds[i].heredoc_file);
 		if (WIFEXITED(wstatus))
 			exit_code = WEXITSTATUS(wstatus);
 		i++;
 	};
-	unlink("tmp");
 	free_args(args);
 	return (exit_code);
 }
 
-static int	set_redirs(t_list *redirs, t_redir *last_input_ptr, int terminal_fd)
+static int	set_redirs(t_list *redirs, t_redir *last_input_ptr, char *heredoc_file)
 {
 	t_redir *r;
 	int	redir_fd;
@@ -136,7 +133,7 @@ static int	set_redirs(t_list *redirs, t_redir *last_input_ptr, int terminal_fd)
 			close(redir_fd);
 		}
 		else if (r->type == REDIR_HEREDOC)
-			heredoc(file_name, last_input_ptr == r, terminal_fd);
+			redir_fd = heredoc(file_name, last_input_ptr == r, heredoc_file);
 		else if (r->type == REDIR_OUTPUT)
 		{
 			redir_fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC);
@@ -159,7 +156,10 @@ static int	set_redirs(t_list *redirs, t_redir *last_input_ptr, int terminal_fd)
 	}
 	if (redir_fd == -1)
 	{
-		perror(file_name);
+		if (r->type == REDIR_HEREDOC)
+			perror(heredoc_file);
+		else
+			perror(file_name);
 		close(redir_fd);
 		return (-1);
 	}
