@@ -107,11 +107,23 @@ struct s_terminal
 //parse
 t_cmd *parse(t_string input, t_terminal *t);
 
+//parse redirections
+t_redir *new_redir(t_string *args, t_string r_ptr);
+void remove_redirections(t_parser_buffer *pb, t_cmd *cmds);
+bool get_redir(t_parser_buffer *pb, t_cmd *cmds, int *redir_idx);
+void define_redir_type(t_redir *redir, t_string r_ptr, t_cmd *cmds, int *redir_idx);
+
 //execution
 int exec(t_cmd *cmds, t_terminal *t);
 
+//redirections
+int	set_redirs(t_list *redirs, char *heredoc_file, int terminal_fd);
+int redir_error(t_redir *r, char *heredoc_file, char *file_name);
+void open_and_redirect(char *file, int flags, int fd_from, bool *open_error);
+
 //redirection: heredoc
 void heredoc(char *delimiter, char *heredoc_file, bool *open_error, int terminal_fd);
+void write_path(char dest[], char *src);
 
 //terminal struct utils
 t_terminal *init_term(void);
@@ -121,6 +133,17 @@ void destroy_term(t_terminal **t);
 //signals
 void load_signals(void);
 void signals_handler(int signum, siginfo_t *inf, void *ctx);
+
+//errors and memory management
+void *free_on_error(int exit_code, char *error_message, t_parser_buffer *pb);
+void freexit(int exit_code, t_cmd *cmds, t_terminal *t);
+void free_cmd_args(t_cmd *cmds, int commands);
+void alloc_args(t_cmd *cmds, int size);
+
+//initializers
+void init_redirs(t_parser_buffer *pb, size_t idx);
+void init_parser(t_parser_buffer *pb, t_terminal *t);
+void init_pipes(int fds[][2], int cmds_num);
 
 //debug utils
 void debug_fds(const char *message);

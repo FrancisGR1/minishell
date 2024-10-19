@@ -22,9 +22,29 @@ void heredoc(char *delimiter, char *heredoc_file, bool *open_error, int terminal
 		ft_putendl_fd(input, write_fd);
 		freen((void *)&input);
 	}
-	freen((void *)&input);
 	close(write_fd);
 	read_fd = open(heredoc_file, O_RDONLY);
 	dup2(read_fd, STDIN);
 	close(read_fd);
 }
+
+void write_path(char dest[], char *src)
+{
+	const char *current_path = (const char *)getcwd(NULL, 0);
+	const size_t current_path_size = ft_strlen(current_path);
+	const size_t src_size = ft_strlen(src);
+	const size_t total_size = current_path_size + src_size + 1;
+
+	if (!current_path || total_size >= PATH_MAX ||
+			ft_strlcpy(dest, current_path, current_path_size + 1) == 0 )
+	{
+		dest[0] = '\0';
+		free((char *)current_path);
+		return ;
+	}
+	free((char *)current_path);
+	ft_strlcat(dest, "/", current_path_size + 2);
+	ft_strlcat(dest, src, current_path_size + 2 + src_size);
+	return ;
+}
+
