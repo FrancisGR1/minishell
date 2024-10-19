@@ -1,204 +1,77 @@
 #include "minishell.h"
 
-static void substitute_seps(char *cmd, bool inside_quotes);
-static int handle_quotes(t_string *s);
-static void write_path(char dest[], char *src);
+bool format_args(t_parser_buffer *pb, t_cmd *cmds, int *redir_idx);
+void init_redirs(t_parser_buffer *pb, size_t idx);
+void init_parser(t_parser_buffer *pb, t_terminal *t);
+bool set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr);
+void *free_on_error(int exit_code, char *error_message, t_parser_buffer *pb);
+int mark_special_characters(t_string input, size_t *cmds_num);
+void remove_redirections(t_parser_buffer *pb, t_cmd *cmds);
+bool get_redir(t_parser_buffer *pb, t_cmd *cmds, int *redir_idx);
+void define_redir_type(t_redir *redir, t_string r_ptr, t_cmd *cmds, int *redir_idx);
+t_redir *new_redir(t_string *args, t_string r_ptr);
+static int remove_quotes(t_string arg);
+
+//retirar do ficheiro
+int ft_rand(void);
 static char *rand_string(void);
+static void write_path(char dest[], char *src);
 
 t_cmd *parse(t_string input, t_terminal *t)
 {
-	size_t idx;
-	size_t i;
-	t_cmd *cmds;
-	t_string *pipe_sides;
-	char quote;
+	t_parser_buffer pb;
 
-	idx = 0;
-	quote = '\0';
-	while (idx < input.len)
+	init_parser(&pb, t);
+	if (!!mark_special_characters(input, &t->cmds_num))
+		return (free_on_error(WRONG_FORMAT, "Format error: Quotes unclosed", &pb));
+	pb.cmds = malloc((t->cmds_num + 1) * sizeof(t_cmd));
+	pb.pipe_sides = string_split(input, "\1");
+	if (!pb.pipe_sides)
+		return (free_on_error(NO_INPUT, NULL, &pb));
+	while (++pb.idx < (int) t->cmds_num)
 	{
-		if (!quote && (input.s[idx] == '\'' || input.s[idx] == '\"'))
-			quote = input.s[idx];
-		else if (input.s[idx] == quote)
-			quote = '\0';
-		substitute_seps(&input.s[idx], quote);
-		if (input.s[idx] == PIPE)
-			t->cmds_num++;
-		idx++;
+		pb.args_ptr = string_split(pb.pipe_sides[pb.idx], DELIMITERS);
+		if (!pb.args_ptr)
+			return (free_on_error(WRONG_FORMAT, "Format error: Missing command", &pb));
+		init_redirs(&pb, pb.idx);
+		while (pb.redir_ptrs && ++pb.redir_idx < (int) pb.redir_ptrs->len)
+			if (!format_args(&pb, pb.cmds, &pb.redir_idx))
+				return (free_on_error(WRONG_FORMAT, "Format error: No redirection file", &pb));
+		if (!set_cmd(pb.cmds, pb.idx, pb.args_ptr))
+			return (free_on_error(WRONG_FORMAT, "Format error: No command", &pb));
+		darr_free(pb.redir_ptrs);
 	}
-	if (quote)
-	{
-		ft_fprintf(ERROR, "Format error: Quotes unclosed\n");
-		t->exit_code = 2;
-		return (NULL);
-	}
-	cmds = malloc((t->cmds_num + 1) * sizeof(t_cmd));
-	pipe_sides = string_split(input, "\1");
-	if (!pipe_sides)
-	{
-		free(cmds);
-		free(pipe_sides);
-		//não é erro. Só não tem input
-		t->exit_code = 0;
-		return (NULL);
-	}
-	idx = 0;
-	while (idx < t->cmds_num)
-	{
-		t_dynamic_array *redir_ptrs = string_findall(pipe_sides[idx], "\2\3");
-		t_string *args_ptr = string_split(pipe_sides[idx], DELIMITERS);
-		if (!args_ptr)
-		{
-			free(cmds);
-			free(pipe_sides);
-			darr_free(redir_ptrs);
-			free(args_ptr);
-			t->exit_code = 2;
-			ft_fprintf(ERROR, "Format error: Missing command\n");
-			return (NULL);
-		}
-		size_t tmp_n = 0;
-		while (args_ptr && args_ptr[tmp_n].s)
-			tmp_n++;
-		size_t last_idx = 0;
-		if (tmp_n > 0)
-			last_idx = tmp_n - 1;
-		i = 0;
-		cmds[idx].redirs = NULL;
-		cmds[idx].has_heredoc = false;
-		//Redireções
-		while (redir_ptrs && i < redir_ptrs->len)
-		{
-			t_string ptr = ((t_string *)redir_ptrs->data)[i];
-			size_t tmp_idx = 0;
-			t_redir *redir = malloc(sizeof(t_redir));
-			while (args_ptr[tmp_idx].s && args_ptr[tmp_idx].s < ptr.s)
-				tmp_idx++;
-			redir->fd = args_ptr[tmp_idx];
-			if (!redir->fd.s)
-			{
-				free(pipe_sides);
-				darr_free(redir_ptrs);
-				free(args_ptr);
-				free(redir);
-				for (int i = idx; i >= 0; i--)
-					ft_lstclear(&cmds[i].redirs, free);
-				free(cmds);
-				ft_fprintf(ERROR, "Format error: No redirection file\n");
-				t->exit_code = 2;
-				return (NULL);
-
-			}
-			if (*ptr.s == '\2' && *(ptr.s + 1) == '\2')
-			{
-				redir->type = REDIR_HEREDOC;
-				cmds[idx].last_input_ptr = redir;
-				cmds[idx].has_heredoc = true;
-				i++;
-			}
-			else if (*ptr.s == '\3' && *(ptr.s + 1) == '\3')
-			{
-				redir->type = REDIR_APPEND;
-				i++;
-			}
-			else if (*ptr.s == '\2')
-			{
-				redir->type = REDIR_INPUT;
-				cmds[idx].last_input_ptr = redir;
-			}
-			else if (*ptr.s == '\3')
-				redir->type = REDIR_OUTPUT;
-			else
-				redir->type = -1;
-			ft_lstadd_back(&cmds[idx].redirs, ft_lstnew(redir));
-			ft_memmove(&args_ptr[tmp_idx], &args_ptr[tmp_idx + 1], (last_idx + 1 - tmp_idx) * (sizeof(t_string)));
-			args_ptr[last_idx--].s = NULL;
-			i++;
-		}
-		if (cmds[idx].last_input_ptr && cmds[idx].last_input_ptr->type != REDIR_HEREDOC)
-			cmds[idx].heredoc_file[0] = '\0';
-		else
-		{
-			write_path(cmds[idx].heredoc_file, rand_string());
-			printf("%s\n", cmds[idx].heredoc_file);
-		}
-		cmds[idx].binary = args_ptr[0];
-		cmds[idx].args = args_ptr;
-		handle_quotes(cmds[idx].args);
-		//AFAZER: expandir aqui
-		//NOTA: posso tornar o handle quotes e a expansão num só loop
-		//
-		darr_free(redir_ptrs);
-		if (!cmds[idx].binary.s)
-		{
-			free(pipe_sides);
-			free(args_ptr);
-			for (int i = idx; i >= 0; i--)
-				ft_lstclear(&cmds[i].redirs, free);
-			free(cmds);
-			ft_fprintf(ERROR, "Format error: No command\n");
-			t->exit_code = 2;
-			return (NULL);
-		}
-		idx++;
-	}
-	cmds[idx].binary = new_str(NULL);
-	free(pipe_sides);
-	return (cmds);
+	pb.cmds[pb.idx].binary = new_str(NULL);
+	free(pb.pipe_sides);
+	return (pb.cmds);
 }
 
-static int handle_quotes(t_string *args)
+static int remove_quotes(t_string arg)
 {
-	size_t i;
 	size_t j;
 	size_t k;
 	char quote;
 
-	i = 0;
-	while (args[i].s)
+	j = 0;
+	k = 0;
+	quote = '\0';
+	while (j < arg.len)
 	{
-		j = 0;
-		k = 0;
-		quote = '\0';
-		while (j < args[i].len)
+		if (!quote && (arg.s[j] == '\'' || arg.s[j] == '\"'))
+			quote = arg.s[j];
+		else if (quote && arg.s[j] == quote)
+			quote = '\0';
+		else
 		{
-			if (!quote && (args[i].s[j] == '\'' || args[i].s[j] == '\"'))
-			{
-				quote = args[i].s[j];
-			}
-			else if (quote && args[i].s[j] == quote)
-			{
-				quote = '\0';
-			}
-			else
-			{
-				args[i].s[k] = args[i].s[j];
-				k++;
-			}
-			j++;
+			arg.s[k] = arg.s[j];
+			k++;
 		}
-		args[i].len -= j - k;
-		args[i].end -= j - k;
-		i++;
+		j++;
 	}
+	arg.len -= j - k;
+	arg.end -= j - k;
 	return (0);
 }
-
-static void substitute_seps(char *cmd, bool inside_quotes)
-{
-	if (!cmd || inside_quotes)
-		return ;
-	if (*cmd == '<')
-		*cmd = LESS;
-	else if (*cmd == '>')
-		*cmd = MORE;
-	else if (*cmd == '|')
-		*cmd = PIPE;
-	else if (*cmd == ' ')
-		*cmd = SPACE;
-	return ;
-}
-
 
 static void write_path(char dest[], char *src)
 {
@@ -208,16 +81,19 @@ static void write_path(char dest[], char *src)
 	const size_t total_size = current_path_size + src_size + 1;
 
 	if (!current_path || total_size >= PATH_MAX ||
-		ft_strlcpy(dest, current_path, current_path_size + 1) == 0 )
+			ft_strlcpy(dest, current_path, current_path_size + 1) == 0 )
 	{
 		dest[0] = '\0';
+		free((char *)current_path);
 		return ;
 	}
+	free((char *)current_path);
 	ft_strlcat(dest, "/", current_path_size + 2);
 	ft_strlcat(dest, src, current_path_size + 2 + src_size);
 	return ;
 }
 
+//Esta função é horrível mas para os meus propósitos é mais do que suficiente
 int ft_rand(void) 
 {
 	static unsigned long next = 1;
@@ -225,15 +101,205 @@ int ft_rand(void)
 	return((unsigned)(next/65536) % 32768);
 }
 
-//Esta função é horrível mas para os meus propósitos é mais do que suficiente
 static char *rand_string(void)
 {
-	static char rs[21];
+	static char rs[20];
 	int i;
 
 	i = 0;
-	while (i < 30)
+	while (i < 20)
 		rs[i++] = ft_rand() % 25 + 97;
 	rs[i] = '\0';
 	return (rs);
+}
+
+t_redir *new_redir(t_string *args, t_string r_ptr)
+{
+	int i;
+	t_redir *redir;
+
+	i = 0;
+	redir = malloc(sizeof(t_redir));
+	if (!redir)
+		return (NULL);
+	while (args[i].s && args[i].s < r_ptr.s)
+		i++;
+	redir->fd = args[i];
+	redir->location = i;
+	return (redir);
+}
+
+void define_redir_type(t_redir *redir, t_string r_ptr, t_cmd *cmds, int *redir_idx)
+{
+	if (!r_ptr.s)
+		return ;
+	if (*r_ptr.s == LESS && *(r_ptr.s + 1) == LESS)
+	{
+		redir->type = REDIR_HEREDOC;
+		cmds->last_input_ptr = redir;
+		cmds->has_heredoc = true;
+		(*redir_idx)++;
+	}
+	else if (*r_ptr.s == MORE && *(r_ptr.s + 1) == MORE)
+	{
+		redir->type = REDIR_APPEND;
+		(*redir_idx)++;
+	}
+	else if (*r_ptr.s == LESS)
+	{
+		redir->type = REDIR_INPUT;
+		cmds->last_input_ptr = redir;
+	}
+	else if (*r_ptr.s == MORE)
+		redir->type = REDIR_OUTPUT;
+	else
+		redir->type = -1;
+}
+
+
+bool get_redir(t_parser_buffer *pb, t_cmd *cmds, int *redir_idx)
+{
+	t_redir *redir;
+
+	pb->redir_ptr = &(((t_string *)pb->redir_ptrs->data)[*redir_idx]);
+	//printf("redir info:\n\tinfo: %s\n\tsize: %zu\n", pb->redir_ptr->s, pb->redir_ptr->len);
+	redir = new_redir(pb->args_ptr, *pb->redir_ptr);
+	define_redir_type(redir, *pb->redir_ptr, cmds, redir_idx);
+	//printf("redir info 2:\n\tdelimiter: %s\n\ttype: %d\n", redir->fd.s, redir->type);
+	if (!redir || !redir->fd.s)
+		return (false);
+	ft_lstadd_back(&cmds->redirs, ft_lstnew(redir));
+	return (true);
+}
+
+void remove_redirections(t_parser_buffer *pb, t_cmd *cmds)
+{
+	size_t i;
+	size_t argc;
+	size_t nbytes;
+	t_string r_ptr;
+
+	if (!pb || !cmds || !pb->args_ptr)
+		return ;
+	i = 0;
+	r_ptr = ((t_string *)(pb->redir_ptrs->data))[pb->redir_idx];
+	while (pb->args_ptr[i].s && pb->args_ptr[i].s < r_ptr.s)
+		i++;
+	argc = 0;
+	while (pb->args_ptr->s && pb->args_ptr[argc].s)
+		argc++;
+	if (argc > 0)
+		argc--;
+	nbytes = (argc + 1 - i) * (sizeof(t_string));
+	ft_memmove(&pb->args_ptr[i], &pb->args_ptr[i + 1], nbytes);
+	pb->args_ptr[argc].s = NULL;
+	//printf("debugging:\n");
+	//debug_args(pb->cmds, pb->t->cmds_num);
+}
+
+int mark_special_characters(t_string input, size_t *cmds_num)
+{
+	char quote;
+	size_t i;
+
+	quote = '\0';
+	i = 0;
+	while (i < input.len)
+	{
+		if (!quote && (input.s[i] == '\'' || input.s[i] == '\"'))
+			quote = input.s[i];
+		else if (input.s[i] == quote)
+			quote = '\0';
+		if (!quote && input.s[i] == '<')
+			input.s[i] = LESS;
+		else if (!quote && input.s[i] == '>')
+			input.s[i] = MORE;
+		else if (!quote && input.s[i] == '|')
+			input.s[i] = PIPE;
+		else if (!quote && input.s[i] == ' ')
+			input.s[i] = SPACE;
+		if (!quote && input.s[i] == PIPE)
+			(*cmds_num)++;
+		i++;
+	}
+	return (quote);
+}
+
+
+void *free_on_error(int exit_code, char *error_message, t_parser_buffer *pb)
+{
+	int i;
+
+	i = pb->idx;
+	if (pb->pipe_sides)
+		freen((void *)&pb->pipe_sides);
+	if (pb->args_ptr)
+		freen((void *)&pb->args_ptr);
+	if (pb->redir_ptrs)
+		darr_free(pb->redir_ptrs);
+	while (i >= 0)
+	{
+		ft_lstclear(&pb->cmds[i].redirs, free);
+		i--;
+	}
+	freen((void *)&pb->cmds);
+	if (error_message)
+		ft_fprintf(ERROR, "%s\n", error_message);
+	pb->t->exit_code = exit_code;
+	return (NULL);
+}
+
+
+bool set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr)
+{
+	size_t i;
+
+	if (cmds[idx].last_input_ptr && cmds[idx].last_input_ptr->type == REDIR_HEREDOC)
+	{
+		write_path(cmds[idx].heredoc_file, rand_string());
+	}
+	cmds[idx].binary = args_ptr[0];
+	cmds[idx].args = args_ptr;
+	if (!cmds[idx].binary.s)
+		return (false);
+	i = 0;
+	while (args_ptr[i].s)
+	{
+		remove_quotes(args_ptr[i]);
+		//AFAZER: expandir aqui
+		//expand(args_ptr[i]);
+		i++;
+	}
+	return (true);
+}
+
+void init_parser(t_parser_buffer *pb, t_terminal *t)
+{
+	pb->pipe_sides = NULL;
+	pb->args_ptr = NULL;
+	pb->redir_ptrs = NULL;
+	pb->idx = -1;
+	pb->redir_idx = -1;
+	pb->cmds = NULL;
+	pb->t = t;
+}
+
+void init_redirs(t_parser_buffer *pb, size_t idx)
+{
+	pb->cmds[idx].redirs = NULL;
+	pb->cmds[idx].last_input_ptr = NULL;
+	pb->cmds[idx].has_heredoc = false;
+	pb->redir_idx = -1;
+	pb->redir_ptrs = string_findall(pb->pipe_sides[idx], "\2\3");
+	pb->redir_ptr = NULL;
+}
+
+bool format_args(t_parser_buffer *pb, t_cmd *cmds, int *redir_idx)
+{
+	if (!get_redir(pb, cmds, redir_idx))
+		return (false);
+	if (cmds)
+		remove_redirections(pb, cmds);
+	//AFAZER: expandir aqui:
+	return (true);
 }
