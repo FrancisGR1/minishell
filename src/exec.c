@@ -1,27 +1,38 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   exec.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/20 00:01:34 by frmiguel          #+#    #+#             */
+/*   Updated: 2024/10/20 00:01:34 by frmiguel         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-static void close_fds(int fds[][2], int cmds_num);
-static void dup2_pipe(int fds[][2], int idx, int last);
-static int wait_subprocesses(pid_t *subprocesses, int commands, t_cmd *cmds);
-static void exec_subprocess(int fds[][2], t_cmd *cmds, int idx, t_terminal *t);
+static void	close_fds(int fds[][2], int cmds_num);
+static void	dup2_pipe(int fds[][2], int idx, int last);
+static int	wait_subprocesses(pid_t *subprocesses, int commands, t_cmd *cmds);
+static void	exec_subprocess(int fds[][2], t_cmd *cmds, int idx, t_terminal *t);
 
-
-int exec(t_cmd *cmds, t_terminal *t)
+int	exec(t_cmd *cmds, t_terminal *t)
 {
-	const int command_c = t->cmds_num - 1;
-	int fds[t->cmds_num][2];
-	pid_t pids[t->cmds_num];
-	int i;
+	int	command_c = t->cmds_num - 1;
+	int			fds[t->cmds_num][2];
+	pid_t		pids[t->cmds_num];
+	int			i;
 
 	init_pipes(fds, command_c);
-	i = 0;
 	alloc_args(cmds, t->cmds_num);
-	while (i < (int) t->cmds_num)
+	i = 0;
+	while (i < (int)t->cmds_num)
 	{
 		pids[i] = fork();
 		if (pids[i] == SUBPROCESS)
 		{
-			signal(SIGSEGV, catch_subprocess_segv); //temporário para detetar segfaults
+			signal(SIGSEGV, catch_subprocess_segv);	// temporário para detetar segfaults 
 			exec_subprocess(fds, cmds, i, t);
 		}
 		if (cmds[i].has_heredoc)
@@ -30,32 +41,32 @@ int exec(t_cmd *cmds, t_terminal *t)
 		}
 		i++;
 	}
-	free_cmd_args(cmds, t->cmds_num - 1);
 	close_fds(fds, command_c);
 	return (wait_subprocesses(pids, t->cmds_num, cmds));
 }
 
-static void exec_subprocess(int fds[][2], t_cmd *cmds, int idx, t_terminal *t)
+static void	exec_subprocess(int fds[][2], t_cmd *cmds, int idx, t_terminal *t)
 {
 	if (t->cmds_num != 1)
 		dup2_pipe(fds, idx, t->cmds_num - 1);
-	if (!set_redirs(cmds[idx].redirs, cmds[idx].heredoc_file, t->terminal_fd))
+	if (!set_redirs(cmds[idx].redirs, cmds[idx].heredoc_file, t->terminal_fd_output, t->terminal_fd_input, cmds[idx].last_input_ptr, cmds[idx].last_output_ptr))
 	{
 		close_fds(fds, t->cmds_num - 1);
 		freexit(FILE_ERROR, cmds, t);
 	}
 	close_fds(fds, t->cmds_num - 1);
-	if (execvp(cmds[idx].cstr_args[0], cmds[idx].cstr_args) == -1) //substituir por execve
+	if (execvp(cmds[idx].cstr_args[0], cmds[idx].cstr_args) == -1) // substituir por execve 
 	{
 		if (errno == ENOENT)
-			ft_fprintf(ERROR, "%s: Command not found\n", cmds[idx].cstr_args[0]);
+			ft_fprintf(ERROR, "%s: Command not found\n",
+				cmds[idx].cstr_args[0]);
 		else
 			perror(cmds[idx].cstr_args[0]);
 		freexit(CMD_NOT_FOUND, cmds, t);
 	}
 }
 
-static void dup2_pipe(int fds[][2], int idx, int last)
+static void	dup2_pipe(int fds[][2], int idx, int last)
 {
 	if (idx == 0)
 		dup2(fds[idx][PIPE_WRITE], STDOUT);
@@ -70,9 +81,9 @@ static void dup2_pipe(int fds[][2], int idx, int last)
 	}
 }
 
-static void close_fds(int fds[][2], int cmds_num)
+static void	close_fds(int fds[][2], int cmds_num)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (i < cmds_num)
@@ -83,11 +94,11 @@ static void close_fds(int fds[][2], int cmds_num)
 	}
 }
 
-static int wait_subprocesses(pid_t *subprocesses, int commands, t_cmd *cmds)
+static int	wait_subprocesses(pid_t *subprocesses, int commands, t_cmd *cmds)
 {
-	int exit_code;
-	int wstatus;
-	int i;
+	int	exit_code;
+	int	wstatus;
+	int	i;
 
 	exit_code = 0;
 	wstatus = 0;
@@ -104,4 +115,3 @@ static int wait_subprocesses(pid_t *subprocesses, int commands, t_cmd *cmds)
 	}
 	return (exit_code);
 }
-

@@ -1,12 +1,24 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/20 00:01:35 by frmiguel          #+#    #+#             */
+/*   Updated: 2024/10/20 00:01:35 by frmiguel         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-int g_sig_received = 0;
+int			g_sig_received = 0;
 
-t_string ft_readline(char *prompt, t_terminal *t);
+t_string	ft_readline(char *prompt, t_terminal *t);
 
-int main(void)
-{ 
-	t_terminal *t;
+int	main(void)
+{
+	t_terminal	*t;
 
 	t = init_term();
 	load_signals();
@@ -25,11 +37,10 @@ int main(void)
 	destroy_term(&t);
 }
 
-
-t_string ft_readline(char *prompt, t_terminal *t)
+t_string	ft_readline(char *prompt, t_terminal *t)
 {
-	char *tmp;
-	t_string input;
+	char		*tmp;
+	t_string	input;
 
 	while (true)
 	{
@@ -41,7 +52,7 @@ t_string ft_readline(char *prompt, t_terminal *t)
 			t->exit_code = FATAL_ERROR;
 			g_sig_received = 0;
 			string_free(&input);
-			continue;
+			continue ;
 		}
 		break ;
 	}

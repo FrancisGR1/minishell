@@ -1,25 +1,38 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   debug.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/20 00:01:34 by frmiguel          #+#    #+#             */
+/*   Updated: 2024/10/20 00:01:34 by frmiguel         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-void debug_fds(const char *message) 
+void	debug_fds(const char *message, int fd)
 {
-	char proc_path[64];
-	char target[1024];
-	printf("\n=== %s ===\n", message);
+	char	proc_path[64];
+	char	target[1024];
+	ssize_t	len;
 
-	for (int fd = 0; fd < 10; fd++) 
+	ft_fprintf(fd, "\n=== %s ===\n", message);
+	for (int fd = 0; fd < 10; fd++)
 	{
 		snprintf(proc_path, sizeof(proc_path), "/proc/self/fd/%d", fd);
-		ssize_t len = readlink(proc_path, target, sizeof(target) - 1);
-		if (len != -1) 
+		len = readlink(proc_path, target, sizeof(target) - 1);
+		if (len != -1)
 		{
 			target[len] = '\0';
-			printf("FD %d -> %s\n", fd, target);
+			ft_fprintf(fd, "FD %d -> %s\n", fd, target);
 		}
 	}
 	printf("\n");
 }
 
-void debug_cstr_args(t_cmd *cmds, size_t cmds_num)
+void	debug_cstr_args(t_cmd *cmds, size_t cmds_num)
 {
 	if (!cmds)
 		ft_fprintf(ERROR, "cmds null\n");
@@ -33,7 +46,7 @@ void debug_cstr_args(t_cmd *cmds, size_t cmds_num)
 	}
 }
 
-void debug_args(t_cmd *cmds, size_t cmds_num)
+void	debug_args(t_cmd *cmds, size_t cmds_num)
 {
 	if (!cmds)
 		ft_fprintf(ERROR, "cmds null\n");
@@ -47,11 +60,11 @@ void debug_args(t_cmd *cmds, size_t cmds_num)
 	}
 }
 
-void debug_redirections(t_cmd *cmds, size_t cmds_num)
+void	debug_redirections(t_cmd *cmds, size_t cmds_num)
 {
-	t_redir *r;
-	t_list *redirs;
-	
+	t_redir	*r;
+	t_list	*redirs;
+
 	if (!cmds)
 		ft_fprintf(ERROR, "cmds null\n");
 	if (!cmds_num)
@@ -64,17 +77,16 @@ void debug_redirections(t_cmd *cmds, size_t cmds_num)
 		while (redirs)
 		{
 			r = (t_redir *)redirs->content;
-			ft_fprintf(STDOUT, "\n-----------------\ntype: %d\nstring: %S\n", r->type, r->fd);
+			ft_fprintf(STDOUT, "\n-----------------\ntype: %d\nstring: %S\n",
+				r->type, r->fd);
 			redirs = redirs->next;
 		}
 	}
 }
 
-
-void catch_subprocess_segv(int n)
+void	catch_subprocess_segv(int n)
 {
-	(void) n;
+	(void)n;
 	printf("subprocess segfaulted at pid %d\n", getpid());
 	exit(0);
 }
-

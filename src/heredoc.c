@@ -1,15 +1,28 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   heredoc.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/20 00:01:35 by frmiguel          #+#    #+#             */
+/*   Updated: 2024/10/20 00:01:35 by frmiguel         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-void heredoc(char *delimiter, char *heredoc_file, bool *open_error, int terminal_fd)
+void	heredoc(char *delimiter, char *heredoc_file, bool *open_error,
+		int terminal_fd)
 {
-	char *input;
-	int write_fd;
-	int read_fd;
+	char	*input;
+	int		write_fd;
+	int		read_fd;
 
 	input = NULL;
-	write_fd = open(heredoc_file,  O_WRONLY | O_TRUNC | O_CREAT); 
+	write_fd = open(heredoc_file, O_WRONLY | O_TRUNC | O_CREAT, 0644);
 	dup2(terminal_fd, STDIN);
-	if (write_fd == -1)
+	if (write_fd == -1) //TODO: mudar isto
 		*open_error = true;
 	while (true && !*open_error)
 	{
@@ -28,15 +41,15 @@ void heredoc(char *delimiter, char *heredoc_file, bool *open_error, int terminal
 	close(read_fd);
 }
 
-void write_path(char dest[], char *src)
+void	write_path(char dest[], char *src)
 {
-	const char *current_path = (const char *)getcwd(NULL, 0);
-	const size_t current_path_size = ft_strlen(current_path);
-	const size_t src_size = ft_strlen(src);
-	const size_t total_size = current_path_size + src_size + 1;
+	const char		*current_path = (const char *)getcwd(NULL, 0);
+	const size_t	current_path_size = ft_strlen(current_path);
+	const size_t	src_size = ft_strlen(src);
+	const size_t	total_size = current_path_size + src_size + 1;
 
-	if (!current_path || total_size >= PATH_MAX ||
-			ft_strlcpy(dest, current_path, current_path_size + 1) == 0 )
+	if (!current_path || total_size >= PATH_MAX || ft_strlcpy(dest,
+			current_path, current_path_size + 1) == 0)
 	{
 		dest[0] = '\0';
 		free((char *)current_path);
@@ -47,4 +60,3 @@ void write_path(char dest[], char *src)
 	ft_strlcat(dest, src, current_path_size + 2 + src_size);
 	return ;
 }
-

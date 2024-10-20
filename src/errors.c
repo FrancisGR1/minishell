@@ -1,20 +1,31 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   errors.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/20 00:01:34 by frmiguel          #+#    #+#             */
+/*   Updated: 2024/10/20 00:01:34 by frmiguel         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-void freexit(int exit_code, t_cmd *cmds, t_terminal *t)
+void	freexit(int exit_code, t_cmd *cmds, t_terminal *t)
 {
-
-	close(t->terminal_fd);
-	free_cmd_args(cmds, t->cmds_num - 1);
+	(void) cmds; /*TODO: eliminar*/
+	close(t->terminal_fd_input);
+	close(t->terminal_fd_output);
 	string_free(&t->input);
 	reset_term(&t);
 	free(t);
 	exit(exit_code);
 }
 
-
-void *free_on_error(int exit_code, char *error_message, t_parser_buffer *pb)
+void	*free_on_error(int exit_code, char *error_message, t_parser_buffer *pb)
 {
-	int i;
+	int	i;
 
 	i = pb->idx;
 	if (pb->pipe_sides)
@@ -35,35 +46,31 @@ void *free_on_error(int exit_code, char *error_message, t_parser_buffer *pb)
 	return (NULL);
 }
 
-void free_cmd_args(t_cmd *cmds, int commands)
+void	free_cmd_cstr_args(t_cmd *cmds)
 {
-	int i;
-	int j;
+	int	i;
 
 	i = 0;
-	while (i < commands)
+	if (!cmds || !cmds->cstr_args)
+		return ;
+	while (cmds->cstr_args[i])
 	{
-		j = 0;
-		while (cmds[i].cstr_args[j])
-		{
-			free(cmds[i].cstr_args[j]);
-			j++;
-		}
-		free(cmds[i].cstr_args);
+		freen((void *)&cmds->cstr_args[i]);
 		i++;
 	}
+	freen((void *)&cmds->cstr_args);
 }
 
-void alloc_args(t_cmd *cmds, int size)
+void	alloc_args(t_cmd *cmds, int size)
 {
-	int i;
-	int j;
-	int k;
-	char **cmd_args;
+	int		i;
+	int		j;
+	int		k;
+	char	**cmd_args;
 
 	if (!cmds || !cmds->args || !cmds->args->s)
 		return ;
-	i = 0; 
+	i = 0;
 	while (i < size)
 	{
 		j = 0;

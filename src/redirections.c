@@ -1,58 +1,97 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   redirections.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/20 00:01:35 by frmiguel          #+#    #+#             */
+/*   Updated: 2024/10/20 00:01:35 by frmiguel         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-int	set_redirs(t_list *redirs, char *heredoc_file, int terminal_fd)
+void reset_io_files(int terminal_fd_output, int terminal_fd_input, bool last_output, bool last_input);
+
+int	set_redirs(t_list *redirs, char *heredoc_file, int terminal_fd_output, int terminal_fd_input, t_redir *li_ptr, t_redir *lo_ptr)
 {
-	t_redir *r;
-	bool open_error;
+	t_redir	*r;
+	bool	open_error;
 	char	file_name[FILENAME_MAX];
+	static int i;
 
 	open_error = false;
-	while (redirs)
+	while (redirs) 
 	{
+		ft_fprintf(terminal_fd_output, "%d: redir\n", i++);
 		r = (t_redir *)redirs->content;
+		//reset_io_files(terminal_fd_output, terminal_fd_input, lo_ptr == r, li_ptr == r);
 		ft_strlcpy(file_name, r->fd.s, r->fd.len + 1);
 		if (r->type == REDIR_INPUT)
-			open_and_redirect(file_name, O_RDONLY, STDIN, &open_error);
+			open_and_redirect(file_name, O_RDONLY, terminal_fd_input, &open_error, li_ptr == r);
 		else if (r->type == REDIR_HEREDOC)
-			heredoc(file_name, heredoc_file, &open_error, terminal_fd);
+			heredoc(file_name, heredoc_file, &open_error, terminal_fd_output);
 		else if (r->type == REDIR_OUTPUT)
-			open_and_redirect(file_name, O_WRONLY | O_CREAT | O_TRUNC, 
-					STDOUT, &open_error);
+			open_and_redirect(file_name, O_WRONLY | O_CREAT | O_TRUNC, STDOUT, &open_error, lo_ptr == r);
 		else if (r->type == REDIR_APPEND)
-			open_and_redirect(file_name, O_WRONLY | O_CREAT | O_APPEND,
-					STDOUT, &open_error);
+			open_and_redirect(file_name, O_WRONLY | O_CREAT | O_APPEND, STDOUT, &open_error, lo_ptr == r);
+		if (open_error)//não sei se é suposto parar no erro 
+			return (redir_error(r, heredoc_file, file_name));
 		redirs = redirs->next;
-		debug_fds("\n------\n");
 	}
-	if (open_error)
-		return (redir_error(r, heredoc_file, file_name));
 	return (1);
 }
 
-void open_and_redirect(char *file, int flags, int fd_from, bool *open_error)
+void	open_and_redirect(char *file, int flags, int fd_from, bool *open_error, bool is_last_output)
 {
-	int redir_fd;
+	int	redir_fd;
 
 	if (fd_from == STDOUT)
 		redir_fd = open(file, flags, 0644);
 	else
 		redir_fd = open(file, flags);
-	if (redir_fd == - 1)
+	if (redir_fd == -1)
 		*open_error = true;
-	else
+	else if (is_last_output)
 	{
 		*open_error = false;
 		dup2(redir_fd, fd_from);
 		close(redir_fd);
 	}
+	else
+		*open_error = false;
 }
 
-int redir_error(t_redir *r, char *heredoc_file, char *file_name)
+int	redir_error(t_redir *r, char *heredoc_file, char *file_name)
 {
 	if (r->type == REDIR_HEREDOC)
+	{
+		ft_fprintf(STDERR, "heredoc error: ");
 		perror(heredoc_file);
+		ft_fprintf(STDERR, "heredoc file: %s\n", heredoc_file);
+	}
 	else
 		perror(file_name);
 	return (0);
 }
 
+void reset_io_files(int terminal_fd_output, int terminal_fd_input, bool last_output, bool last_input)
+{
+	if (!last_output)
+	{
+		dup2(terminal_fd_output, STDOUT);
+		printf("last_output: false\n");
+	}
+	else
+		printf("last_output: true\n");
+	if (!last_input)
+	{
+		dup2(terminal_fd_input, STDIN);
+		printf("last_input: false\n");
+	}
+	else
+	{
+		printf("last_input: true\n");
+	}
+}
