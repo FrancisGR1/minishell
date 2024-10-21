@@ -24,8 +24,8 @@ int	exec(t_cmd *cmds, t_terminal *t)
 	pid_t		pids[t->cmds_num];
 	int			i;
 
+	alloc_args(t->cmds, t->cmds_num); //mudar isto de sítio
 	init_pipes(fds, command_c);
-	alloc_args(cmds, t->cmds_num);
 	i = 0;
 	while (i < (int)t->cmds_num)
 	{
@@ -37,6 +37,7 @@ int	exec(t_cmd *cmds, t_terminal *t)
 		}
 		if (cmds[i].has_heredoc)
 		{
+			printf("waiting\n");
 			waitpid(pids[i], 0, 0);
 		}
 		i++;
@@ -69,7 +70,9 @@ static void	exec_subprocess(int fds[][2], t_cmd *cmds, int idx, t_terminal *t)
 static void	dup2_pipe(int fds[][2], int idx, int last)
 {
 	if (idx == 0)
+	{
 		dup2(fds[idx][PIPE_WRITE], STDOUT);
+	}
 	else if (idx == last)
 	{
 		dup2(fds[idx - 1][PIPE_READ], STDIN);

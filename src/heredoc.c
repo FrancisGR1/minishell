@@ -13,7 +13,7 @@
 #include "minishell.h"
 
 void	heredoc(char *delimiter, char *heredoc_file, bool *open_error,
-		int terminal_fd)
+		int terminal_fd, bool is_last_input)
 {
 	char	*input;
 	int		write_fd;
@@ -37,7 +37,8 @@ void	heredoc(char *delimiter, char *heredoc_file, bool *open_error,
 	}
 	close(write_fd);
 	read_fd = open(heredoc_file, O_RDONLY);
-	dup2(read_fd, STDIN);
+	if (is_last_input)
+		dup2(read_fd, STDOUT);
 	close(read_fd);
 }
 
@@ -49,7 +50,7 @@ void	write_path(char dest[], char *src)
 	const size_t	total_size = current_path_size + src_size + 1;
 
 	if (!current_path || total_size >= PATH_MAX || ft_strlcpy(dest,
-			current_path, current_path_size + 1) == 0)
+				current_path, current_path_size + 1) == 0)
 	{
 		dest[0] = '\0';
 		free((char *)current_path);

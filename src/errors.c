@@ -61,7 +61,7 @@ void	free_cmd_cstr_args(t_cmd *cmds)
 	freen((void *)&cmds->cstr_args);
 }
 
-void	alloc_args(t_cmd *cmds, int size)
+void	alloc_args(t_cmd *cmds, int commands)
 {
 	int		i;
 	int		j;
@@ -71,7 +71,7 @@ void	alloc_args(t_cmd *cmds, int size)
 	if (!cmds || !cmds->args || !cmds->args->s)
 		return ;
 	i = 0;
-	while (i < size)
+	while (i < commands)
 	{
 		j = 0;
 		while (cmds[i].args[j].s)

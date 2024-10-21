@@ -138,8 +138,8 @@ int								redir_error(t_redir *r, char *heredoc_file, char *file_name);
 void	open_and_redirect(char *file, int flags, int fd_from, bool *open_error, bool is_last_output);
 
 // redirection: heredoc
-void							heredoc(char *delimiter, char *heredoc_file,
-									bool *open_error, int terminal_fd);
+void	heredoc(char *delimiter, char *heredoc_file, bool *open_error,
+		int terminal_fd, bool is_last_input);
 void							write_path(char dest[], char *src);
 
 // terminal struct utils
@@ -158,7 +158,7 @@ void							*free_on_error(int exit_code,
 void							freexit(int exit_code, t_cmd *cmds,
 									t_terminal *t);
 void							free_cmd_cstr_args(t_cmd *cmds);
-void							alloc_args(t_cmd *cmds, int size);
+void							alloc_args(t_cmd *cmds, int commands);
 
 // initializers
 void							init_redirs(t_parser_buffer *pb, size_t idx);

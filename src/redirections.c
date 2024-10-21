@@ -19,19 +19,18 @@ int	set_redirs(t_list *redirs, char *heredoc_file, int terminal_fd_output, int t
 	t_redir	*r;
 	bool	open_error;
 	char	file_name[FILENAME_MAX];
-	static int i;
 
 	open_error = false;
 	while (redirs) 
 	{
-		ft_fprintf(terminal_fd_output, "%d: redir\n", i++);
 		r = (t_redir *)redirs->content;
 		//reset_io_files(terminal_fd_output, terminal_fd_input, lo_ptr == r, li_ptr == r);
 		ft_strlcpy(file_name, r->fd.s, r->fd.len + 1);
+		(void) terminal_fd_output;
 		if (r->type == REDIR_INPUT)
-			open_and_redirect(file_name, O_RDONLY, terminal_fd_input, &open_error, li_ptr == r);
+			open_and_redirect(file_name, O_RDONLY, STDIN, &open_error, li_ptr == r);
 		else if (r->type == REDIR_HEREDOC)
-			heredoc(file_name, heredoc_file, &open_error, terminal_fd_output);
+			heredoc(file_name, heredoc_file, &open_error, terminal_fd_input, li_ptr ==r);
 		else if (r->type == REDIR_OUTPUT)
 			open_and_redirect(file_name, O_WRONLY | O_CREAT | O_TRUNC, STDOUT, &open_error, lo_ptr == r);
 		else if (r->type == REDIR_APPEND)
@@ -47,10 +46,10 @@ void	open_and_redirect(char *file, int flags, int fd_from, bool *open_error, boo
 {
 	int	redir_fd;
 
-	if (fd_from == STDOUT)
-		redir_fd = open(file, flags, 0644);
-	else
+	if (flags == O_RDONLY)
 		redir_fd = open(file, flags);
+	else
+		redir_fd = open(file, flags, 0644);
 	if (redir_fd == -1)
 		*open_error = true;
 	else if (is_last_output)

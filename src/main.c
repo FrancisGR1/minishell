@@ -29,6 +29,7 @@ int	main(void)
 			break ;
 		add_history(t->input.s);
 		t->cmds = parse(t->input, t);
+		//debug_args(t->cmds, t->cmds_num)R
 		if (t->cmds)
 			t->exit_code = exec(t->cmds, t);
 		reset_term(&t);

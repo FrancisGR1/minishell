@@ -38,10 +38,12 @@ void	debug_cstr_args(t_cmd *cmds, size_t cmds_num)
 		ft_fprintf(ERROR, "cmds null\n");
 	if (!cmds_num)
 		ft_fprintf(ERROR, "cmds num: 0\n");
+	if (!cmds->cstr_args)
+		ft_fprintf(ERROR, "cstr arg null\n");
 	for (size_t i = 0; i < cmds_num; ++i)
 	{
 		for (size_t j = 0; cmds[i].cstr_args[j]; ++j)
-			ft_fprintf(STDOUT, "%s\n", cmds[i].args[j]);
+			ft_fprintf(STDOUT, "->%s\n", cmds[i].cstr_args[j]);
 		ft_fprintf(STDOUT, "\n");
 	}
 }
@@ -55,7 +57,7 @@ void	debug_args(t_cmd *cmds, size_t cmds_num)
 	for (size_t i = 0; i < cmds_num; ++i)
 	{
 		for (size_t j = 0; cmds[i].args[j].s; ++j)
-			ft_fprintf(STDOUT, "%S\n", cmds[i].args[j]);
+			ft_fprintf(STDOUT, "->%S\n", cmds[i].args[j]);
 		ft_fprintf(STDOUT, "\n");
 	}
 }
