@@ -37,7 +37,6 @@ int	exec(t_cmd *cmds, t_terminal *t)
 		}
 		if (cmds[i].has_heredoc)
 		{
-			printf("waiting\n");
 			waitpid(pids[i], 0, 0);
 		}
 		i++;
@@ -50,13 +49,13 @@ static void	exec_subprocess(int fds[][2], t_cmd *cmds, int idx, t_terminal *t)
 {
 	if (t->cmds_num != 1)
 		dup2_pipe(fds, idx, t->cmds_num - 1);
-	if (!set_redirs(cmds[idx].redirs, cmds[idx].heredoc_file, t->terminal_fd_output, t->terminal_fd_input, cmds[idx].last_input_ptr, cmds[idx].last_output_ptr))
+	if (!set_redirs(cmds[idx].redirs, cmds[idx].heredoc_file, t->terminal_fd, cmds[idx].last_input_ptr, cmds[idx].last_output_ptr))
 	{
 		close_fds(fds, t->cmds_num - 1);
 		freexit(FILE_ERROR, cmds, t);
 	}
 	close_fds(fds, t->cmds_num - 1);
-	if (execvp(cmds[idx].cstr_args[0], cmds[idx].cstr_args) == -1) // substituir por execve 
+	if (execvp(cmds[idx].cstr_args[0], cmds[idx].cstr_args) == -1) //TODO: substituir por execve 
 	{
 		if (errno == ENOENT)
 			ft_fprintf(ERROR, "%s: Command not found\n",

@@ -21,14 +21,18 @@ void	heredoc(char *delimiter, char *heredoc_file, bool *open_error,
 
 	input = NULL;
 	write_fd = open(heredoc_file, O_WRONLY | O_TRUNC | O_CREAT, 0644);
-	dup2(terminal_fd, STDIN);
 	if (write_fd == -1) //TODO: mudar isto
 		*open_error = true;
 	while (true && !*open_error)
 	{
-		input = readline(HEREDOC_PROMPT);
+		//TODO: usar termios para bloquear ctrl + \ e 
+		//ctrl + d quando a linha está cheia
+		ft_putstr_fd("> ", terminal_fd);
+		input = get_next_line(terminal_fd);
 		if (!input || ft_strncmp(input, delimiter, ft_strlen(input)) == 0)
 		{
+			if (!input)
+				ft_putstr_fd("\n", terminal_fd); 
 			freen((void *)&input);
 			break ;
 		}
@@ -38,7 +42,10 @@ void	heredoc(char *delimiter, char *heredoc_file, bool *open_error,
 	close(write_fd);
 	read_fd = open(heredoc_file, O_RDONLY);
 	if (is_last_input)
-		dup2(read_fd, STDOUT);
+	{
+		dup2(terminal_fd, STDIN);
+		dup2(read_fd, STDIN);
+	}
 	close(read_fd);
 }
 
@@ -59,5 +66,6 @@ void	write_path(char dest[], char *src)
 	free((char *)current_path);
 	ft_strlcat(dest, "/", current_path_size + 2);
 	ft_strlcat(dest, src, current_path_size + 2 + src_size);
+	printf("hd file: %s\n", dest);
 	return ;
 }

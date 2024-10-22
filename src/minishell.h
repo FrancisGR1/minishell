@@ -111,9 +111,9 @@ struct							s_command
 struct							s_terminal
 {
 	t_cmd						*cmds;
+	char						**env;
 	size_t						cmds_num;
-	int							terminal_fd_input;
-	int							terminal_fd_output;
+	int							terminal_fd;
 	int							exit_code;
 	t_string					input;
 };
@@ -129,13 +129,16 @@ bool							get_redir(t_parser_buffer *pb, t_cmd *cmds,
 									int *redir_idx);
 void	define_redir_type(t_redir *redir, t_string r_ptr);
 
+//expansion
+void expand(t_string *s, char **env, int exit_code);
+
 // execution
 int								exec(t_cmd *cmds, t_terminal *t);
 
 // redirections
-int	set_redirs(t_list *redirs, char *heredoc_file, int terminal_fd_output, int terminal_fd_input, t_redir *lio_ptr, t_redir *lo_ptr);
+int	set_redirs(t_list *redirs, char *heredoc_file, int terminal_fd, t_redir *li_ptr, t_redir *lo_ptr);
 int								redir_error(t_redir *r, char *heredoc_file, char *file_name);
-void	open_and_redirect(char *file, int flags, int fd_from, bool *open_error, bool is_last_output);
+void	open_and_redirect(char *file, int flags, bool *open_error, int terminal_fd, bool is_last_output);
 
 // redirection: heredoc
 void	heredoc(char *delimiter, char *heredoc_file, bool *open_error,
@@ -143,7 +146,7 @@ void	heredoc(char *delimiter, char *heredoc_file, bool *open_error,
 void							write_path(char dest[], char *src);
 
 // terminal struct utils
-t_terminal						*init_term(void);
+t_terminal						*init_term(char **env);
 void							reset_term(t_terminal **t);
 void							destroy_term(t_terminal **t);
 
@@ -151,6 +154,9 @@ void							destroy_term(t_terminal **t);
 void							load_signals(void);
 void							signals_handler(int signum, siginfo_t *inf,
 									void *ctx);
+//environment
+char **env_dup(char **env);
+char *env_lookup(char **env, char *target);
 
 // errors and memory management
 void							*free_on_error(int exit_code,

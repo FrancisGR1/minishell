@@ -6,6 +6,12 @@
 
 -> o output esta a ser apanhado pelo grep em vez de ir para o ficheiro
 
+
+->heredoc
+    ->não bloqueia ctrl + \
+    ->ctrl + d no fim leva a comportamento estranho
+
+citações vazias: ''
 --
 nota: 
 comando para eliminar todos os subprocessos mortos-vivos

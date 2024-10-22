@@ -16,11 +16,13 @@ int			g_sig_received = 0;
 
 t_string	ft_readline(char *prompt, t_terminal *t);
 
-int	main(void)
+int	main(int c, char **v, char **env)
 {
 	t_terminal	*t;
+	(void) c;
+	(void) v;
 
-	t = init_term();
+	t = init_term(env);
 	load_signals();
 	while (true)
 	{

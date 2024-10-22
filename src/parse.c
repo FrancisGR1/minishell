@@ -13,7 +13,7 @@
 #include "minishell.h"
 
 static bool	format_args(t_parser_buffer *pb, t_cmd *cmds, int *redir_idx);
-static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr);
+static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t);
 static int	mark_special_characters(t_string input, size_t *cmds_num);
 static int	remove_quotes(t_string *arg);
 
@@ -35,10 +35,10 @@ t_cmd	*parse(t_string input, t_terminal *t)
 			return (free_on_error(WRONG_FORMAT, "Format error: Missing command", &pb));
 		init_redirs(&pb, pb.idx);
 		while (pb.redir_ptrs && ++pb.redir_idx < (int)pb.redir_ptrs->len)
-			if (!format_args(&pb, pb.cmds, &pb.redir_idx))
+			if (!format_args(&pb, &pb.cmds[pb.idx], &pb.redir_idx))
 				return (free_on_error(WRONG_FORMAT, "Format error: No redirection file", &pb));
-		ft_fprintf(STDOUT, "before removing\n");
-		if (!set_cmd(pb.cmds, pb.idx, pb.args_ptr))
+		//ft_fprintf(STDOUT, "before removing\n");
+		if (!set_cmd(pb.cmds, pb.idx, pb.args_ptr, pb.t))
 			return (free_on_error(WRONG_FORMAT, "Format error: No command", &pb));
 		darr_free(pb.redir_ptrs);
 	}
@@ -102,7 +102,7 @@ int	mark_special_characters(t_string input, size_t *cmds_num)
 	return (quote);
 }
 
-static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr)
+static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 {
 	size_t	i;
 
@@ -114,16 +114,17 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr)
 		return (false);
 	cmds[idx].binary = args_ptr[0];
 	cmds[idx].args = args_ptr;
-	ft_fprintf(STDOUT, "before removing\n");
-	debug_args(&cmds[idx], 1);
-	ft_fprintf(STDOUT, "after removing\n");
+	//ft_fprintf(STDOUT, "before removing\n");
+	//debug_args(&cmds[idx], 1);
+	//ft_fprintf(STDOUT, "after removing\n");
 	i = 0;
 	while (args_ptr[i].s)
 	{
 		remove_quotes(&args_ptr[i]);
-		ft_fprintf(STDOUT, "%S\n", args_ptr[i]);
+		//ft_fprintf(STDOUT, "%S\n", args_ptr[i]);
 		// TODO: expandir aqui
-		// expand(args_ptr[i]);
+		(void) t;
+		//expand(&args_ptr[i], t->env, t->exit_code);
 		i++;
 	}
 	return (true);

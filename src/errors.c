@@ -15,8 +15,7 @@
 void	freexit(int exit_code, t_cmd *cmds, t_terminal *t)
 {
 	(void) cmds; /*TODO: eliminar*/
-	close(t->terminal_fd_input);
-	close(t->terminal_fd_output);
+	close(t->terminal_fd);
 	string_free(&t->input);
 	reset_term(&t);
 	free(t);

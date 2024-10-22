@@ -12,16 +12,16 @@
 
 #include "minishell.h"
 
-t_terminal	*init_term(void)
+t_terminal	*init_term(char **env)
 {
 	t_terminal	*t;
 
 	t = malloc(sizeof(t_terminal));
 	t->cmds = NULL;
 	t->cmds_num = 1;
-	t->terminal_fd_output = dup(STDOUT);
-	t->terminal_fd_input = dup(STDIN);
+	t->terminal_fd = dup(STDOUT);
 	t->exit_code = 0;
+	t->env = env_dup(env);
 	rl_catch_signals = 1;
 	return (t);
 }
@@ -50,7 +50,11 @@ void	reset_term(t_terminal **t)
 
 void	destroy_term(t_terminal **t)
 {
-	close((*t)->terminal_fd_input);
-	close((*t)->terminal_fd_output);
+	char **env;
+	env = (*t)->env;
+	while (env && *env)
+		free(*env++);
+	free((*t)->env);
+	close((*t)->terminal_fd);
 	freen((void *)&(*t));
 }
