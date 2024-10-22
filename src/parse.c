@@ -37,7 +37,6 @@ t_cmd	*parse(t_string input, t_terminal *t)
 		while (pb.redir_ptrs && ++pb.redir_idx < (int)pb.redir_ptrs->len)
 			if (!format_args(&pb, &pb.cmds[pb.idx], &pb.redir_idx))
 				return (free_on_error(WRONG_FORMAT, "Format error: No redirection file", &pb));
-		//ft_fprintf(STDOUT, "before removing\n");
 		if (!set_cmd(pb.cmds, pb.idx, pb.args_ptr, pb.t))
 			return (free_on_error(WRONG_FORMAT, "Format error: No command", &pb));
 		darr_free(pb.redir_ptrs);
@@ -114,17 +113,15 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 		return (false);
 	cmds[idx].binary = args_ptr[0];
 	cmds[idx].args = args_ptr;
-	//ft_fprintf(STDOUT, "before removing\n");
-	//debug_args(&cmds[idx], 1);
-	//ft_fprintf(STDOUT, "after removing\n");
+	debug_args(&cmds[idx], 1);
 	i = 0;
 	while (args_ptr[i].s)
 	{
+		printf("before removal: %s\n", args_ptr[i].s);
 		remove_quotes(&args_ptr[i]);
-		//ft_fprintf(STDOUT, "%S\n", args_ptr[i]);
 		// TODO: expandir aqui
-		(void) t;
-		//expand(&args_ptr[i], t->env, t->exit_code);
+		expand(&args_ptr[i], t->env, t->exit_code);
+		printf("\n------------\n");
 		i++;
 	}
 	return (true);
