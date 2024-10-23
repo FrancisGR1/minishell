@@ -117,7 +117,6 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 	i = 0;
 	while (args_ptr[i].s)
 	{
-		printf("before removal: %s\n", args_ptr[i].s);
 		remove_quotes(&args_ptr[i]);
 		// TODO: expandir aqui
 		expand(&args_ptr[i], t->env, t->exit_code);

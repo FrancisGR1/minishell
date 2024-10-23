@@ -18,9 +18,9 @@ t_string	ft_readline(char *prompt, t_terminal *t);
 
 int	main(int c, char **v, char **env)
 {
-	t_terminal	*t;
 	(void) c;
 	(void) v;
+	t_terminal	*t;
 
 	t = init_term(env);
 	load_signals();
@@ -31,7 +31,6 @@ int	main(int c, char **v, char **env)
 			break ;
 		add_history(t->input.s);
 		t->cmds = parse(t->input, t);
-		//debug_args(t->cmds, t->cmds_num)R
 		if (t->cmds)
 			t->exit_code = exec(t->cmds, t);
 		reset_term(&t);
