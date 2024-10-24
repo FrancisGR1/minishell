@@ -9,12 +9,13 @@ char **env_dup(char **env)
 	if (!env)
 		return (NULL);
 	size = 200;
-	env_dup = malloc(size);
+	env_dup = malloc(size * sizeof(char *) + 1);
 	if (!env_dup)
 		return (NULL);
 	i = 0;
 	while (env[i])
 	{
+		//TODO: substituir por env_add()
 		if (i > size)
 		{
 			size *= 2;
@@ -30,15 +31,14 @@ char **env_dup(char **env)
 char *env_lookup(char **env, char *target)
 {
 	size_t i;
-	size_t len;
+	const size_t last_idx = ft_strlen(target) - 1;
 
 	if (!env || !target)
 		return (NULL);
 	i = 0;
 	while (env[i])
 	{
-		len = ft_strchr(env[i], '=') - env[i];
-		if (ft_strncmp(env[i], target, --len) == 0)
+		if (ft_strncmp(env[i], target, last_idx) == 0)
 			return (env[i]);
 		i++;
 	}

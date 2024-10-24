@@ -53,7 +53,7 @@ void	destroy_term(t_terminal **t)
 	char **env;
 	env = (*t)->env;
 	while (env && *env)
-		free(env++);
+		freen((void *)env++);
 	free((*t)->env);
 	close((*t)->terminal_fd);
 	freen((void *)&(*t));

@@ -130,7 +130,7 @@ bool							get_redir(t_parser_buffer *pb, t_cmd *cmds,
 void	define_redir_type(t_redir *redir, t_string r_ptr);
 
 //expansion
-void expand(t_string *s, char **env, int exit_code);
+void expand(t_string *s, char **env, int exit_code, int start);
 
 // execution
 int								exec(t_cmd *cmds, t_terminal *t);

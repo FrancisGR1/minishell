@@ -119,7 +119,7 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 	{
 		remove_quotes(&args_ptr[i]);
 		// TODO: expandir aqui
-		expand(&args_ptr[i], t->env, t->exit_code);
+		expand(&args_ptr[i], t->env, t->exit_code, 0);
 		printf("\n------------\n");
 		i++;
 	}
