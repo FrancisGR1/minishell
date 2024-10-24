@@ -1,0 +1,101 @@
+
+#include "minishell.h"
+
+static int handle_dollar_size(t_string *s, int dollar_pos, char **env, int exit_code);
+static t_string get_env_str(char *dollar_var, int var_size, char **env);
+static t_string cat_all(int len, t_string env_str, t_string *divided_parts, char *delim);
+
+void expand(t_string *s, char **env, int exit_code, int start)
+{
+	int len;
+	t_string res; 
+	t_string *divided_parts;
+	const int dollar_pos = string_find(*s, start, s->len, "$");
+	char *dollar_var;
+	(void) exit_code;
+
+	len = handle_dollar_size(s, dollar_pos, env, exit_code);
+	if (len == -1)
+		return ;
+	len++;
+	dollar_var = ft_strndup(s->s + dollar_pos, len);
+	res = get_env_str(dollar_var, len, env);
+	len = 0;
+	divided_parts = string_divide(*s, dollar_var, &len);
+	if (!divided_parts)
+	{
+		str_free_and_replace_str(s, &res);
+		return expand(s, env, exit_code, start);
+	}
+	res = cat_all(len, res, divided_parts, dollar_var);
+	str_free_and_replace_str(s, &res);
+	expand(s, env, exit_code, start);
+}
+
+static t_string cat_all(int len, t_string env_str, t_string *divided_parts, char *delim)
+{
+	t_string res;
+	bool dollar_cat;
+	int i;
+	int j;
+
+	if (len == 1)
+	{
+		if (env_str.s < divided_parts[0].s)
+			res = str_cat(env_str, divided_parts[0]);
+		else
+			res = str_cat(divided_parts[0], env_str);
+		return (res);
+	}
+	dollar_cat = false;
+	i = 0;
+	j = 0;
+	while (i < len + 1)
+	{
+		if (!dollar_cat && delim < divided_parts[j].s)
+		{
+			res = str_cat(res, env_str);
+			dollar_cat = true;
+		}
+		else
+			res = str_cat(res, divided_parts[j++]);
+	}
+	return (res);
+}
+
+//FIXME: apanhar $? e código de saída
+static int handle_dollar_size(t_string *s, int dollar_pos, char **env, int exit_code)
+{
+	(void) exit_code;
+	const int dollar_end_pos = dollar_pos + str_iter(*s, dollar_pos + 1, s->len - 1 - dollar_pos, ft_isalnum);
+	int offset;
+
+	if (dollar_pos < 0 || (dollar_pos == 0 && s->len == 1))
+		return (-1);
+	offset = ((s->s + dollar_end_pos) - (s->s + dollar_pos));
+	if (!offset && dollar_end_pos > 0)
+	{
+		expand(s, env, exit_code, dollar_end_pos + 1);
+		return (-1);
+	}
+	if (offset <= 0)
+	{
+		str_free_and_replace_raw(s, "$");
+		return (-1);
+	}
+	return (offset);
+}
+
+static t_string get_env_str(char *dollar_var, int var_size, char **env)
+{
+	t_string res;
+	char *lookup_res;
+
+	lookup_res = env_lookup(env, &dollar_var[1]);
+	if (lookup_res)
+		res = cstr_to_str(&lookup_res[var_size]);
+	else
+		res =  cstr_to_str("");
+	return (res);
+
+}

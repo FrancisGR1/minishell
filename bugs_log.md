@@ -2,7 +2,7 @@
     ->não bloqueia ctrl + \
     ->ctrl + d no fim leva a comportamento estranho
 
-citações vazias: ''
+citações vazias: '' no primeiro argumento (o comando) leval a segfault
 --
 nota: 
 comando para eliminar todos os subprocessos mortos-vivos

@@ -34,6 +34,7 @@ int	main(int c, char **v, char **env)
 		if (t->cmds)
 			t->exit_code = exec(t->cmds, t);
 		reset_term(&t);
+		break;
 	}
 	rl_clear_history();
 	destroy_term(&t);

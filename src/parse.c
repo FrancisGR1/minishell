@@ -24,7 +24,7 @@ t_cmd	*parse(t_string input, t_terminal *t)
 	init_parser(&pb, t);
 	if (!!mark_special_characters(input, &t->cmds_num))
 		return (free_on_error(WRONG_FORMAT, "Format error: Quotes unclosed", &pb));
-	pb.cmds = malloc((t->cmds_num + 1) * sizeof(t_cmd));
+	pb.cmds = ft_calloc((t->cmds_num + 1), sizeof(t_cmd));
 	pb.pipe_sides = string_split(input, "\1");
 	if (!pb.pipe_sides)
 		return (free_on_error(NO_INPUT, NULL, &pb));
@@ -41,7 +41,7 @@ t_cmd	*parse(t_string input, t_terminal *t)
 			return (free_on_error(WRONG_FORMAT, "Format error: No command", &pb));
 		darr_free(pb.redir_ptrs);
 	}
-	pb.cmds[pb.idx].binary = new_str(NULL);
+	pb.cmds[pb.idx].binary = new_str(NULL, 0);
 	free(pb.pipe_sides);
 	return (pb.cmds);
 }
@@ -109,7 +109,7 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 	{
 		write_path(cmds[idx].heredoc_file, rand_string());
 	}
-	if (!args_ptr->s)
+	if (!args_ptr[idx].s)
 		return (false);
 	cmds[idx].binary = args_ptr[0];
 	cmds[idx].args = args_ptr;
@@ -118,10 +118,16 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 	while (args_ptr[i].s)
 	{
 		remove_quotes(&args_ptr[i]);
-		// TODO: expandir aqui
 		expand(&args_ptr[i], t->env, t->exit_code, 0);
-		printf("\n------------\n");
+		//TODO: encontrar caminho do executável aqui
 		i++;
+	}
+	char* res = find_path(args_ptr[0], t->env);
+	if (res)
+	{
+		if (args_ptr[0].type == STR_ALLOCATED)
+			string_free(&args_ptr[0]);
+		args_ptr[0] = cstr_to_str_ptr(res, ft_strlen(res));
 	}
 	return (true);
 }

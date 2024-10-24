@@ -16,6 +16,9 @@
 // our lib
 # include "../libft/libft.h"
 
+//TEMPORÁRIO
+#include <assert.h>
+
 // Readline includes
 # include <readline/history.h>
 # include <readline/readline.h>
@@ -131,6 +134,9 @@ void	define_redir_type(t_redir *redir, t_string r_ptr);
 
 //expansion
 void expand(t_string *s, char **env, int exit_code, int start);
+
+//paths
+char *find_path(t_string cmd, char **env);
 
 // execution
 int								exec(t_cmd *cmds, t_terminal *t);

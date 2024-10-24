@@ -18,7 +18,7 @@ void	freexit(int exit_code, t_cmd *cmds, t_terminal *t)
 	close(t->terminal_fd);
 	string_free(&t->input);
 	reset_term(&t);
-	free(t);
+	destroy_term(&t);
 	exit(exit_code);
 }
 
@@ -75,7 +75,7 @@ void	alloc_args(t_cmd *cmds, int commands)
 		j = 0;
 		while (cmds[i].args[j].s)
 			j++;
-		cmd_args = malloc(sizeof(char *) * (j + 1));
+		cmd_args = ft_calloc(sizeof(char *),  (j + 1));
 		k = 0;
 		while (k < j)
 		{

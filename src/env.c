@@ -9,7 +9,7 @@ char **env_dup(char **env)
 	if (!env)
 		return (NULL);
 	size = 200;
-	env_dup = malloc(size * sizeof(char *) + 1);
+	env_dup = ft_calloc(size, sizeof(char *) + 1);
 	if (!env_dup)
 		return (NULL);
 	i = 0;
