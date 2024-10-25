@@ -37,6 +37,9 @@ void expand(t_string *s, char **env, int exit_code, int start)
 		if (!env_str.s)//se a var do env for nula: "$não_existe" 
 		{
 			free(delimiter);
+			//FIXME:
+			//o string vazio dá leaks
+			*s = cstr_to_str("");
 			return ;
 		}
 		//último caso: só temos uma variável válida: "$PWD"
@@ -77,6 +80,7 @@ void expand(t_string *s, char **env, int exit_code, int start)
 	if (s->type == STR_ALLOCATED)
 		string_free(s);
 	*s = str_dup(res);
-	string_free(&res);
+	if (str_is_null(res))
+		string_free(&res);
 	expand(s, env, exit_code, start);
 }

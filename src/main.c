@@ -32,8 +32,8 @@ int	main(int c, char **v, char **env)
 		add_history(t->input.s);
 		t->cmds = parse(t->input, t);
 		alloc_args(t->cmds, t->cmds_num); //mudar isto de sítio
-		//if (t->cmds)
-		//	t->exit_code = exec(t->cmds, t);
+		if (t->cmds)
+			t->exit_code = exec(t->cmds, t);
 		reset_term(&t);
 	}
 	rl_clear_history();

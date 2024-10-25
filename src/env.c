@@ -28,19 +28,21 @@ char **env_dup(char **env)
 	return (env_dup);
 }
 
-char *env_lookup(char **env, char *target)
+char *env_lookup(char **env, char *key)
 {
-	size_t i;
-	const size_t last_idx = ft_strlen(target) - 1;
+    size_t key_len;
+    char* equals_ptr;
 
-	if (!env || !target)
-		return (NULL);
-	i = 0;
-	while (env[i])
-	{
-		if (ft_strncmp(env[i], target, last_idx) == 0)
-			return (env[i]);
-		i++;
-	}
-	return (NULL);
+    if (!env || !key)
+        return (NULL);
+    key_len = ft_strlen(key);
+    while (*env)
+    {
+        equals_ptr = ft_strchr(*env, '=');
+        if (equals_ptr && (size_t)(equals_ptr - *env) == key_len 
+			&& ft_strncmp(*env, key, key_len) == 0)
+            return (*env);
+        env++;
+    }
+    return (NULL);
 }
