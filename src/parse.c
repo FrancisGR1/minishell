@@ -41,7 +41,7 @@ t_cmd	*parse(t_string input, t_terminal *t)
 			return (free_on_error(WRONG_FORMAT, "Format error: No command", &pb));
 		darr_free(pb.redir_ptrs);
 	}
-	pb.cmds[pb.idx].binary = new_str(NULL);
+	pb.cmds[pb.idx].binary = new_str(NULL, 0);
 	free(pb.pipe_sides);
 	return (pb.cmds);
 }
@@ -118,8 +118,9 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 	while (args_ptr[i].s)
 	{
 		remove_quotes(&args_ptr[i]);
-		// TODO: expandir aqui
+		ft_fprintf(STDOUT, "expand input: %S\n", args_ptr[i]);
 		expand(&args_ptr[i], t->env, t->exit_code, 0);
+		ft_fprintf(STDOUT, "\nexpand output: %S\n", args_ptr[i]);
 		printf("\n------------\n");
 		i++;
 	}
