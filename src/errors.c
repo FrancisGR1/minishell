@@ -19,6 +19,7 @@ void	freexit(int exit_code, t_cmd *cmds, t_terminal *t)
 	string_free(&t->input);
 	reset_term(&t);
 	destroy_term(&t);
+	free(t);
 	exit(exit_code);
 }
 
@@ -80,6 +81,11 @@ void	alloc_args(t_cmd *cmds, int commands)
 		while (k < j)
 		{
 			cmd_args[k] = string_convert_back(cmds[i].args[k]);
+			if (cmds[i].args[k].type == STR_ALLOCATED)
+			{
+				printf("deallocation: %p\n", cmds[i].args[k].s);
+				string_free(&cmds[i].args[k]);
+			}
 			k++;
 		}
 		cmd_args[k] = NULL;

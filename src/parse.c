@@ -118,8 +118,11 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 	while (args_ptr[i].s)
 	{
 		remove_quotes(&args_ptr[i]);
+		//expand(&args_ptr[i], t->env, t->exit_code, 0);
+		ft_fprintf(STDOUT, "expand input: %S\n", args_ptr[i]);
 		expand(&args_ptr[i], t->env, t->exit_code, 0);
-		//TODO: encontrar caminho do executável aqui
+		ft_fprintf(STDOUT, "\nexpand output: %S\n", args_ptr[i]);
+		printf("\n------------\n");
 		i++;
 	}
 	char* res = find_path(args_ptr[0], t->env);
@@ -127,7 +130,8 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 	{
 		if (args_ptr[0].type == STR_ALLOCATED)
 			string_free(&args_ptr[0]);
-		args_ptr[0] = cstr_to_str_ptr(res, ft_strlen(res));
+		args_ptr[0] = cstr_to_str(res);
+		freen((void *)&res);
 	}
 	return (true);
 }

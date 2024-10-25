@@ -25,6 +25,7 @@ void	init_parser(t_parser_buffer *pb, t_terminal *t)
 
 void	init_redirs(t_parser_buffer *pb, size_t idx)
 {
+	pb->cmds[idx].cstr_args = NULL;
 	pb->cmds[idx].redirs = NULL;
 	pb->cmds[idx].last_input_ptr = NULL;
 	pb->cmds[idx].last_output_ptr = NULL;

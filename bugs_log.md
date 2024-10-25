@@ -3,6 +3,7 @@
     ->ctrl + d no fim leva a comportamento estranho
 
 citações vazias: '' no primeiro argumento (o comando) leval a segfault
+leaks se variável for nula -> string é vazio e causa comportamento indefinido
 --
 nota: 
 comando para eliminar todos os subprocessos mortos-vivos

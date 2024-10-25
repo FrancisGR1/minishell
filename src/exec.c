@@ -24,7 +24,6 @@ int	exec(t_cmd *cmds, t_terminal *t)
 	pid_t		pids[t->cmds_num];
 	int			i;
 
-	alloc_args(t->cmds, t->cmds_num); //mudar isto de sítio
 	init_pipes(fds, command_c);
 	i = 0;
 	while (i < (int)t->cmds_num)

@@ -29,6 +29,7 @@ char *find_path(t_string cmd, char **env)
 	i = 0;
 	while (split_paths[i])
 		free((void *)split_paths[i++]);
+	freen((void*) &cstr_cmd);
 	free(split_paths);
 	return (res);
 }
