@@ -61,6 +61,7 @@ void	free_cmd_cstr_args(t_cmd *cmds)
 	freen((void *)&cmds->cstr_args);
 }
 
+//TODO: mudar função de sítio
 void	alloc_args(t_cmd *cmds, int commands)
 {
 	int		i;
@@ -83,7 +84,7 @@ void	alloc_args(t_cmd *cmds, int commands)
 			cmd_args[k] = string_convert_back(cmds[i].args[k]);
 			if (cmds[i].args[k].type == STR_ALLOCATED)
 			{
-				printf("deallocation: %p\n", cmds[i].args[k].s);
+				printf("DEALLOCATION: %p -> |%s|\n", cmds[i].args[k].s, cmds[i].args[k].s);
 				string_free(&cmds[i].args[k]);
 			}
 			k++;

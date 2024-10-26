@@ -36,12 +36,14 @@ char *env_lookup(char **env, char *key)
     if (!env || !key)
         return (NULL);
     key_len = ft_strlen(key);
+    if (!key_len)
+	    return (NULL);
     while (*env)
     {
         equals_ptr = ft_strchr(*env, '=');
         if (equals_ptr && (size_t)(equals_ptr - *env) == key_len 
 			&& ft_strncmp(*env, key, key_len) == 0)
-            return (*env);
+            return (++equals_ptr);
         env++;
     }
     return (NULL);

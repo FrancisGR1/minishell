@@ -21,28 +21,19 @@ void expand(t_string *s, char **env, int exit_code, int start)
 	t_string delim = cstr_to_str_ptr(s->s + dollar_pos, size);
 	char *delimiter = string_convert_back(delim);
 	char *tmp_env = env_lookup(env, delimiter + 1);
-	t_string env_str; 
+	t_string env_str;
 	if (tmp_env)
-		env_str = cstr_to_str(&tmp_env[delim.len]);
+		env_str = cstr_to_str(tmp_env);
 	else
-		env_str =  new_str(NULL, 0);
+		env_str = cstr_to_str("");
 	int len = 0;
 	//as partes são pointers a apontar para o início/fim das secções 
 	//que NÂO fazem parte da variável $
 	t_string *parts = string_divide(*s, delim, &len);
 	if (!parts)//se só tivermos a variável no string "$var" 
 	{
-		if (s->type == STR_ALLOCATED)
-			string_free(s);
-		if (!env_str.s)//se a var do env for nula: "$não_existe" 
-		{
-			free(delimiter);
-			//FIXME:
-			//o string vazio dá leaks
-			*s = cstr_to_str("");
-			return ;
-		}
-		//último caso: só temos uma variável válida: "$PWD"
+		//porque é que isto está a dar leaks de 1 byte?
+		string_free(s);
 		*s = str_dup(env_str);
 		string_free(&env_str);
 		free(delimiter);
@@ -80,7 +71,6 @@ void expand(t_string *s, char **env, int exit_code, int start)
 	if (s->type == STR_ALLOCATED)
 		string_free(s);
 	*s = str_dup(res);
-	if (str_is_null(res))
-		string_free(&res);
+	string_free(&res);
 	expand(s, env, exit_code, start);
 }

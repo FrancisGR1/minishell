@@ -11,6 +11,9 @@
 /* ************************************************************************** */
 
 #include "minishell.h"
+//TODO: mudar se sítio 
+bool remove_empty_args(t_string *arg, int current, size_t *argc);
+size_t strs_count(t_string *args);
 
 static bool	format_args(t_parser_buffer *pb, t_cmd *cmds, int *redir_idx);
 static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t);
@@ -30,19 +33,21 @@ t_cmd	*parse(t_string input, t_terminal *t)
 		return (free_on_error(NO_INPUT, NULL, &pb));
 	while (++pb.idx < (int)t->cmds_num)
 	{
+		init_redirs(&pb, pb.idx);
 		pb.args_ptr = string_split(pb.pipe_sides[pb.idx], DELIMITERS);
 		if (!pb.args_ptr)
 			return (free_on_error(WRONG_FORMAT, "Format error: Missing command", &pb));
-		init_redirs(&pb, pb.idx);
 		while (pb.redir_ptrs && ++pb.redir_idx < (int)pb.redir_ptrs->len)
 			if (!format_args(&pb, &pb.cmds[pb.idx], &pb.redir_idx))
 				return (free_on_error(WRONG_FORMAT, "Format error: No redirection file", &pb));
-		if (!set_cmd(pb.cmds, pb.idx, pb.args_ptr, pb.t))
+		//pq é que args_ptr estã a entra nulo em set_cmd()??????
+		if (!set_cmd(pb.cmds, pb.idx, pb.args_ptr, t))
 			return (free_on_error(WRONG_FORMAT, "Format error: No command", &pb));
 		darr_free(pb.redir_ptrs);
 	}
 	pb.cmds[pb.idx].binary = new_str(NULL, 0);
 	free(pb.pipe_sides);
+	printf("returning parse\n");
 	return (pb.cmds);
 }
 
@@ -55,6 +60,8 @@ static int	remove_quotes(t_string *arg)
 	j = 0;
 	k = 0;
 	quote = '\0';
+	if (!arg)
+		return (-1);
 	while (j < arg->len)
 	{
 		if (!quote && (arg->s[j] == '\'' || arg->s[j] == '\"'))
@@ -113,18 +120,29 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 		return (false);
 	cmds[idx].binary = args_ptr[0];
 	cmds[idx].args = args_ptr;
+	cmds[idx].argc = strs_count(args_ptr); 
+	printf("BEFORE:\n");
 	debug_args(&cmds[idx], 1);
 	i = 0;
-	while (args_ptr[i].s)
+	while (i < cmds[idx].argc)
 	{
 		remove_quotes(&args_ptr[i]);
-		//expand(&args_ptr[i], t->env, t->exit_code, 0);
-		ft_fprintf(STDOUT, "expand input: %S\n", args_ptr[i]);
+		//se o string for "", remove_quotes() vai diminuir o tamanho mas 
+		//não vai substituir por nulo, o que leva a comportamento indefinido
+		//portanto faço isso aqui
+		if (args_ptr[i].len == 0)
+		{
+			string_free(&args_ptr[i]);
+			args_ptr[i] = new_str(NULL, 0);
+		}
 		expand(&args_ptr[i], t->env, t->exit_code, 0);
-		ft_fprintf(STDOUT, "\nexpand output: %S\n", args_ptr[i]);
-		printf("\n------------\n");
+		if (remove_empty_args(&args_ptr[i], i, &cmds[idx].argc))
+			continue ;
 		i++;
 	}
+	printf("AFTER:\n");
+	debug_args(&cmds[idx], 1);
+	//porque é que echo "" está a dar leaks?????
 	char* res = find_path(args_ptr[0], t->env);
 	if (res)
 	{
@@ -133,6 +151,7 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 		args_ptr[0] = cstr_to_str(res);
 		freen((void *)&res);
 	}
+	printf("returning set_cmd()\n");
 	return (true);
 }
 
@@ -142,5 +161,31 @@ static bool	format_args(t_parser_buffer *pb, t_cmd *cmds, int *redir_idx)
 		return (false);
 	if (cmds)
 		remove_redirections(pb, cmds);
+	return (true);
+}
+
+size_t strs_count(t_string *args)
+{
+	size_t i;
+
+	i = 0;
+	while (args[i].s)
+		i++;
+	return(i);
+}
+
+//se o argumento for nulo significa que era um string vazio, logo remover
+bool remove_empty_args(t_string *arg, int current, size_t *argc)
+{
+	size_t nbytes;
+	t_string ptr;
+
+	if (!arg || arg->len > 0)
+		return (false);
+	ptr = *arg;
+	nbytes = (*argc - current) * sizeof(t_string);
+	ft_memmove(arg, arg + 1, nbytes);
+	(*argc)--;
+	string_free(&ptr);
 	return (true);
 }

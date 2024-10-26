@@ -54,7 +54,7 @@ static void	exec_subprocess(int fds[][2], t_cmd *cmds, int idx, t_terminal *t)
 		freexit(FILE_ERROR, cmds, t);
 	}
 	close_fds(fds, t->cmds_num - 1);
-	if (execve(cmds[idx].cstr_args[0], cmds[idx].cstr_args, t->env) == -1) //TODO: substituir por execve 
+	if (execve(cmds[idx].cstr_args[0], cmds[idx].cstr_args, t->env) == -1)
 	{
 		if (errno == ENOENT)
 			ft_fprintf(ERROR, "%s: Command not found\n",

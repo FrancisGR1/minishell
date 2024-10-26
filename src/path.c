@@ -3,7 +3,7 @@
 char *find_path(t_string cmd, char **env)
 {
 	const char *str_paths = env_lookup(env, "PATH");
-	const char **split_paths = (const char **)ft_split(ft_strchr(str_paths, '=') + 1, ":");
+	const char **split_paths = (const char **)ft_split(str_paths, ":");
 	const char *cstr_cmd = string_convert_back(cmd);
 	char path_to_be_written[PATH_MAX];
 	size_t i;
@@ -12,13 +12,14 @@ char *find_path(t_string cmd, char **env)
 
 
 	i = 0;
+	if (!split_paths || !cstr_cmd)
+		return (NULL);
 	while (split_paths[i])
 	{
 		split_path_size = ft_strlen(split_paths[i]);
 		ft_strlcpy(path_to_be_written, split_paths[i], split_path_size + 1);
 		ft_strlcat(path_to_be_written, "/", split_path_size + 2);
 		ft_strlcat(path_to_be_written, cstr_cmd, split_path_size + cmd.len + 2);
-		printf("%s\n", path_to_be_written);
 		if (access(path_to_be_written, F_OK) == 0)
 		{
 			res = ft_strdup(path_to_be_written);
@@ -31,6 +32,7 @@ char *find_path(t_string cmd, char **env)
 		free((void *)split_paths[i++]);
 	freen((void*) &cstr_cmd);
 	free(split_paths);
+	printf("returning path\n");
 	return (res);
 }
 

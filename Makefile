@@ -41,6 +41,9 @@ run: $(NAME)
 	./$(NAME)
 
 leaks: $(NAME) $(VAL_SUPP)
+	valgrind --track-origins=yes --show-leak-kinds=all --track-fds=yes --suppressions=readline.supp --leak-check=full ./$(NAME) 
+
+leaks-file: $(NAME) $(VAL_SUPP)
 	valgrind --track-origins=yes --show-leak-kinds=all --track-fds=yes --suppressions=readline.supp --leak-check=full --log-file=valgrind.out ./$(NAME) 
 
 leaks-gdb: $(NAME) $(VAL_SUPP)

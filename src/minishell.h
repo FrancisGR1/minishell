@@ -102,6 +102,7 @@ struct							s_command
 {
 	t_string					binary;
 	t_string					*args;
+	size_t		argc;
 	char						**cstr_args;
 	t_list						*redirs;
 	//redir info
