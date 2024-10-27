@@ -1,17 +1,17 @@
 #include "minishell.h"
 
-static int is_special_char(int c);
+static int is_special_dollar(char *s);
 static t_string make_expanded_str(t_string *s, t_string expanded_dollar, t_string delimiter);
 static t_string expand_dollar(t_string delimiter, char **env, int exit_code);
 
-//holds most of the variables for expansion
-//lifetime is equal to expand()
+//holds most of the temporary variables for expansion
 typedef struct s_expand_buffer
 {
 	int offset;
 	t_string delimiter;
 	t_string expanded_dollar;
 	t_string united_str;
+	t_string tmp;
 	int next_start;
 }	t_expand_buf;
 
@@ -24,26 +24,28 @@ void expand(t_string *s, char **env, int exit_code, int start)
 	if (!s || dollar_pos < 0)
 		return ;
 	e.offset = ((s->s + dollar_end_pos) - (s->s + dollar_pos));
-	if (s->s + dollar_end_pos + 1)
-		if (is_special_char(*(s->s + dollar_end_pos + 1)))
-			e.offset++;
+	if (is_special_dollar(s->s + dollar_pos))
+		return expand(s, env, exit_code, dollar_pos + 1);
 	e.offset++;
 	e.delimiter = cstr_to_str_ptr(s->s + dollar_pos, e.offset);
 	e.expanded_dollar = expand_dollar(e.delimiter, env, exit_code);
 	e.united_str = make_expanded_str(s, e.expanded_dollar, e.delimiter); 
 	e.next_start = dollar_pos + 1 + e.expanded_dollar.len;
-	string_free(s);
+	e.tmp = *s;
 	*s = str_dup(e.united_str);
+	string_free(&e.tmp);
 	string_free(&e.united_str);
 	string_free(&e.expanded_dollar);
 	expand(s, env, exit_code, e.next_start);
 }
 
-static int is_special_char(int c)
+static int is_special_dollar(char *s)
 {
-	return (c == '?' || c == '!' || c == '#' || 
-			c == '&' || c == '$' || c == '*' || 
-			c == '@' || c== '_' || ft_isdigit(c));
+	char c;
+	if (!s || !(s + 1))
+		return (1);
+	c = *(s + 1);
+	return (!ft_isalpha(c) && c != '_');
 }
 
 
