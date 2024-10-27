@@ -71,8 +71,8 @@ void	alloc_args(t_cmd *cmds, int commands)
 
 	if (!cmds || !cmds->args || !cmds->args->s)
 		return ;
-	i = 0;
-	while (i < commands)
+	i = -1;
+	while (++i < commands)
 	{
 		j = 0;
 		while (cmds[i].args[j].s)
@@ -83,14 +83,10 @@ void	alloc_args(t_cmd *cmds, int commands)
 		{
 			cmd_args[k] = string_convert_back(cmds[i].args[k]);
 			if (cmds[i].args[k].type == STR_ALLOCATED)
-			{
-				printf("DEALLOCATION: %p -> |%s|\n", cmds[i].args[k].s, cmds[i].args[k].s);
 				string_free(&cmds[i].args[k]);
-			}
 			k++;
 		}
 		cmd_args[k] = NULL;
 		cmds[i].cstr_args = cmd_args;
-		i++;
 	}
 }
