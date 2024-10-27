@@ -1,31 +1,47 @@
 #include "minishell.h"
 
+static int is_special_char(int c);
 void expand(t_string *s, char **env, int exit_code, int start)
 {
 	static int i;
-	printf("entered expand(): %d\n", i++);
-	printf("starting at: %d\n", start);
+	printf("entered:\n");
 	if (!s)
 		return;
 	const int dollar_pos = string_find(*s, start, s->len, "$");
-	printf("ended at: %d\n", dollar_pos);
 	const int dollar_end_pos = dollar_pos + str_iter(*s, dollar_pos + 1, s->len - 1 - dollar_pos, ft_isalnum);
-	if (dollar_pos < 0 || (dollar_pos == 0 && s->len == 1))
+	if (dollar_pos < 0)
+	{
+		printf("%d: dollar_pos < 0\n", i++);
 		return ;
+	}
 	int offset = ((s->s + dollar_end_pos) - (s->s + dollar_pos));
-	if (dollar_end_pos > 0 && !offset)
-		return expand(s, env, exit_code, dollar_end_pos + 1);
-	if (offset <= 0)
-		return str_free_and_replace_raw(s, "$");
+	//se só tivermos um dólar
+	if (s->s + dollar_end_pos + 1)
+		if (is_special_char(*(s->s + dollar_end_pos + 1)))
+			offset++;
+	if (dollar_pos >= 0 && !offset)
+	{
+		return expand(s, env, exit_code, dollar_pos + 1);
+	}
 	int size = ++offset;
 	t_string delim = cstr_to_str_ptr(s->s + dollar_pos, size);
+	ft_fprintf(STDOUT, "DELIMITER: %S\n", delim);
 	char *delimiter = string_convert_back(delim);
-	char *tmp_env = env_lookup(env, delimiter + 1);
 	t_string env_str;
-	if (tmp_env)
-		env_str = cstr_to_str(tmp_env);
-	else
-		env_str = cstr_to_str("");
+	//apanho aqui
+	if (ft_strncmp(delimiter, "$?", 2) == 0)
+	{
+		char *num = ft_itoa(exit_code);
+		env_str = cstr_to_str(num);
+		free(num);
+	}
+	else {
+		char *tmp_env_ptr = env_lookup(env, delimiter + 1);
+		if (tmp_env_ptr)
+			env_str = cstr_to_str(tmp_env_ptr);
+		else
+			env_str = cstr_to_str("");
+	}
 	int len = 0;
 	//as partes são pointers a apontar para o início/fim das secções 
 	//que NÂO fazem parte da variável $
@@ -73,4 +89,11 @@ void expand(t_string *s, char **env, int exit_code, int start)
 	*s = str_dup(res);
 	string_free(&res);
 	expand(s, env, exit_code, start);
+}
+
+static int is_special_char(int c)
+{
+	return (c == '?' || c == '!' || c == '#' || 
+			c == '&' || c == '$' || c == '*' || 
+			c == '@' || c== '_' || ft_isdigit(c));
 }

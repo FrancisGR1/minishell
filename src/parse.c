@@ -47,7 +47,6 @@ t_cmd	*parse(t_string input, t_terminal *t)
 	}
 	pb.cmds[pb.idx].binary = new_str(NULL, 0);
 	free(pb.pipe_sides);
-	printf("returning parse\n");
 	return (pb.cmds);
 }
 
@@ -151,7 +150,6 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 		args_ptr[0] = cstr_to_str(res);
 		freen((void *)&res);
 	}
-	printf("returning set_cmd()\n");
 	return (true);
 }
 
