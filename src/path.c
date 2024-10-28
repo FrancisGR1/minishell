@@ -13,7 +13,11 @@ char *find_path(t_string cmd, char **env)
 
 	i = 0;
 	if (!split_paths || !cstr_cmd)
+	{
+		freen_arr((void **)split_paths);
+		freen((void *)&cstr_cmd);
 		return (NULL);
+	}
 	while (split_paths[i])
 	{
 		split_path_size = ft_strlen(split_paths[i]);
@@ -28,11 +32,8 @@ char *find_path(t_string cmd, char **env)
 		i++;
 	}
 	i = 0;
-	while (split_paths[i])
-		free((void *)split_paths[i++]);
-	freen((void*) &cstr_cmd);
-	free(split_paths);
-	printf("returning path\n");
+	freen_arr((void **)split_paths);
+	freen((void *)&cstr_cmd);
 	return (res);
 }
 

@@ -135,13 +135,15 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 			args_ptr[i] = new_str(NULL, 0);
 		}
 		expand(&args_ptr[i], t->env, t->exit_code, 0);
+		//TODO: depois da expansão tenho de voltar a dividir por 
+		//espaçoes e adicionar os argumentos; ver exemplo em todo.md
+		//não deve remove o primeiro argumento porque pode ser ''
 		if (remove_empty_args(&args_ptr[i], i, &cmds[idx].argc))
 			continue ;
 		i++;
 	}
 	printf("AFTER:\n");
 	debug_args(&cmds[idx], 1);
-	//porque é que echo "" está a dar leaks?????
 	char* res = find_path(args_ptr[0], t->env);
 	if (res)
 	{
@@ -178,7 +180,7 @@ bool remove_empty_args(t_string *arg, int current, size_t *argc)
 	size_t nbytes;
 	t_string ptr;
 
-	if (!arg || arg->len > 0)
+	if (!arg || arg->len > 0 || current == 0)
 		return (false);
 	ptr = *arg;
 	nbytes = (*argc - current) * sizeof(t_string);

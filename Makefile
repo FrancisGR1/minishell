@@ -49,9 +49,6 @@ leaks-file: $(NAME) $(VAL_SUPP)
 leaks-gdb: $(NAME) $(VAL_SUPP)
 	valgrind --vgdb=yes --vgdb-error=0 --track-origins=yes --show-leak-kinds=all --track-fds=yes --suppressions=readline.supp --leak-check=full ./$(NAME)
 
-norm: 
-	norminette | grep "error"
-
 format: 
 	./format.sh $(SRC)
 
