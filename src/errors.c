@@ -62,29 +62,29 @@ void	free_cmd_cstr_args(t_cmd *cmds)
 }
 
 //TODO: mudar função de sítio
-void	alloc_args(t_cmd *cmds, int commands)
+void	alloc_args(t_cmd *cmds, int commands_num)
 {
 	int		i;
-	int		j;
 	int		k;
 	char	**cmd_args;
 
-	if (!cmds || !cmds->args || !cmds->args->s)
+	if (!cmds || !cmds->args)
 		return ;
 	i = -1;
-	while (++i < commands)
+	while (++i < commands_num)
 	{
-		j = 0;
-		while (cmds[i].args[j].s)
-			j++;
-		cmd_args = ft_calloc(sizeof(char *),  (j + 1));
-		k = 0;
-		while (k < j)
+		if (cmds[i].argc == 0)
+		{
+			cmds[i].cstr_args = NULL;
+			continue ;
+ 		}
+		cmd_args = ft_calloc(sizeof(char *),  (cmds[i].argc + 1));
+		k = -1;
+		while (++k < (int) cmds[i].argc)
 		{
 			cmd_args[k] = string_convert_back(cmds[i].args[k]);
 			if (cmds[i].args[k].type == STR_ALLOCATED)
 				string_free(&cmds[i].args[k]);
-			k++;
 		}
 		cmd_args[k] = NULL;
 		cmds[i].cstr_args = cmd_args;

@@ -28,6 +28,9 @@ void	heredoc(char *delimiter, char *heredoc_file, bool *open_error,
 		//TODO: usar termios para bloquear ctrl + \ e 
 		//ctrl + d quando a linha está cheia
 		ft_putstr_fd("> ", terminal_fd);
+		//TODO: sai quando input é delimitador - 1 char?
+		//ex: delim: EOF1
+		//->sai quando: >EOF
 		input = get_next_line(terminal_fd);
 		if (!input || ft_strncmp(input, delimiter, ft_strlen(input)) == 0)
 		{

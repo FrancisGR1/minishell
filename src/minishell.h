@@ -32,6 +32,7 @@
 # include <errno.h>
 
 // global variable with last value received
+// TODO: esta var pode ser um sim/não?
 extern int						g_sig_received;
 
 // special characters
@@ -43,7 +44,7 @@ extern int						g_sig_received;
 # define DELIMITERS "\1\2\3\4"
 
 // Prompts
-# define RL_PROMPT "minishell> "
+# define RL_PROMPT BGRN "minishell> " RESET
 # define HEREDOC_PROMPT "> "
 
 // Exit codes
@@ -171,7 +172,7 @@ void							*free_on_error(int exit_code,
 void							freexit(int exit_code, t_cmd *cmds,
 									t_terminal *t);
 void							free_cmd_cstr_args(t_cmd *cmds);
-void							alloc_args(t_cmd *cmds, int commands);
+void							alloc_args(t_cmd *cmds, int commands_num);
 
 // initializers
 void							init_redirs(t_parser_buffer *pb, size_t idx);

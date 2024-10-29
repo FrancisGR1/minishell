@@ -20,6 +20,9 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t);
 static int	mark_special_characters(t_string input, size_t *cmds_num);
 static int	remove_quotes(t_string *arg);
 
+// Stores the temporary data for/from parsing and
+// the important data for convenience
+
 t_cmd	*parse(t_string input, t_terminal *t)
 {
 	t_parser_buffer	pb;
@@ -40,8 +43,7 @@ t_cmd	*parse(t_string input, t_terminal *t)
 		while (pb.redir_ptrs && ++pb.redir_idx < (int)pb.redir_ptrs->len)
 			if (!format_args(&pb, &pb.cmds[pb.idx], &pb.redir_idx))
 				return (free_on_error(WRONG_FORMAT, "Format error: No redirection file", &pb));
-		//pq é que args_ptr estã a entra nulo em set_cmd()??????
-		if (!set_cmd(pb.cmds, pb.idx, pb.args_ptr, t))
+		if (!set_cmd(pb.cmds, pb.idx, pb.args_ptr, t) && !pb.redir_ptrs)
 			return (free_on_error(WRONG_FORMAT, "Format error: No command", &pb));
 		darr_free(pb.redir_ptrs);
 	}
@@ -111,17 +113,16 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 {
 	size_t	i;
 
+	if (!cmds || !args_ptr || !t)
+		return (false);
 	if (cmds[idx].has_heredoc)
 	{
 		write_path(cmds[idx].heredoc_file, rand_string());
 	}
-	if (!args_ptr[idx].s)
-		return (false);
 	cmds[idx].binary = args_ptr[0];
 	cmds[idx].args = args_ptr;
 	cmds[idx].argc = strs_count(args_ptr); 
 	printf("BEFORE:\n");
-	debug_args(&cmds[idx], 1);
 	i = 0;
 	while (i < cmds[idx].argc)
 	{
@@ -136,15 +137,18 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 		}
 		expand(&args_ptr[i], t->env, t->exit_code, 0);
 		//TODO: depois da expansão tenho de voltar a dividir por 
-		//espaçoes e adicionar os argumentos; ver exemplo em todo.md
-		//não deve remove o primeiro argumento porque pode ser ''
+		//espaços e adicionar os argumentos; ver exemplo em todo.md
+		//não deve remover o primeiro argumento porque pode ser ''
 		if (remove_empty_args(&args_ptr[i], i, &cmds[idx].argc))
 			continue ;
 		i++;
 	}
 	printf("AFTER:\n");
-	debug_args(&cmds[idx], 1);
-	char* res = find_path(args_ptr[0], t->env);
+	char *res;
+	if (args_ptr[0].s)
+		res = find_path(args_ptr[0], t->env);
+	else
+		res = NULL;
 	if (res)
 	{
 		if (args_ptr[0].type == STR_ALLOCATED)

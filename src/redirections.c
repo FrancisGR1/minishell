@@ -60,8 +60,8 @@ void	open_and_redirect(char *file, int flags, bool *open_error, int terminal_fd,
 			dup2(terminal_fd, STDOUT);
 			dup2(redir_fd, STDOUT);
 		}
-		close(redir_fd);
 	}
+	close(redir_fd);
 	*open_error = false;
 }
 

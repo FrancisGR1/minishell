@@ -56,11 +56,12 @@ static void	exec_subprocess(int fds[][2], t_cmd *cmds, int idx, t_terminal *t)
 	close_fds(fds, t->cmds_num - 1);
 	if (!cmds[idx].cstr_args || execve(cmds[idx].cstr_args[0], cmds[idx].cstr_args, t->env) == -1)
 	{
-		if (!cmds[idx].cstr_args) //Verificar que também não tem redireções
+		if (!cmds[idx].cstr_args && !cmds[idx].redirs) 
 			ft_fprintf(ERROR, "Command \'\' not found\n");
+		else if (!cmds[idx].cstr_args && cmds[idx].redirs)
+			freexit(EXIT_SUCCESS, cmds, t);
 		else if (errno == ENOENT)
-			ft_fprintf(ERROR, "%s: Command not found\n",
-				cmds[idx].cstr_args[0]);
+			ft_fprintf(ERROR, "%s: Command not found\n", cmds[idx].cstr_args[0]);
 		else
 			perror(cmds[idx].cstr_args[0]);
 		freexit(CMD_NOT_FOUND, cmds, t);
