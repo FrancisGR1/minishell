@@ -31,11 +31,17 @@ void	load_signals(void)
 
 void	signals_handler(int signum, siginfo_t *inf, void *ctx)
 {
-	(void)inf;
-	(void)ctx;
+	(void) ctx;
 	if (signum == SIGINT)
 	{
-		g_sig_received = signum;
-		rl_done = 1;
+		if (inf->si_pid == SUBPROCESS)
+		{
+			ft_fprintf(STDOUT, "\n");
+		}
+		else
+		{
+			g_sig_received = signum;
+		}
+			rl_done = 1;
 	}
 }

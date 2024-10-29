@@ -61,7 +61,7 @@ extern int						g_sig_received;
 // Pid of subprocess spawned is 0
 # define SUBPROCESS 0
 
-//output redirections use this mode
+//output redirections open files in this mode
 # define DEFAULT_FILE_PERM 0644
 
 // Main struct
@@ -163,7 +163,7 @@ void							reset_term(t_terminal **t);
 void							destroy_term(t_terminal **t);
 
 // signals
-void							load_signals(void);
+void	load_signals(void);
 void							signals_handler(int signum, siginfo_t *inf,
 									void *ctx);
 //environment
