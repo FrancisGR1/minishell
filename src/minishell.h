@@ -61,6 +61,9 @@ extern int						g_sig_received;
 // Pid of subprocess spawned is 0
 # define SUBPROCESS 0
 
+//output redirections use this mode
+# define DEFAULT_FILE_PERM 0644
+
 // Main struct
 typedef struct s_terminal		t_terminal;
 
@@ -146,7 +149,8 @@ int								exec(t_cmd *cmds, t_terminal *t);
 // redirections
 int	set_redirs(t_list *redirs, char *heredoc_file, int terminal_fd, t_redir *li_ptr, t_redir *lo_ptr);
 int								redir_error(t_redir *r, char *heredoc_file, char *file_name);
-void	open_and_redirect(char *file, int flags, bool *open_error, int terminal_fd, bool is_last_output);
+void	open_and_redirect_output(char *file, int flags, bool *open_error, int terminal_fd, bool is_last_output);
+void	open_and_redirect_input(char *file, bool *open_error, int terminal_fd, bool is_last_output);
 
 // redirection: heredoc
 void	heredoc(char *delimiter, char *heredoc_file, bool *open_error,

@@ -49,5 +49,6 @@ void	heredoc(char *delimiter, char *heredoc_file, bool *open_error,
 		dup2(terminal_fd, STDIN);
 		dup2(read_fd, STDIN);
 	}
+	//TODO: só devo fechar se não houver erro
 	close(read_fd);
 }

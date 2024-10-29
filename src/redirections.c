@@ -24,45 +24,54 @@ int	set_redirs(t_list *redirs, char *heredoc_file, int terminal_fd, t_redir *li_
 		r = (t_redir *)redirs->content;
 		ft_strlcpy(file_name, r->fd.s, r->fd.len + 1);
 		if (r->type == REDIR_INPUT)
-			open_and_redirect(file_name, O_RDONLY, &open_error, terminal_fd, li_ptr == r);
+			open_and_redirect_input(file_name, &open_error, terminal_fd, li_ptr == r);
 		else if (r->type == REDIR_HEREDOC)
 			heredoc(file_name, heredoc_file, &open_error, terminal_fd, li_ptr ==r);
 		else if (r->type == REDIR_OUTPUT)
-			open_and_redirect(file_name, O_WRONLY | O_CREAT | O_TRUNC, &open_error, terminal_fd, lo_ptr == r);
+			open_and_redirect_output(file_name, O_WRONLY | O_CREAT | O_TRUNC, &open_error, terminal_fd, lo_ptr == r);
 		else if (r->type == REDIR_APPEND)
-			open_and_redirect(file_name, O_WRONLY | O_CREAT | O_APPEND, &open_error, terminal_fd, lo_ptr == r);
-		if (open_error)//não sei se é suposto parar no erro 
+			open_and_redirect_output(file_name, O_WRONLY | O_CREAT | O_APPEND, &open_error, terminal_fd, lo_ptr == r);
+		if (open_error)
 			return (redir_error(r, heredoc_file, file_name));
 		redirs = redirs->next;
 	}
 	return (1);
 }
 
-void	open_and_redirect(char *file, int flags, bool *open_error, int terminal_fd, bool is_last_output)
+void	open_and_redirect_input(char *file, bool *open_error, int terminal_fd, bool is_last_output)
 {
 	int	redir_fd;
 
-	if (flags == O_RDONLY)
-		redir_fd = open(file, flags);
-	else
-		redir_fd = open(file, flags, 0644);
+	redir_fd = open(file, O_RDONLY);
 	if (redir_fd == -1)
+	{
 		*open_error = true;
+	}
 	else if (is_last_output)
 	{
-		if (flags == O_RDONLY)
-		{
-			dup2(terminal_fd, STDIN);
-			dup2(redir_fd, STDIN);
-		}
-		else
-		{
-			dup2(terminal_fd, STDOUT);
-			dup2(redir_fd, STDOUT);
-		}
+		dup2(terminal_fd, STDIN);
+		dup2(redir_fd, STDIN);
 	}
-	close(redir_fd);
-	*open_error = false;
+	if (open_error == false)
+		close(redir_fd);
+}
+
+void	open_and_redirect_output(char *file, int flags, bool *open_error, int terminal_fd, bool is_last_output)
+{
+	int	redir_fd;
+
+	redir_fd = open(file, flags, DEFAULT_FILE_PERM);
+	if (redir_fd == -1)
+	{
+		*open_error = true;
+	}
+	else if (is_last_output)
+	{
+		dup2(terminal_fd, STDOUT);
+		dup2(redir_fd, STDOUT);
+	}
+	if (open_error == false)
+		close(redir_fd);
 }
 
 int	redir_error(t_redir *r, char *heredoc_file, char *file_name)
@@ -74,6 +83,9 @@ int	redir_error(t_redir *r, char *heredoc_file, char *file_name)
 		ft_fprintf(STDERR, "heredoc file: %s\n", heredoc_file);
 	}
 	else
+	{
+		ft_fprintf(STDERR, "MY ERROR:\n");
 		perror(file_name);
+	}
 	return (0);
 }

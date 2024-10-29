@@ -122,7 +122,6 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 	cmds[idx].binary = args_ptr[0];
 	cmds[idx].args = args_ptr;
 	cmds[idx].argc = strs_count(args_ptr); 
-	printf("BEFORE:\n");
 	i = 0;
 	while (i < cmds[idx].argc)
 	{
@@ -143,7 +142,6 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 			continue ;
 		i++;
 	}
-	printf("AFTER:\n");
 	char *res;
 	if (args_ptr[0].s)
 		res = find_path(args_ptr[0], t->env);
