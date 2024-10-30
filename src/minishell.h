@@ -16,7 +16,7 @@
 // our lib
 # include "../libft/libft.h"
 
-//TEMPORÁRIO
+//TODO: TEMPORÁRIO
 #include <assert.h>
 
 // Readline includes
@@ -66,6 +66,10 @@ extern int						g_sig_received;
 
 //output redirections open files in this mode
 # define DEFAULT_FILE_PERM 0644
+
+//main parent ingnores every signal
+# define DO_NOTHING -1
+# define DEFAULT 0
 
 // Main struct
 typedef struct s_terminal		t_terminal;
@@ -166,7 +170,7 @@ void							reset_term(t_terminal **t);
 void							destroy_term(t_terminal **t);
 
 // signals
-void	load_signals(void);
+void	load_signals(int at);
 void							signals_handler(int signum, siginfo_t *inf,
 									void *ctx);
 //environment

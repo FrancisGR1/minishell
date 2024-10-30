@@ -23,29 +23,43 @@ void	heredoc(char *delimiter, char *heredoc_file, bool *open_error,
 	write_fd = open(heredoc_file, O_WRONLY | O_TRUNC | O_CREAT, 0644);
 	if (write_fd == -1)
 		*open_error = true;
+	//gerar stdout temporário
 	while (true && !*open_error)
 	{
-		//TODO: usar termios para bloquear ctrl + \ e 
-		//ctrl + d quando a linha está cheia
-		ft_putstr_fd("> ", terminal_fd);
-		input = get_next_line(terminal_fd);
-		if (!input || ft_strcmp(input, delimiter) == 0)
+		//TODO: meter a funcionar com pipes
+		input = readline("> ");
+		if (!input || ft_strcmp(input, delimiter) == 0 || (g_sig_received && ft_strlen(input) == 0))
 		{
-			if (!input)
-				ft_putstr_fd("\n", terminal_fd); 
 			freen((void *)&input);
 			break ;
 		}
 		ft_putendl_fd(input, write_fd);
 		freen((void *)&input);
+		g_sig_received = 0;
 	}
-	close(write_fd);
+	if (write_fd > 0)
+		close(write_fd);
 	read_fd = open(heredoc_file, O_RDONLY);
 	if (is_last_input)
 	{
 		dup2(terminal_fd, STDIN);
 		dup2(read_fd, STDIN);
 	}
-	//TODO: só devo fechar se não houver erro
-	close(read_fd);
+	if (read_fd > 0)
+		close(read_fd);
+	//eliminar stdout temporário
 }
+
+
+//static void disable_ctrl_d(void)
+//{
+//	static termios term;
+//
+//	tcgetattr(STDIN_FILENO), &term);
+//	term.c_lflag = &= ~ICANON;
+//	term.c_cc[V_EOF] = 0;
+//
+//	tcsetattr(STDIN_FILENO, TCSNOW, &term);
+//
+//	tcsetattr(STDIN_FEILNEO, TCSNOW, &term);
+//}

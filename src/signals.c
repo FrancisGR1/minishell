@@ -17,15 +17,22 @@ int	event_hook(void)
 	return (0);
 }
 
-void	load_signals(void)
+void	load_signals(int at)
 {
-	struct sigaction	sa;
+	static struct sigaction	sa;
 
 	sigemptyset(&sa.sa_mask);
 	signal(SIGQUIT, SIG_IGN);
 	sa.sa_flags = SA_SIGINFO | SA_RESTART;
-	sa.sa_sigaction = signals_handler;
-	sigaction(SIGINT, &sa, NULL);
+	if (at != DO_NOTHING)
+	{
+		sa.sa_sigaction = signals_handler;
+		sigaction(SIGINT, &sa, NULL);
+	}
+	else
+	{
+		signal(SIGINT, SIG_IGN);
+	}
 	rl_event_hook = event_hook;
 }
 
@@ -38,10 +45,7 @@ void	signals_handler(int signum, siginfo_t *inf, void *ctx)
 		{
 			ft_fprintf(STDOUT, "\n");
 		}
-		else
-		{
-			g_sig_received = signum;
-		}
-			rl_done = 1;
+		g_sig_received = signum;
+		rl_done = 1;
 	}
 }
