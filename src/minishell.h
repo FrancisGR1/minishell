@@ -47,6 +47,9 @@ extern int						g_sig_received;
 # define RL_PROMPT BGRN "minishell> " RESET
 # define HEREDOC_PROMPT "> "
 
+// Max cmds possible in minishell
+# define CMD_MAX 1000
+
 // Exit codes
 # define NO_INPUT 0
 # define FILE_ERROR 1

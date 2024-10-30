@@ -20,8 +20,8 @@ static void	exec_subprocess(int fds[][2], t_cmd *cmds, int idx, t_terminal *t);
 int	exec(t_cmd *cmds, t_terminal *t)
 {
 	int	command_c = t->cmds_num - 1;
-	int			fds[t->cmds_num][2];
-	pid_t		pids[t->cmds_num];
+	int			fds[CMD_MAX][2];
+	pid_t		pids[CMD_MAX];
 	int			i;
 
 	init_pipes(fds, command_c);
