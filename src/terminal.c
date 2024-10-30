@@ -30,6 +30,7 @@ void	reset_term(t_terminal **t)
 {
 	size_t	i;
 
+	g_sig_received  = 0;
 	if (!t || !*t)
 		return ;
 	if ((*t)->cmds)

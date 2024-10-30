@@ -12,8 +12,7 @@
 
 #include "minishell.h"
 
-void	heredoc(char *delimiter, char *heredoc_file, bool *open_error,
-		int terminal_fd, bool is_last_input)
+int	heredoc(char *delimiter, char *heredoc_file, int terminal_fd, bool is_last_input)
 {
 	char	*input;
 	int		write_fd;
@@ -22,15 +21,20 @@ void	heredoc(char *delimiter, char *heredoc_file, bool *open_error,
 	input = NULL;
 	write_fd = open(heredoc_file, O_WRONLY | O_TRUNC | O_CREAT, 0644);
 	if (write_fd == -1)
-		*open_error = true;
+		return (FILE_ERROR);
 	//gerar stdout temporário
-	while (true && !*open_error)
+	while (true)
 	{
 		//TODO: meter a funcionar com pipes
 		input = readline("> ");
 		if (!input || ft_strcmp(input, delimiter) == 0 || (g_sig_received && ft_strlen(input) == 0))
 		{
 			freen((void *)&input);
+			if (g_sig_received)
+			{
+				close(write_fd);
+				return (g_sig_received);
+			}
 			break ;
 		}
 		ft_putendl_fd(input, write_fd);
@@ -45,21 +49,22 @@ void	heredoc(char *delimiter, char *heredoc_file, bool *open_error,
 		dup2(terminal_fd, STDIN);
 		dup2(read_fd, STDIN);
 	}
-	if (read_fd > 0)
-		close(read_fd);
+	close(read_fd);
 	//eliminar stdout temporário
+	return (EXIT_SUCCESS);
 }
 
+void wait_heredoc(int *hd_exit_status, pid_t pid)
+{
+	int wstatus;
 
-//static void disable_ctrl_d(void)
-//{
-//	static termios term;
-//
-//	tcgetattr(STDIN_FILENO), &term);
-//	term.c_lflag = &= ~ICANON;
-//	term.c_cc[V_EOF] = 0;
-//
-//	tcsetattr(STDIN_FILENO, TCSNOW, &term);
-//
-//	tcsetattr(STDIN_FEILNEO, TCSNOW, &term);
-//}
+	waitpid(pid, &wstatus, 0);
+	if (WIFSIGNALED(wstatus))
+	{
+		*hd_exit_status = FATAL_ERROR + WTERMSIG(wstatus);
+	}
+	else  if (WIFEXITED(wstatus))
+	{
+		*hd_exit_status = WEXITSTATUS(wstatus);
+	}
+}

@@ -14,7 +14,7 @@
 
 int			g_sig_received = 0;
 
-t_string	ft_readline(char *prompt, t_terminal *t);
+t_string	ft_readline(char *prompt);
 
 int	main(int c, char **v, char **env)
 {
@@ -23,10 +23,10 @@ int	main(int c, char **v, char **env)
 	t_terminal	*t;
 
 	t = init_term(env);
-	load_signals();
+	load_signals(DEFAULT);
 	while (true)
 	{
-		t->input = ft_readline(RL_PROMPT, t);
+		t->input = ft_readline(RL_PROMPT);
 		if (!t->input.s)
 			break ;
 		add_history(t->input.s);
@@ -40,24 +40,13 @@ int	main(int c, char **v, char **env)
 	destroy_term(&t);
 }
 
-t_string	ft_readline(char *prompt, t_terminal *t)
+t_string	ft_readline(char *prompt)
 {
 	char		*tmp;
 	t_string	input;
 
-	while (true)
-	{
-		tmp = readline(prompt);
-		input = cstr_to_str(tmp);
-		freen((void *)&tmp);
-		if (g_sig_received)
-		{
-			t->exit_code = FATAL_ERROR;
-			g_sig_received = 0;
-			string_free(&input);
-			continue ;
-		}
-		break ;
-	}
+	tmp = readline(prompt);
+	input = cstr_to_str(tmp);
+	freen((void *)&tmp);
 	return (input);
 }

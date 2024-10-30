@@ -33,6 +33,7 @@ void	init_redirs(t_parser_buffer *pb, size_t idx)
 	pb->cmds[idx].last_input_ptr = NULL;
 	pb->cmds[idx].last_output_ptr = NULL;
 	pb->cmds[idx].has_heredoc = false;
+	pb->cmds[idx].heredoc_wstatus = 0;
 	pb->redir_idx = -1;
 	pb->redir_ptrs = string_findall(pb->pipe_sides[idx], "\2\3");
 	pb->redir_ptr = NULL;
