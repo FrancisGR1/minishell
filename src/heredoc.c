@@ -21,18 +21,15 @@ void	heredoc(char *delimiter, char *heredoc_file, bool *open_error,
 
 	input = NULL;
 	write_fd = open(heredoc_file, O_WRONLY | O_TRUNC | O_CREAT, 0644);
-	if (write_fd == -1) //TODO: mudar isto
+	if (write_fd == -1)
 		*open_error = true;
 	while (true && !*open_error)
 	{
 		//TODO: usar termios para bloquear ctrl + \ e 
 		//ctrl + d quando a linha está cheia
 		ft_putstr_fd("> ", terminal_fd);
-		//TODO: sai quando input é delimitador - 1 char?
-		//ex: delim: EOF1
-		//->sai quando: >EOF
 		input = get_next_line(terminal_fd);
-		if (!input || ft_strncmp(input, delimiter, ft_strlen(input)) == 0)
+		if (!input || ft_strcmp(input, delimiter) == 0)
 		{
 			if (!input)
 				ft_putstr_fd("\n", terminal_fd); 
