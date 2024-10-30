@@ -1,6 +1,7 @@
 #include "minishell.h"
 
 static int is_special_dollar(char *s);
+int valid_dollar_char(int c);
 static t_string make_expanded_str(t_string *s, t_string expanded_dollar, t_string delimiter);
 static t_string expand_dollar(t_string delimiter, char **env, int exit_code);
 
@@ -18,7 +19,7 @@ typedef struct s_expand_buffer
 void expand(t_string *s, char **env, int exit_code, int start)
 {
 	const int dollar_pos = string_find(*s, start, s->len, "$");
-	const int dollar_end_pos = dollar_pos + str_iter(*s, dollar_pos + 1, s->len - 1 - dollar_pos, ft_isalnum);
+	const int dollar_end_pos = dollar_pos + str_iter(*s, dollar_pos + 1, s->len - 1 - dollar_pos, valid_dollar_char);
 	t_expand_buf e;
 
 	if (!s || dollar_pos < 0)
@@ -41,13 +42,24 @@ void expand(t_string *s, char **env, int exit_code, int start)
 
 static int is_special_dollar(char *s)
 {
-	char c;
+	char next_c;
 	if (!s || !(s + 1))
 		return (1);
-	c = *(s + 1);
-	return (!ft_isalpha(c) && c != '_');
+	next_c = *(s + 1);
+	return (!ft_isalpha(next_c) && next_c != '_' && next_c != '?');
 }
 
+int valid_dollar_char(int c)
+{
+	static int prev_char;
+	bool is_valid;
+	
+	is_valid = false;
+	if ((ft_isalnum(c) || c == '?') && prev_char != '?')
+		is_valid = true;
+	prev_char = c;
+	return (is_valid);
+}
 
 static t_string make_expanded_str(t_string *s, t_string expanded_dollar, t_string delimiter)
 {
@@ -84,7 +96,7 @@ static t_string expand_dollar(t_string delimiter, char **env, int exit_code)
 	t_string expanded_dollar;
 
 	dollar_key = string_convert_back(delimiter);
-	if (ft_strncmp(dollar_key, "$?", 2) == 0)
+	if (ft_strcmp(dollar_key, "$?") == 0)
 	{
 		num = ft_itoa(exit_code);
 		expanded_dollar = cstr_to_str(num);
