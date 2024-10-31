@@ -22,7 +22,7 @@ void expand(t_string *s, char **env, int exit_code, int start)
 	const int dollar_end_pos = dollar_pos + str_iter(*s, dollar_pos + 1, s->len - 1 - dollar_pos, valid_dollar_char);
 	t_expand_buf e;
 
-	if (!s || dollar_pos < 0)
+	if (!s || dollar_pos < 0 || !s->s || *s->s == '\'')
 		return ;
 	e.offset = ((s->s + dollar_end_pos) - (s->s + dollar_pos));
 	if (is_special_dollar(s->s + dollar_pos))

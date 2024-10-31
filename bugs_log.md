@@ -1,10 +1,4 @@
 --
-
-> cat + ctrl c
-> echo $?
-$?
-
-
 readline com pipes
 
 comando para eliminar todos os subprocessos mortos-vivos

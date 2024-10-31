@@ -125,6 +125,7 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 	i = 0;
 	while (i < cmds[idx].argc)
 	{
+		expand(&args_ptr[i], t->env, t->exit_code, 0);
 		remove_quotes(&args_ptr[i]);
 		//se o string for "", remove_quotes() vai diminuir o tamanho mas 
 		//não vai substituir por nulo, o que leva a comportamento indefinido
@@ -134,9 +135,9 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 			string_free(&args_ptr[i]);
 			args_ptr[i] = new_str(NULL, 0);
 		}
-		expand(&args_ptr[i], t->env, t->exit_code, 0);
 		//TODO: depois da expansão tenho de voltar a dividir por 
 		//espaços e adicionar os argumentos; ver exemplo em todo.md
+		//
 		//não deve remover o primeiro argumento porque pode ser ''
 		if (remove_empty_args(&args_ptr[i], i, &cmds[idx].argc))
 			continue ;
