@@ -30,6 +30,7 @@ int	main(int c, char **v, char **env)
 		if (!t->input.s)
 			break ;
 		add_history(t->input.s);
+		
 		t->cmds = parse(t->input, t);
 		alloc_args(t->cmds, t->cmds_num); //TODO: mudar isto de sítio
 		if (t->cmds && t->cmds_num < CMD_MAX)

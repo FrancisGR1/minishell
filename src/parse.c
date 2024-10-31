@@ -13,6 +13,7 @@
 #include "minishell.h"
 //TODO: mudar se sítio 
 bool remove_empty_args(t_string *arg, int current, size_t *argc);
+bool rearrange_args_after_expansion(t_string *arg, int current, size_t *argc);
 size_t strs_count(t_string *args);
 
 static bool	format_args(t_parser_buffer *pb, t_cmd *cmds, int *redir_idx);
@@ -31,13 +32,13 @@ t_cmd	*parse(t_string input, t_terminal *t)
 	if (!!mark_special_characters(input, &t->cmds_num))
 		return (free_on_error(WRONG_FORMAT, "Format error: Quotes unclosed", &pb));
 	pb.cmds = ft_calloc((t->cmds_num + 1), sizeof(t_cmd));
-	pb.pipe_sides = string_split(input, "\1");
+	pb.pipe_sides = string_split(input, "\1", &pb.split_len);
 	if (!pb.pipe_sides)
 		return (free_on_error(NO_INPUT, NULL, &pb));
 	while (++pb.idx < (int)t->cmds_num)
 	{
 		init_redirs(&pb, pb.idx);
-		pb.args_ptr = string_split(pb.pipe_sides[pb.idx], DELIMITERS);
+		pb.args_ptr = string_split(pb.pipe_sides[pb.idx], DELIMITERS, &pb.split_len);
 		if (!pb.args_ptr)
 			return (free_on_error(WRONG_FORMAT, "Format error: Missing command", &pb));
 		while (pb.redir_ptrs && ++pb.redir_idx < (int)pb.redir_ptrs->len)
@@ -125,7 +126,6 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 	i = 0;
 	while (i < cmds[idx].argc)
 	{
-		expand(&args_ptr[i], t->env, t->exit_code, 0);
 		remove_quotes(&args_ptr[i]);
 		//se o string for "", remove_quotes() vai diminuir o tamanho mas 
 		//não vai substituir por nulo, o que leva a comportamento indefinido
@@ -135,10 +135,17 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 			string_free(&args_ptr[i]);
 			args_ptr[i] = new_str(NULL, 0);
 		}
+		expand(&args_ptr[i], t->env, t->exit_code, 0);
 		//TODO: depois da expansão tenho de voltar a dividir por 
 		//espaços e adicionar os argumentos; ver exemplo em todo.md
+		//isto deve ser depois da expansão ou da remoção das aspas?
 		//
 		//não deve remover o primeiro argumento porque pode ser ''
+		//if (rearrange_args_after_expansion(args_ptr, i, &cmds[idx].argc))
+		//{
+		//	debug_args(cmds, t->cmds_num);
+		//	continue;
+		//}
 		if (remove_empty_args(&args_ptr[i], i, &cmds[idx].argc))
 			continue ;
 		i++;
@@ -183,6 +190,7 @@ bool remove_empty_args(t_string *arg, int current, size_t *argc)
 	size_t nbytes;
 	t_string ptr;
 
+	//removemos todos menos o primeiro
 	if (!arg || arg->len > 0 || current == 0)
 		return (false);
 	ptr = *arg;
@@ -191,4 +199,43 @@ bool remove_empty_args(t_string *arg, int current, size_t *argc)
 	(*argc)--;
 	string_free(&ptr);
 	return (true);
+}
+
+bool rearrange_args_after_expansion(t_string *arg, int current, size_t *argc)
+{
+	t_string *split_args;
+	t_string *new_args;
+	int arr_len;
+	(void) current;
+
+	if (!arg || !argc || !arg->s || !*argc || *arg->s == '\'' || *arg->s == '\"')
+		return (false);
+	split_args = string_split(arg[current], " ", &arr_len);
+	if (!split_args)
+		return (false);
+	//retornamos porque ou não temos argumentos ou só temos um argumento
+	if (arr_len < 2)
+	{
+		freen((void *)&split_args);
+		return (false);
+	}
+	*argc += arr_len - 1;
+	new_args = malloc((*argc + 1) * sizeof(t_string));
+	//se o arg for o primero
+	if (current == 0)
+	{
+		ft_memcpy(new_args, split_args, sizeof(t_string) * arr_len);
+		ft_memcat(new_args, &arg[1], sizeof(t_string) * arr_len, *argc - arr_len - 1 * sizeof(t_string));
+	}
+	//	copiar argumentos criados
+	//	copiar o resto
+	//se o arg estiver no meio
+	//	copiar início
+	//	copiar argmunentos criados
+	//	copiar resto
+	//se o arg estiver no fim
+	//	copiar tudo
+	//	copiar argumentos criados
+	freen((void *)&arg);
+	return (false); //temporário
 }

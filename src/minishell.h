@@ -90,6 +90,7 @@ typedef struct s_parser_buffer
 	t_string					*pipe_sides;
 	t_string					*args_ptr;
 	t_dynamic_array				*redir_ptrs;
+	int							split_len;
 	int							idx;
 	int							redir_idx;
 	t_terminal					*t;

@@ -1,16 +1,14 @@
+HOJE:
 "export a='ls -la' -> tem de executar quando:
     minishell> $a
 
-não pode interpretar variáveis se estiverem dentro de plicas:
-'$var'
---
 verificar com env -i
---
-safe_close()
---
+
+safe_close() e outras funções seguras?
 
 Reorganizar código:
-    estrutura própria para informação de heredoc
+    estrutura própria para informação de heredoc?
+norminette
 --
 --
 --

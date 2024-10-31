@@ -16,6 +16,7 @@ void	init_parser(t_parser_buffer *pb, t_terminal *t)
 {
 	pb->pipe_sides = NULL;
 	pb->args_ptr = NULL;
+	pb->split_len = 0;
 	pb->redir_ptrs = NULL;
 	pb->idx = -1;
 	pb->redir_idx = -1;

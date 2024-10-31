@@ -48,12 +48,12 @@ void	*free_on_error(int exit_code, char *error_message, t_parser_buffer *pb)
 
 void	free_cmd_cstr_args(t_cmd *cmds)
 {
-	int	i;
+	size_t	i;
 
 	i = 0;
 	if (!cmds || !cmds->cstr_args)
 		return ;
-	while (cmds->cstr_args[i])
+	while (i < cmds->argc)
 	{
 		freen((void *)&cmds->cstr_args[i]);
 		i++;
