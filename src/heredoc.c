@@ -17,12 +17,18 @@ int	heredoc(char *delimiter, char *heredoc_file, int terminal_fd, bool is_last_i
 	char	*input;
 	int		write_fd;
 	int		read_fd;
+	int		status;
 
 	input = NULL;
 	write_fd = open(heredoc_file, O_WRONLY | O_TRUNC | O_CREAT, 0644);
 	if (write_fd == -1)
 		return (FILE_ERROR);
-	//gerar stdout temporário
+	//gerar stdout temporário (para o prompt do readline aparecer)
+	int saved_out = dup(STDOUT);
+	int saved_in = dup(STDIN);
+	dup2(terminal_fd, STDIN);
+	dup2(terminal_fd, STDOUT);
+	status = EXIT_SUCCESS;
 	while (true)
 	{
 		//TODO: meter a funcionar com pipes
@@ -31,27 +37,29 @@ int	heredoc(char *delimiter, char *heredoc_file, int terminal_fd, bool is_last_i
 		{
 			freen((void *)&input);
 			if (g_sig_received)
-			{
-				close(write_fd);
-				return (g_sig_received);
-			}
+				status = g_sig_received;
 			break ;
 		}
 		ft_putendl_fd(input, write_fd);
 		freen((void *)&input);
 		g_sig_received = 0;
 	}
+	//eliminar stdout temporário
+	dup2(saved_in, STDIN);
+	dup2(saved_out, STDOUT);
+	close(saved_in);
+	close(saved_out);
+	//abrir ficheiro temporário para onde se vai mandar o output do heredoc
+	read_fd = open(heredoc_file, O_RDONLY);
 	if (write_fd > 0)
 		close(write_fd);
-	read_fd = open(heredoc_file, O_RDONLY);
 	if (is_last_input)
 	{
 		dup2(terminal_fd, STDIN);
 		dup2(read_fd, STDIN);
 	}
 	close(read_fd);
-	//eliminar stdout temporário
-	return (EXIT_SUCCESS);
+	return (status);
 }
 
 void wait_heredoc(int *hd_exit_status, pid_t pid)
