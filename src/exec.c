@@ -45,26 +45,18 @@ int	exec(t_cmd *cmds, t_terminal *t)
 	return (wait_subprocesses(pids, t->cmds_num, cmds));
 }
 
-static void	exec_subprocess(int fds[][2], t_cmd *cmds, int idx, t_terminal *t)
+static void handle_exec_error(int redir_error, int idx, t_cmd *cmds, t_terminal *t)
 {
-	int redir_error;
-
-	if (t->cmds_num != 1)
-		dup2_pipe(fds, idx, t->cmds_num - 1);
-	redir_error = set_redirs(cmds[idx].redirs, cmds[idx].heredoc_file, t->terminal_fd, cmds[idx].last_input_ptr, cmds[idx].last_output_ptr);
-	close_fds(fds, t->cmds_num - 1);
-	if (g_sig_received || redir_error || !cmds[idx].cstr_args[0] || execve(cmds[idx].cstr_args[0], cmds[idx].cstr_args, t->env) == -1)
-	{
 		if (g_sig_received)
 			freexit(FATAL_ERROR + g_sig_received, cmds, t);
 		else if (redir_error)
 			freexit(redir_error, cmds, t);
+		else if (!cmds[idx].cstr_args && cmds[idx].redirs)
+			freexit(EXIT_SUCCESS, cmds, t);
 		else if (!cmds[idx].cstr_args[0] && !cmds[idx].redirs) 
 			ft_fprintf(ERROR, "Command \'\' not found\n");
 		else if (errno == ENOENT)
 			ft_fprintf(ERROR, "%s: Command not found\n", cmds[idx].cstr_args[0]);
-		else if (!cmds[idx].cstr_args && cmds[idx].redirs)
-			freexit(EXIT_SUCCESS, cmds, t);
 		else
 			perror(cmds[idx].cstr_args[0]);
 		if (errno == EACCES)
@@ -73,6 +65,28 @@ static void	exec_subprocess(int fds[][2], t_cmd *cmds, int idx, t_terminal *t)
 			freexit(CMD_NOT_FOUND, cmds, t);
 		//TODO: tenho de incluir outros tipos de saídas
 		//falta a utilização errada de builtins (código de saída: 2)
+
+}
+
+static void	exec_subprocess(int fds[][2], t_cmd *cmds, int idx, t_terminal *t)
+{
+	int redir_error;
+
+	if (t->cmds_num != 1)
+		dup2_pipe(fds, idx, t->cmds_num - 1);
+	redir_error = set_redirs(cmds[idx].redirs, cmds[idx].heredoc_file, t->terminal_fd, cmds[idx].last_input_ptr, cmds[idx].last_output_ptr);
+	close_fds(fds, t->cmds_num - 1);
+	if (g_sig_received || redir_error || !cmds[idx].cstr_args )
+	{
+		handle_exec_error(redir_error, idx, cmds, t);
+	}
+	if (!cmds[idx].cstr_args[0])
+	{
+		handle_exec_error(redir_error, idx, cmds, t);
+	}
+	if (execve(cmds[idx].cstr_args[0], cmds[idx].cstr_args, t->env) == -1)
+	{
+		handle_exec_error(redir_error, idx, cmds, t);
 	}
 }
 
