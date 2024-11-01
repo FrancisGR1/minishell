@@ -187,7 +187,7 @@ void							*free_on_error(int exit_code,
 		char *error_message, t_parser_buffer *pb);
 void							freexit(int exit_code, t_cmd *cmds,
 		t_terminal *t);
-void							free_cmd_cstr_args(t_cmd *cmds);
+void	free_cmd_args(t_cmd *cmds);
 void							alloc_args(t_cmd *cmds, int commands_num);
 
 // initializers
@@ -197,8 +197,9 @@ void							init_pipes(int fds[][2], int cmds_num);
 
 // debug utils
 void							debug_fds(const char *message, int fd);
-void							debug_args(t_cmd *cmds, size_t cmds_num);
+void	debug_cmds(char *msg, t_cmd *cmds, size_t cmds_num);
 void							debug_cstr_args(t_cmd *cmds, size_t cmds_num);
+void	debug_args(char *msg, t_string *args, int cmds_num);
 void							debug_redirections(t_cmd *cmds,
 		size_t cmds_num);
 void							catch_subprocess_segv(int n);

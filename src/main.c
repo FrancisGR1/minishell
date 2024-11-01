@@ -18,10 +18,11 @@ t_string	ft_readline(char *prompt);
 
 int	main(int c, char **v, char **env)
 {
-	(void) c;
 	(void) v;
 	t_terminal	*t;
 
+	if (c > 1)
+		return (EXIT_FAILURE);
 	t = init_term(env);
 	load_signals(DEFAULT);
 	while (true)
@@ -30,11 +31,10 @@ int	main(int c, char **v, char **env)
 		if (!t->input.s)
 			break ;
 		add_history(t->input.s);
-		
 		t->cmds = parse(t->input, t);
 		alloc_args(t->cmds, t->cmds_num); //TODO: mudar isto de sítio
-		if (t->cmds && t->cmds_num < CMD_MAX)
-			t->exit_code = exec(t->cmds, t);
+		//if (t->cmds && t->cmds_num < CMD_MAX)
+		//	t->exit_code = exec(t->cmds, t);
 		reset_term(&t);
 	}
 	rl_clear_history();

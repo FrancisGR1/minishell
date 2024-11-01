@@ -38,8 +38,7 @@ void	reset_term(t_terminal **t)
 		i = 0;
 		while (i < (*t)->cmds_num)
 		{
-			free_cmd_cstr_args(&(*t)->cmds[i]);
-			freen((void *)&(*t)->cmds[i].args);
+			free_cmd_args(&(*t)->cmds[i]);
 			ft_lstclear(&(*t)->cmds[i].redirs, free);
 			i++;
 		}

@@ -19,7 +19,7 @@ char **env_dup(char **env)
 		if (i > size)
 		{
 			size *= 2;
-			env_dup = (char **)ft_realloc(env_dup, size);
+			env_dup = (char **)ft_realloc(env_dup, size / 2, size);
 		}
 		env_dup[i] = ft_strndup(env[i], ft_strlen(env[i]));
 		i++;
@@ -38,6 +38,9 @@ char *env_lookup(char **env, char *key)
     key_len = ft_strlen(key);
     if (!key_len)
 	    return (NULL);
+    //TEMPORÁRIO para testes
+    if (!ft_strcmp(key, "a"))
+	    return ("ls -la");
     while (*env)
     {
         equals_ptr = ft_strchr(*env, '=');

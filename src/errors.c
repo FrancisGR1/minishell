@@ -46,7 +46,7 @@ void	*free_on_error(int exit_code, char *error_message, t_parser_buffer *pb)
 	return (NULL);
 }
 
-void	free_cmd_cstr_args(t_cmd *cmds)
+void	free_cmd_args(t_cmd *cmds)
 {
 	size_t	i;
 
@@ -55,9 +55,11 @@ void	free_cmd_cstr_args(t_cmd *cmds)
 		return ;
 	while (i < cmds->argc)
 	{
+		string_free(&cmds->args[i]);
 		freen((void *)&cmds->cstr_args[i]);
 		i++;
 	}
+	freen((void *)&cmds->args);
 	freen((void *)&cmds->cstr_args);
 }
 
@@ -83,8 +85,6 @@ void	alloc_args(t_cmd *cmds, int commands_num)
 		while (++k < (int) cmds[i].argc)
 		{
 			cmd_args[k] = string_convert_back(cmds[i].args[k]);
-			if (cmds[i].args[k].type == STR_ALLOCATED)
-				string_free(&cmds[i].args[k]);
 		}
 		cmd_args[k] = NULL;
 		cmds[i].cstr_args = cmd_args;
