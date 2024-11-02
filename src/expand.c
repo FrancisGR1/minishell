@@ -105,6 +105,10 @@ static t_string expand_dollar(t_string delimiter, char **env, int exit_code)
 		return (expanded_dollar);
 	}
 	dollar_value_ptr = env_lookup(env, dollar_key + 1);
+	if (!dollar_value_ptr)
+		expanded_dollar = cstr_to_str_nsize("\0", 1);
+	else
+		expanded_dollar = cstr_to_str(dollar_value_ptr);
 	free(dollar_key);
-	return (cstr_to_str(dollar_value_ptr));
+	return (expanded_dollar);
 }
