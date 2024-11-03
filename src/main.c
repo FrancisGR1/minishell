@@ -20,9 +20,11 @@ int	main(int c, char **v, char **env)
 {
 	(void) v;
 	t_terminal	*t;
+	int	main_exit_code;
 
 	if (c > 1)
 		return (EXIT_FAILURE);
+	main_exit_code = 0;
 	t = init_term(env);
 	load_signals(DEFAULT);
 	while (true)
@@ -37,10 +39,11 @@ int	main(int c, char **v, char **env)
 			t->exit_code = exec(t->cmds, t);
 		else if (g_sig_received)
 			t->exit_code = g_sig_received + FATAL_ERROR;
+		main_exit_code = t->exit_code;
 		reset_term(&t);
 	}
-	rl_clear_history();
 	destroy_term(&t);
+	return (main_exit_code);
 }
 
 t_string	ft_readline(char *prompt)
