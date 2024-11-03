@@ -49,6 +49,7 @@ t_cmd	*parse(t_string input, t_terminal *t)
 		darr_free(pb.redir_ptrs);
 	}
 	pb.cmds[pb.idx].binary = new_str(NULL, 0);
+	//se não tiver args e SÓ redireções, tenho de limpar aqui
 	free(pb.pipe_sides);
 	return (pb.cmds);
 }
@@ -115,16 +116,21 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 	size_t	i;
 	size_t argc;
 
-	if (!cmds || !args_ptr || !t)
+	if (!cmds)
 		return (false);
-	if (cmds[idx].has_heredoc)
-	{
-		write_path(cmds[idx].heredoc_file, rand_string());
-	}
+	//TODO: isto pode mudar de sítio
+	if (!args_ptr || !t)
+		return (false);
 	i = 0;
 	argc = strs_count(args_ptr); 
 	while (i < argc)
 	{
+		if (string_find(args_ptr[i], 0, args_ptr[i].len, "$") >= 0)
+		{
+			expand(&args_ptr[i], t->env, t->exit_code, 0);
+			//TODO: leaks estão a acontecer aqui
+			rearrange_args_after_expansion(&args_ptr, i, &argc);
+		}
 		remove_quotes(&args_ptr[i]);
 		//se o string for "", remove_quotes() vai diminuir o tamanho mas 
 		//não vai substituir por nulo, o que leva a comportamento indefinido
@@ -132,15 +138,10 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 		if (args_ptr[i].len == 0)
 		{
 			string_free(&args_ptr[i]);
-			args_ptr[i] = new_str(NULL, 0);
+			args_ptr[i] = cstr_to_str(EMPTY_STR);
 		}
-		if (string_find(args_ptr[i], 0, args_ptr[i].len, "$") >= 0)
-		{
-			expand(&args_ptr[i], t->env, t->exit_code, 0);
-			rearrange_args_after_expansion(&args_ptr, i, &argc);
-		}
-		if (remove_empty_args(&args_ptr[i], i, &cmds[idx].argc))
-			continue ;
+		//if (remove_empty_args(&args_ptr[i], i, &cmds[idx].argc))
+		//	continue ;
 		i++;
 	}
 	char *res;
@@ -150,8 +151,7 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 		res = NULL;
 	if (res)
 	{
-		if (args_ptr[0].type == STR_ALLOCATED)
-			string_free(&args_ptr[0]);
+		string_free(&args_ptr[0]);
 		args_ptr[0] = cstr_to_str(res);
 		freen((void *)&res);
 	}
@@ -186,10 +186,10 @@ bool remove_empty_args(t_string *arg, int current, size_t *argc)
 	t_string ptr;
 
 	//removemos todos menos o primeiro
-	if (!arg || !arg->s || (arg->len > 0 && arg->s[0] != '\0') || current == 0)
-		return (false);
 	//TODO: tenho de discernir entre um arg vazio de citações 
 	//ou um arg vazio de um variável (ver todo)
+	if (!arg || !arg->s || (arg->len > 0 && arg->s[0] != '\0') || current == 0)
+		return (false);
 	ptr = *arg;
 	nbytes = (*argc - current) * sizeof(t_string);
 	ft_memmove(arg, arg + 1, nbytes);
@@ -211,8 +211,7 @@ bool rearrange_args_after_expansion(t_string **arg, int current, size_t *argc)
 	split_args = string_split_dup(*expanded_str_ptr, " ", &arr_len);
 	if (!split_args || arr_len < 2)
 	{
-		//TODO: subtituir por função que liberte strings dentro do arr
-		//freen_arr((void **)split_args, arr_len);
+		string_arr_free(&split_args);
 		return (false);
 	}
 	*argc += arr_len - 1;
@@ -238,8 +237,8 @@ bool rearrange_args_after_expansion(t_string **arg, int current, size_t *argc)
 	}
 	new_args[*argc] = new_str(NULL, 0);
 	string_free((t_string *)expanded_str_ptr);
-	freen((void *)&split_args);
-	free(*arg);
+	string_arr_free(arg);
+	free(split_args);
 	*arg = new_args;
 	return (true); //temporário
 }
