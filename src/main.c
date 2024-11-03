@@ -35,6 +35,8 @@ int	main(int c, char **v, char **env)
 		alloc_args(t->cmds, t->cmds_num); //TODO: mudar isto de sítio
 		if (t->cmds && t->cmds_num < CMD_MAX)
 			t->exit_code = exec(t->cmds, t);
+		else if (g_sig_received)
+			t->exit_code = g_sig_received + FATAL_ERROR;
 		reset_term(&t);
 	}
 	rl_clear_history();
