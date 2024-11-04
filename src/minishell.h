@@ -42,6 +42,8 @@ extern int						g_sig_received;
 # define MORE '\3'
 # undef SPACE
 # define SPACE '\4'
+# define EMPTY_STR "\5"
+# define EMPTY_EXPANDED_STR "\6"
 # define DELIMITERS "\1\2\3\4"
 
 // Prompts
@@ -70,8 +72,10 @@ extern int						g_sig_received;
 //output redirections open files in this mode
 # define DEFAULT_FILE_PERM 0644
 
-//main parent ingnores every signal
+//main process: 
+//ignores every signal
 # define DO_NOTHING -1
+//handles ctr + c; ctrl + \ */
 # define DEFAULT 0
 
 // Main struct
@@ -83,8 +87,7 @@ typedef struct s_command		t_cmd;
 // redirections
 typedef struct s_redirections	t_redir;
 
-// Stores the temporary data for/from parsing and
-// the important data for convenience
+// Stores the temporary data for/from parsing
 typedef struct s_parser_buffer
 {
 	t_string					*pipe_sides;
@@ -106,11 +109,11 @@ enum							e_redir_type
 	REDIR_HEREDOC,
 };
 
+//every redirection has a: 1)type; 2)file number associated
 struct							s_redirections
 {
 	enum e_redir_type			type;
 	t_string					fd;
-	int							location;
 };
 
 struct							s_command
@@ -119,6 +122,7 @@ struct							s_command
 	t_string					*args;
 	size_t		argc;
 	char						**cstr_args;
+	size_t		cstr_argc;
 	t_list						*redirs;
 	//redir info
 	t_redir						*last_input_ptr;
@@ -143,17 +147,15 @@ t_cmd							*parse(t_string input, t_terminal *t);
 
 // parse redirections
 t_redir							*new_redir(t_string *args, t_string r_ptr);
-void							remove_redirections(t_parser_buffer *pb,
-		t_cmd *cmds);
-bool							get_redir(t_parser_buffer *pb, t_cmd *cmds,
-		int *redir_idx);
+void	remove_redirections(t_parser_buffer *pb, t_cmd *current_cmd);
+bool	get_redir(t_parser_buffer *pb, t_cmd *current_cmd, int *redir_idx);
 void	define_redir_type(t_redir *redir, t_string r_ptr);
 
 //expansion
 void expand(t_string *s, char **env, int exit_code, int start);
 
 //paths
-char *find_path(t_string cmd, char **env);
+char *find_path(char *cmd, char **env);
 
 // execution
 int								exec(t_cmd *cmds, t_terminal *t);
@@ -187,8 +189,8 @@ void							*free_on_error(int exit_code,
 		char *error_message, t_parser_buffer *pb);
 void							freexit(int exit_code, t_cmd *cmds,
 		t_terminal *t);
-void	free_cmd_args(t_cmd *cmds);
-void							alloc_args(t_cmd *cmds, int commands_num);
+void	free_cmd_args(t_cmd *current_cmd);
+void	alloc_args(t_cmd *cmds, int commands_num, char **t_env);
 
 // initializers
 void							init_redirs(t_parser_buffer *pb, size_t idx);
@@ -198,7 +200,7 @@ void							init_pipes(int fds[][2], int cmds_num);
 // debug utils
 void							debug_fds(const char *message, int fd);
 void	debug_cmds(char *msg, t_cmd *cmds, size_t cmds_num);
-void							debug_cstr_args(t_cmd *cmds, size_t cmds_num);
+int	debug_cstr_args(char *msg, t_cmd *cmds, int cmds_num);
 void	debug_args(char *msg, t_string *args, int cmds_num);
 void							debug_redirections(t_cmd *cmds,
 		size_t cmds_num);

@@ -41,6 +41,8 @@ char *env_lookup(char **env, char *key)
     //TEMPORÁRIO para testes
     if (!ft_strcmp(key, "a"))
 	    return ("ls -la");
+    if (!ft_strcmp(key, "c"))
+	    return ("ls");
     while (*env)
     {
         equals_ptr = ft_strchr(*env, '=');

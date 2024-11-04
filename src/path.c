@@ -1,42 +1,33 @@
 #include "minishell.h"
 
-char *find_path(t_string cmd, char **env)
+char *find_path(char *cmd, char **env)
 {
-	const char *str_paths = env_lookup(env, "PATH");
-	const char **split_paths = (const char **)ft_split(str_paths, ":");
-	const char *cstr_cmd = string_convert_back(cmd);
-	char path_to_be_written[PATH_MAX];
 	size_t i;
 	size_t split_path_size;
-	char *res = NULL;
+	const char **split_paths = (const char **)ft_split(env_lookup(env, "PATH"), ":");
+	char path_to_be_written[PATH_MAX];
+	char *res; 
 
-
+	if (!split_paths || !cmd || !cmd[0])
+		return (freen_arr((void **)split_paths), freen((void *)&cmd), NULL);
+	res = NULL;
 	i = 0;
-	if (!split_paths || !cstr_cmd)
-	{
-		freen_arr((void **)split_paths);
-		freen((void *)&cstr_cmd);
-		return (NULL);
-	}
-	while (split_paths[i])
+	while (!res && split_paths[i])
 	{
 		split_path_size = ft_strlen(split_paths[i]);
 		ft_strlcpy(path_to_be_written, split_paths[i], split_path_size + 1);
 		ft_strlcat(path_to_be_written, "/", split_path_size + 2);
-		ft_strlcat(path_to_be_written, cstr_cmd, split_path_size + cmd.len + 2);
+		ft_strlcat(path_to_be_written, cmd, split_path_size + ft_strlen(cmd) + 2);
 		if (access(path_to_be_written, F_OK) == 0)
-		{
 			res = ft_strdup(path_to_be_written);
-			break ;
-		}
 		i++;
 	}
-	i = 0;
 	freen_arr((void **)split_paths);
-	freen((void *)&cstr_cmd);
 	return (res);
 }
 
+//TODO: mudar isto de sítio e nome
+//(é para o heredoc)
 void	write_path(char dest[], char *src)
 {
 	const char		*current_path = (const char *)getcwd(NULL, 0);

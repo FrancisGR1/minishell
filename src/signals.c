@@ -24,14 +24,14 @@ void	load_signals(int at)
 	sigemptyset(&sa.sa_mask);
 	signal(SIGQUIT, SIG_IGN);
 	sa.sa_flags = SA_SIGINFO | SA_RESTART;
-	if (at != DO_NOTHING)
+	if (at == DO_NOTHING)
 	{
-		sa.sa_sigaction = signals_handler;
-		sigaction(SIGINT, &sa, NULL);
+		signal(SIGINT, SIG_IGN);
 	}
 	else
 	{
-		signal(SIGINT, SIG_IGN);
+		sa.sa_sigaction = signals_handler;
+		sigaction(SIGINT, &sa, NULL);
 	}
 	rl_event_hook = event_hook;
 }

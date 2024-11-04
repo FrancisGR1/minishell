@@ -34,7 +34,6 @@ int	main(int c, char **v, char **env)
 			break ;
 		add_history(t->input.s);
 		t->cmds = parse(t->input, t);
-		alloc_args(t->cmds, t->cmds_num); //TODO: mudar isto de sítio
 		if (t->cmds && t->cmds_num < CMD_MAX)
 			t->exit_code = exec(t->cmds, t);
 		else if (g_sig_received)

@@ -32,20 +32,22 @@ void	debug_fds(const char *message, int fd)
 	printf("\n");
 }
 
-void	debug_cstr_args(t_cmd *cmds, size_t cmds_num)
+int	debug_cstr_args(char *msg, t_cmd *cmds, int cmds_num)
 {
+	ft_fprintf(STDOUT, "=======%s=======\n", msg);
 	if (!cmds)
-		ft_fprintf(ERROR, "cmds null\n");
+		return (ft_fprintf(ERROR, "cmds null\n"));
 	if (!cmds_num)
-		ft_fprintf(ERROR, "cmds num: 0\n");
+		return (ft_fprintf(ERROR, "cmds num: 0\n"));
 	if (!cmds->cstr_args)
-		ft_fprintf(ERROR, "cstr arg null\n");
-	for (size_t i = 0; i < cmds_num; ++i)
+		return (ft_fprintf(ERROR, "cstr arg null\n"));
+	for (int i = 0; i < cmds_num; ++i)
 	{
 		for (size_t j = 0; cmds[i].cstr_args[j]; ++j)
 			ft_fprintf(STDOUT, "->%s\n", cmds[i].cstr_args[j]);
 		ft_fprintf(STDOUT, "\n");
 	}
+	return (0);
 }
 
 void	debug_args(char *msg, t_string *args, int cmds_num)

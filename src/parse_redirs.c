@@ -51,7 +51,7 @@ void	define_redir_type(t_redir *redir, t_string r_ptr)
 		redir->type = -1;
 }
 
-bool	get_redir(t_parser_buffer *pb, t_cmd *cmds, int *redir_idx)
+bool	get_redir(t_parser_buffer *pb, t_cmd *current_cmd, int *redir_idx)
 {
 	t_redir	*redir;
 
@@ -60,13 +60,13 @@ bool	get_redir(t_parser_buffer *pb, t_cmd *cmds, int *redir_idx)
 	define_redir_type(redir, *pb->redir_ptr);
 	if (redir->type == REDIR_HEREDOC)
 	{
-		cmds->has_heredoc = true;
-		write_path(cmds[pb->idx].heredoc_file, rand_string());
+		current_cmd->has_heredoc = true;
+		write_path(current_cmd->heredoc_file, rand_string());
 	}
 	if (redir->type == REDIR_INPUT || redir->type == REDIR_HEREDOC)
-		cmds->last_input_ptr = redir;
+		current_cmd->last_input_ptr = redir;
 	if (redir->type == REDIR_OUTPUT || redir->type == REDIR_APPEND)
-		cmds->last_output_ptr = redir;
+		current_cmd->last_output_ptr = redir;
 	if (redir->type == REDIR_HEREDOC || redir->type == REDIR_APPEND)
 		(*redir_idx)++;
 	if (!redir || !redir->fd.s)
@@ -74,18 +74,18 @@ bool	get_redir(t_parser_buffer *pb, t_cmd *cmds, int *redir_idx)
 		free(redir);
 		return (false);
 	}
-	ft_lstadd_back(&cmds->redirs, ft_lstnew(redir));
+	ft_lstadd_back(&current_cmd->redirs, ft_lstnew(redir));
 	return (true);
 }
 
-void	remove_redirections(t_parser_buffer *pb, t_cmd *cmds)
+void	remove_redirections(t_parser_buffer *pb, t_cmd *current_cmd)
 {
 	size_t		i;
 	size_t		argc;
 	size_t		nbytes;
 	t_string	r_ptr;
 
-	if (!pb || !cmds || !pb->args_ptr)
+	if (!pb || !current_cmd || !pb->args_ptr)
 		return ;
 	i = 0;
 	r_ptr = ((t_string *)(pb->redir_ptrs->data))[pb->redir_idx];

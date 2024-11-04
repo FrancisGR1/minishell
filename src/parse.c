@@ -16,13 +16,10 @@ bool remove_empty_args(t_string *arg, int current, size_t *argc);
 bool rearrange_args_after_expansion(t_string **arg, int current, size_t *argc);
 size_t strs_count(t_string *args);
 
-static bool	format_args(t_parser_buffer *pb, t_cmd *cmds, int *redir_idx);
+static bool	format_args(t_parser_buffer *pb, t_cmd *current_cmd, int *redir_idx);
 static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t);
 static int	mark_special_characters(t_string input, size_t *cmds_num);
 static int	remove_quotes(t_string *arg);
-
-// Stores the temporary data for/from parsing and
-// the important data for convenience
 
 t_cmd	*parse(t_string input, t_terminal *t)
 {
@@ -48,9 +45,8 @@ t_cmd	*parse(t_string input, t_terminal *t)
 			return (free_on_error(WRONG_FORMAT, "Format error: No command", &pb));
 		darr_free(pb.redir_ptrs);
 	}
-	pb.cmds[pb.idx].binary = new_str(NULL, 0);
-	//se não tiver args e SÓ redireções, tenho de limpar aqui
 	free(pb.pipe_sides);
+	alloc_args(pb.cmds, t->cmds_num, t->env);
 	return (pb.cmds);
 }
 
@@ -116,10 +112,7 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 	size_t	i;
 	size_t argc;
 
-	if (!cmds)
-		return (false);
-	//TODO: isto pode mudar de sítio
-	if (!args_ptr || !t)
+	if (!cmds || !args_ptr || !t)
 		return (false);
 	i = 0;
 	argc = strs_count(args_ptr); 
@@ -128,7 +121,6 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 		if (string_find(args_ptr[i], 0, args_ptr[i].len, "$") >= 0)
 		{
 			expand(&args_ptr[i], t->env, t->exit_code, 0);
-			//TODO: leaks estão a acontecer aqui
 			rearrange_args_after_expansion(&args_ptr, i, &argc);
 		}
 		remove_quotes(&args_ptr[i]);
@@ -140,32 +132,20 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 			string_free(&args_ptr[i]);
 			args_ptr[i] = cstr_to_str(EMPTY_STR);
 		}
-		//if (remove_empty_args(&args_ptr[i], i, &cmds[idx].argc))
-		//	continue ;
+		remove_empty_args(&args_ptr[i], i, &cmds[idx].argc);
 		i++;
-	}
-	char *res;
-	if (args_ptr[0].s)
-		res = find_path(args_ptr[0], t->env);
-	else
-		res = NULL;
-	if (res)
-	{
-		string_free(&args_ptr[0]);
-		args_ptr[0] = cstr_to_str(res);
-		freen((void *)&res);
 	}
 	cmds[idx].args = args_ptr;
 	cmds[idx].argc = argc;
 	return (true);
 }
 
-static bool	format_args(t_parser_buffer *pb, t_cmd *cmds, int *redir_idx)
+static bool	format_args(t_parser_buffer *pb, t_cmd *current_cmd, int *redir_idx)
 {
-	if (!get_redir(pb, cmds, redir_idx))
+	if (!get_redir(pb, current_cmd, redir_idx))
 		return (false);
-	if (cmds)
-		remove_redirections(pb, cmds);
+	if (current_cmd)
+		remove_redirections(pb, current_cmd);
 	return (true);
 }
 
@@ -179,23 +159,14 @@ size_t strs_count(t_string *args)
 	return(i);
 }
 
-//se o argumento for nulo significa que era um string vazio, logo remover
+//TODO: não sei se preciso disto aqui?
 bool remove_empty_args(t_string *arg, int current, size_t *argc)
 {
-	size_t nbytes;
-	t_string ptr;
+	(void) arg;
+	(void) current;
+	(void) argc;
+	return (false);
 
-	//removemos todos menos o primeiro
-	//TODO: tenho de discernir entre um arg vazio de citações 
-	//ou um arg vazio de um variável (ver todo)
-	if (!arg || !arg->s || (arg->len > 0 && arg->s[0] != '\0') || current == 0)
-		return (false);
-	ptr = *arg;
-	nbytes = (*argc - current) * sizeof(t_string);
-	ft_memmove(arg, arg + 1, nbytes);
-	(*argc)--;
-	string_free(&ptr);
-	return (true);
 }
 
 bool rearrange_args_after_expansion(t_string **arg, int current, size_t *argc)

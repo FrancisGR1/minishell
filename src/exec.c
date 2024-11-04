@@ -29,8 +29,8 @@ int	exec(t_cmd *cmds, t_terminal *t)
 	while (i < (int)t->cmds_num)
 	{
 		pids[i] = fork();
-		if (pids[i] == SUBPROCESS) {
-			signal(SIGSEGV, catch_subprocess_segv);	// temporário para detetar segfaults 
+		if (pids[i] == SUBPROCESS) 
+		{
 			exec_subprocess(fds, cmds, i, t);
 		}
 		if (cmds[i].has_heredoc)
@@ -140,14 +140,11 @@ static int	wait_subprocesses(pid_t *subprocesses, int commands, t_cmd *cmds)
 		{
 			waitpid(subprocesses[i], &wstatus, 0);
 			if (WIFSIGNALED(wstatus))
-			{
 				exit_code = FATAL_ERROR + WTERMSIG(wstatus);
-			}
 			else if (WIFEXITED(wstatus))
 				exit_code = WEXITSTATUS(wstatus);
 		}
 		i++;
 	}
-
 	return (exit_code);
 }
