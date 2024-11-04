@@ -1,2 +1,2 @@
-"" echo hello
+echo hello $asdas $asdsa "$pwd $PWD"
 -> crash

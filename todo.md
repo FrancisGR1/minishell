@@ -4,9 +4,13 @@ safe_close() e outras funções seguras?
 
 
 ---
-se o string for vazio: 
-"" 
----> '': command not found
+
+
+lidar melhor com erros na execução:
+se tiver $Asdas $Adsasd $adasd
+    ->não fazer nada
+se tiver "" 
+    -> '' command not found
 
 sigquite em "blocking commands"
 
@@ -36,14 +40,3 @@ export
 
 lembretes:
 testar com env -i + valgrind
-
-
-
-outros:
-às vezes o ctrl +d não fecha logo
-    ->será que é só quando faço ctrl + shift + v? (copy paste no terminal)
-
-com este input não fecha logo:echo asdasddecho asdasd$lol123123lolçç
-porquê?
-->vou assumir que isto é um erro de Makefile + valgrind + minishell,
-pq nunca acontece qd só uso ./minishell

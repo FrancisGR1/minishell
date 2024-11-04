@@ -12,6 +12,8 @@
 
 #include "minishell.h"
 
+static void get_binary_path(char **cmd_args, char **t_env);
+
 void	freexit(int exit_code, t_cmd *cmds, t_terminal *t)
 {
 	(void) cmds; /*TODO: eliminar*/
@@ -107,12 +109,6 @@ void	alloc_args(t_cmd *cmds, int commands_num, char **t_env)
 	i = -1;
 	while (++i < commands_num)
 	{
-		//TODO: acho que posso tirar isto daqui
-		if (cmds[i].argc == 0)
-		{
-			cmds[i].cstr_args = NULL;
-			continue ;
-		}
 		cmd_args = ft_calloc(sizeof(char *),  (cmds[i].argc + 1));
 		k = -1;
 		j = 0;
@@ -120,32 +116,28 @@ void	alloc_args(t_cmd *cmds, int commands_num, char **t_env)
 		{
 			if (ft_strcmp(cmds[i].args[k].s, EMPTY_EXPANDED_STR) == 0)
 				continue ;
-			else
-			{
-				cmd_args[j] = string_convert_back(cmds[i].args[k]);
-				cleanup_arg(cmd_args[j]);
-			}
-			j++;
+			cmd_args[j] = string_convert_back(cmds[i].args[k]);
+			cleanup_arg(cmd_args[j++]);
 		}
 		cmds[i].cstr_argc = j;
 		cmd_args[j] = NULL;
-		//encontrar o caminho
-		//
-		//TODO: verificar se é builtin antes de tentar caminho
-		char *res;
-		if (cmd_args[0] && cmd_args[0][0])
-			res = find_path(cmd_args[0], t_env);
-		else
-			res = NULL;
-		if (res)
-		{
-			free(cmd_args[0]);
-			cmd_args[0] = res;
-		}
-		//----------------
+		get_binary_path(cmd_args, t_env);
 		cmds[i].cstr_args = cmd_args;
-		//TODO: isto tem de ser apanhado ao nível da execução 
-		if (!cmds[i].cstr_args[0])
-			perror("NO ARGS\n");
 	}
+}
+
+void get_binary_path(char **cmd_args, char **t_env)
+{
+	char *binary_path;
+
+	if (!cmd_args || !cmd_args[0] || !cmd_args[0][0])
+		return ;
+	//TODO:
+	//if (is_builtin(cmd_args[0][0]))
+	//return
+	binary_path = find_path(cmd_args[0], t_env);
+	if (!binary_path)
+		return ;
+	free(cmd_args[0]);
+	cmd_args[0] = binary_path;
 }

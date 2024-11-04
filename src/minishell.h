@@ -27,8 +27,6 @@
 # include <sys/wait.h>
 // open()
 # include <fcntl.h>
-// stat(), S_ISREG()
-# include <sys/stat.h>
 
 // error handling
 # include <errno.h>
