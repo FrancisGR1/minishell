@@ -14,9 +14,8 @@
 
 static void get_binary_path(char **cmd_args, char **t_env);
 
-void	freexit(int exit_code, t_cmd *cmds, t_terminal *t)
+void	freexit(int exit_code, t_terminal *t)
 {
-	(void) cmds; /*TODO: eliminar*/
 	close(t->terminal_fd);
 	string_free(&t->input);
 	reset_term(&t);
@@ -60,7 +59,10 @@ void	free_cmd_args(t_cmd *current_cmd)
 		//TODO: mudar isto
 		string_free(&current_cmd->args[i]);
 		if (i < current_cmd->cstr_argc)
+		{
+			printf("freeing: %s\n",  current_cmd->cstr_args[i]);
 			freen((void *)&current_cmd->cstr_args[i]);
+		}
 		i++;
 	}
 	freen((void *)&current_cmd->args);
@@ -97,6 +99,7 @@ void cleanup_arg(char *str)
 }
 
 //TODO: mudar função de sítio
+//TODO: mudar nome
 void	alloc_args(t_cmd *cmds, int commands_num, char **t_env)
 {
 	int		i;
@@ -116,6 +119,8 @@ void	alloc_args(t_cmd *cmds, int commands_num, char **t_env)
 		{
 			if (ft_strcmp(cmds[i].args[k].s, EMPTY_EXPANDED_STR) == 0)
 				continue ;
+			//apanhar strings vazios
+			ft_fprintf(STDOUT, "evaluating: %d %S\n", k, cmds[i].args[k]);
 			cmd_args[j] = string_convert_back(cmds[i].args[k]);
 			cleanup_arg(cmd_args[j++]);
 		}

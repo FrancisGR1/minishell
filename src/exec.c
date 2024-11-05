@@ -48,11 +48,11 @@ int	exec(t_cmd *cmds, t_terminal *t)
 static void handle_exec_error(int redir_error, int idx, t_cmd *cmds, t_terminal *t)
 {
 		if (g_sig_received)
-			freexit(FATAL_ERROR + g_sig_received, cmds, t);
+			freexit(FATAL_ERROR + g_sig_received, t);
 		else if (redir_error)
-			freexit(redir_error, cmds, t);
+			freexit(redir_error, t);
 		else if (!cmds[idx].cstr_args && cmds[idx].redirs)
-			freexit(EXIT_SUCCESS, cmds, t);
+			freexit(EXIT_SUCCESS, t);
 		else if (!cmds[idx].cstr_args[0] && !cmds[idx].redirs) 
 			ft_fprintf(ERROR, "Command \'\' not found\n");
 		else if (errno == ENOENT)
@@ -60,9 +60,9 @@ static void handle_exec_error(int redir_error, int idx, t_cmd *cmds, t_terminal 
 		else
 			perror(cmds[idx].cstr_args[0]);
 		if (errno == EACCES)
-			freexit(NOT_EXECUTABLE, cmds, t);
+			freexit(NOT_EXECUTABLE, t);
 		else
-			freexit(CMD_NOT_FOUND, cmds, t);
+			freexit(CMD_NOT_FOUND, t);
 		//TODO: tenho de incluir outros tipos de saídas
 		//falta a utilização errada de builtins (código de saída: 2)
 

@@ -40,9 +40,10 @@ extern int						g_sig_received;
 # define MORE '\3'
 # undef SPACE
 # define SPACE '\4'
+# define DELIMITERS "\1\2\3\4"
+
 # define EMPTY_STR "\5"
 # define EMPTY_EXPANDED_STR "\6"
-# define DELIMITERS "\1\2\3\4"
 
 // Prompts
 # define RL_PROMPT BGRN "minishell> " RESET
@@ -71,9 +72,9 @@ extern int						g_sig_received;
 # define DEFAULT_FILE_PERM 0644
 
 //main process: 
-//ignores every signal
+//ignore every signal
 # define DO_NOTHING -1
-//handles ctr + c; ctrl + \ */
+/*handle ctr + c; ctrl + \ */
 # define DEFAULT 0
 
 // Main struct
@@ -172,7 +173,7 @@ void							write_path(char dest[], char *src);
 // terminal struct utils
 t_terminal						*init_term(char **env);
 void							reset_term(t_terminal **t);
-void							destroy_term(t_terminal **t);
+int	destroy_term(t_terminal **t);
 
 // signals
 void	load_signals(int at);
@@ -185,8 +186,7 @@ char *env_lookup(char **env, char *target);
 // errors and memory management
 void							*free_on_error(int exit_code,
 		char *error_message, t_parser_buffer *pb);
-void							freexit(int exit_code, t_cmd *cmds,
-		t_terminal *t);
+void							freexit(int exit_code, t_terminal *t);
 void	free_cmd_args(t_cmd *current_cmd);
 void	alloc_args(t_cmd *cmds, int commands_num, char **t_env);
 
@@ -197,10 +197,10 @@ void							init_pipes(int fds[][2], int cmds_num);
 
 // debug utils
 void							debug_fds(const char *message, int fd);
-void	debug_cmds(char *msg, t_cmd *cmds, size_t cmds_num);
+int	debug_cmds(char *msg, t_cmd *cmds, size_t cmds_num);
 int	debug_cstr_args(char *msg, t_cmd *cmds, int cmds_num);
-void	debug_args(char *msg, t_string *args, int cmds_num);
-void							debug_redirections(t_cmd *cmds,
+int	debug_args(char *msg, t_string *args);
+int							debug_redirections(t_cmd *cmds,
 		size_t cmds_num);
 void							catch_subprocess_segv(int n);
 

@@ -43,6 +43,7 @@ int	debug_cstr_args(char *msg, t_cmd *cmds, int cmds_num)
 		return (ft_fprintf(ERROR, "cstr arg null\n"));
 	for (int i = 0; i < cmds_num; ++i)
 	{
+		ft_fprintf(STDOUT, "argc=%d\n", cmds[i].cstr_argc);
 		for (size_t j = 0; cmds[i].cstr_args[j]; ++j)
 			ft_fprintf(STDOUT, "->%s\n", cmds[i].cstr_args[j]);
 		ft_fprintf(STDOUT, "\n");
@@ -50,30 +51,31 @@ int	debug_cstr_args(char *msg, t_cmd *cmds, int cmds_num)
 	return (0);
 }
 
-void	debug_args(char *msg, t_string *args, int cmds_num)
+int	debug_args(char *msg, t_string *args)
 {
 	ft_fprintf(STDOUT, "=======%s=======\n", msg);
 	if (!args)
-		ft_fprintf(ERROR, "t_string *args null\n");
-	ft_fprintf(STDOUT, "num of args: %d\n", cmds_num);
-	for (int j = 0; j < cmds_num && args[j].s; ++j)
+		return(ft_fprintf(ERROR, "t_string *args null\n"));
+	ft_fprintf(STDOUT, "num of args: %d\n");
+	for (int j = 0; args[j].s; ++j)
 	{
 		ft_fprintf(STDOUT, "->%S(%d)(%p)\n", args[j], args[j].type, args[j].s);
 	}
 	ft_fprintf(STDOUT, "\n");
+	return (0);
 }
 
-void	debug_cmds(char *msg, t_cmd *cmds, size_t cmds_num)
+int	debug_cmds(char *msg, t_cmd *cmds, size_t cmds_num)
 {
 	char allocated[] = "STR_ALLOCATED";
 	char pointer[] = "STR_PTR";
 	char null[] = "STR_NULL";
 	if (!cmds)
-		ft_fprintf(ERROR, "cmds null\n");
+		return (ft_fprintf(ERROR, "cmds null\n"));
 	if (!cmds_num)
-		ft_fprintf(ERROR, "cmds num: 0\n");
+		return (ft_fprintf(ERROR, "cmds num: 0\n"));
 	if (!cmds->args || cmds->argc == 0)
-		ft_fprintf(ERROR, "args num: 0\n");
+		return (ft_fprintf(ERROR, "args num: 0\n"));
 	ft_fprintf(STDOUT, "=======%s=======\n", msg);
 	for (size_t i = 0; i < cmds_num; ++i)
 	{
@@ -90,19 +92,20 @@ void	debug_cmds(char *msg, t_cmd *cmds, size_t cmds_num)
 		}
 		ft_fprintf(STDOUT, "\n");
 	}
+	return (0);
 }
 
-void	debug_redirections(t_cmd *cmds, size_t cmds_num)
+int	debug_redirections(t_cmd *cmds, size_t cmds_num)
 {
 	t_redir	*r;
 	t_list	*redirs;
 
 	if (!cmds)
-		ft_fprintf(ERROR, "cmds null\n");
+		return(ft_fprintf(ERROR, "cmds null\n"));
 	if (!cmds_num)
-		ft_fprintf(ERROR, "cmds num: 0\n");
+		return(ft_fprintf(ERROR, "cmds num: 0\n"));
 	if (!cmds->redirs)
-		ft_fprintf(ERROR, "no redirs\n");
+		return(ft_fprintf(ERROR, "no redirs\n"));
 	for (size_t i = 0; i < cmds_num; ++i)
 	{
 		redirs = cmds[i].redirs;
@@ -114,11 +117,12 @@ void	debug_redirections(t_cmd *cmds, size_t cmds_num)
 			redirs = redirs->next;
 		}
 	}
+	return (0);
 }
 
 void	catch_subprocess_segv(int n)
 {
 	(void)n;
 	printf("subprocess segfaulted at pid %d\n", getpid());
-	exit(0);
+	exit(EXIT_FAILURE);
 }

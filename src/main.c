@@ -18,13 +18,11 @@ t_string	ft_readline(char *prompt);
 
 int	main(int c, char **v, char **env)
 {
-	(void) v;
 	t_terminal	*t;
-	int	main_exit_code;
+	(void) v;
 
 	if (c > 1)
 		return (EXIT_FAILURE);
-	main_exit_code = 0;
 	t = init_term(env);
 	load_signals(DEFAULT);
 	while (true)
@@ -32,17 +30,20 @@ int	main(int c, char **v, char **env)
 		t->input = ft_readline(RL_PROMPT);
 		if (!t->input.s)
 			break ;
+		//TODO: meter isto num wrapper
+		//só incluir história de input for válido
 		add_history(t->input.s);
 		t->cmds = parse(t->input, t);
+		debug_cmds("STR ARGS", t->cmds, t->cmds_num);
+		debug_cstr_args("CSTR", t->cmds, t->cmds_num);
 		if (t->cmds && t->cmds_num < CMD_MAX)
 			t->exit_code = exec(t->cmds, t);
 		else if (g_sig_received)
 			t->exit_code = g_sig_received + FATAL_ERROR;
-		main_exit_code = t->exit_code;
+		//TODO: exit() aqui?
 		reset_term(&t);
 	}
-	destroy_term(&t);
-	return (main_exit_code);
+	return (destroy_term(&t));
 }
 
 t_string	ft_readline(char *prompt)

@@ -35,8 +35,8 @@ void	write_path(char dest[], char *src)
 	const size_t	src_size = ft_strlen(src);
 	const size_t	total_size = current_path_size + src_size + 1;
 
-	if (!current_path || total_size >= PATH_MAX || ft_strlcpy(dest,
-				current_path, current_path_size + 1) == 0)
+	if (!current_path || total_size >= PATH_MAX 
+		|| ft_strlcpy(dest, current_path, current_path_size + 1) == 0)
 	{
 		dest[0] = '\0';
 		free((char *)current_path);

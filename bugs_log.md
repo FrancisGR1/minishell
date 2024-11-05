@@ -1,2 +1,0 @@
-echo hello $asdas $asdsa "$pwd $PWD"
--> crash

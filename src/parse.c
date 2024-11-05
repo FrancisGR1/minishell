@@ -123,8 +123,10 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 			expand(&args_ptr[i], t->env, t->exit_code, 0);
 			rearrange_args_after_expansion(&args_ptr, i, &argc);
 		}
+		printf("INDEX: %ld\n", i);
+		debug_args("ARGS_PTR", args_ptr);
 		remove_quotes(&args_ptr[i]);
-		if (args_ptr[i].len == 0)
+		if (args_ptr[i].len <= 0)
 		{
 			string_free(&args_ptr[i]);
 			args_ptr[i] = cstr_to_str(EMPTY_STR);
@@ -157,7 +159,6 @@ size_t strs_count(t_string *args)
 	return(i);
 }
 
-//TODO: demasiados argumentos
 t_string *make_rearranged_args(t_string *old_args, t_string *split_args, int current, int argc)
 {
 	t_string *new_args;

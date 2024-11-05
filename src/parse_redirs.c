@@ -70,10 +70,7 @@ bool	get_redir(t_parser_buffer *pb, t_cmd *current_cmd, int *redir_idx)
 	if (redir->type == REDIR_HEREDOC || redir->type == REDIR_APPEND)
 		(*redir_idx)++;
 	if (!redir || !redir->fd.s)
-	{
-		free(redir);
-		return (false);
-	}
+		return (free(redir), false);
 	ft_lstadd_back(&current_cmd->redirs, ft_lstnew(redir));
 	return (true);
 }

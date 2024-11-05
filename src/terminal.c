@@ -48,13 +48,20 @@ void	reset_term(t_terminal **t)
 	(*t)->cmds_num = 1;
 }
 
-void	destroy_term(t_terminal **t)
+//frees main struct and returns the last exit code
+int	destroy_term(t_terminal **t)
 {
+	int main_exit_code;
 	char **env;
+
+	if (!t)
+		return (0);
+	main_exit_code = (*t)->exit_code;
 	env = (*t)->env;
 	while (env && *env)
 		free(*env++);
 	free((*t)->env);
 	close((*t)->terminal_fd);
 	freen((void *)&(*t));
+	return (main_exit_code);
 }
