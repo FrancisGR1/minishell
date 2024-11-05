@@ -14,8 +14,6 @@
 
 int			g_sig_received = 0;
 
-t_string	ft_readline(char *prompt);
-
 int	main(int c, char **v, char **env)
 {
 	t_terminal	*t;
@@ -32,7 +30,7 @@ int	main(int c, char **v, char **env)
 			break ;
 		//TODO: meter isto num wrapper
 		//só incluir história de input for válido
-		add_history(t->input.s);
+		ft_add_history(t->input);
 		t->cmds = parse(t->input, t);
 		debug_cmds("STR ARGS", t->cmds, t->cmds_num);
 		debug_cstr_args("CSTR", t->cmds, t->cmds_num);
@@ -46,13 +44,3 @@ int	main(int c, char **v, char **env)
 	return (destroy_term(&t));
 }
 
-t_string	ft_readline(char *prompt)
-{
-	char		*tmp;
-	t_string	input;
-
-	tmp = readline(prompt);
-	input = cstr_to_str(tmp);
-	freen((void *)&tmp);
-	return (input);
-}

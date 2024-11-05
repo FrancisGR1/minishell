@@ -190,6 +190,10 @@ void							freexit(int exit_code, t_terminal *t);
 void	free_cmd_args(t_cmd *current_cmd);
 void	alloc_args(t_cmd *cmds, int commands_num, char **t_env);
 
+//wrappers
+void ft_add_history(t_string input);
+t_string	ft_readline(char *prompt);
+
 // initializers
 void							init_redirs(t_parser_buffer *pb, size_t idx);
 void							init_parser(t_parser_buffer *pb, t_terminal *t);
