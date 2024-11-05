@@ -61,7 +61,7 @@ int	destroy_term(t_terminal **t)
 	while (env && *env)
 		free(*env++);
 	free((*t)->env);
-	close((*t)->terminal_fd);
+	safe_close((*t)->terminal_fd);
 	freen((void *)&(*t));
 	return (main_exit_code);
 }

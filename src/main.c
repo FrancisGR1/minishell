@@ -28,12 +28,8 @@ int	main(int c, char **v, char **env)
 		t->input = ft_readline(RL_PROMPT);
 		if (!t->input.s)
 			break ;
-		//TODO: meter isto num wrapper
-		//só incluir história de input for válido
 		ft_add_history(t->input);
 		t->cmds = parse(t->input, t);
-		debug_cmds("STR ARGS", t->cmds, t->cmds_num);
-		debug_cstr_args("CSTR", t->cmds, t->cmds_num);
 		if (t->cmds && t->cmds_num < CMD_MAX)
 			t->exit_code = exec(t->cmds, t);
 		else if (g_sig_received)

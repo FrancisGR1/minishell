@@ -31,7 +31,7 @@ int	heredoc(char *delimiter, char *heredoc_file, int terminal_fd, bool is_last_i
 	exit_status = hd_write_to_file(write_fd, delimiter);
 	hd_restore_previous_piped_fds(saved_out, saved_in);
 	if (write_fd > 0)
-		close(write_fd);
+		safe_close(write_fd);
 	hd_change_stdin(heredoc_file, is_last_input, terminal_fd);
 	return (exit_status);
 }
@@ -65,26 +65,26 @@ static void hd_change_stdin(char *heredoc_file, bool is_last_input, int terminal
 	read_fd = open(heredoc_file, O_RDONLY);
 	if (is_last_input)
 	{
-		dup2(terminal_fd, STDIN);
-		dup2(read_fd, STDIN);
+		safe_dup2(terminal_fd, STDIN);
+		safe_dup2(read_fd, STDIN);
 	}
-	close(read_fd);
+	safe_close(read_fd);
 }
 
 static void hd_set_temporary_std(int *saved_out, int *saved_in, int terminal_fd)
 {
 	*saved_out = dup(STDOUT);
 	*saved_in = dup(STDIN);
-	dup2(terminal_fd, STDIN);
-	dup2(terminal_fd, STDOUT);
+	safe_dup2(terminal_fd, STDIN);
+	safe_dup2(terminal_fd, STDOUT);
 }
 
 static void hd_restore_previous_piped_fds(int saved_out, int saved_in)
 {
-	dup2(saved_in, STDIN);
-	dup2(saved_out, STDOUT);
-	close(saved_in);
-	close(saved_out);
+	safe_dup2(saved_in, STDIN);
+	safe_dup2(saved_out, STDOUT);
+	safe_close(saved_in);
+	safe_close(saved_out);
 }
 
 //TODO: mudar de sítio

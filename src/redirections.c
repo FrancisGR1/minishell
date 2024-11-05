@@ -49,10 +49,10 @@ int	open_and_redirect_input(char *file, int terminal_fd, bool is_last_output)
 	}
 	else if (is_last_output)
 	{
-		dup2(terminal_fd, STDIN);
-		dup2(redir_fd, STDIN);
+		safe_dup2(terminal_fd, STDIN);
+		safe_dup2(redir_fd, STDIN);
 	}
-	close(redir_fd);
+	safe_close(redir_fd);
 	return (EXIT_SUCCESS);
 }
 
@@ -67,10 +67,10 @@ int	open_and_redirect_output(char *file, int flags, int terminal_fd, bool is_las
 	}
 	else if (is_last_output)
 	{
-		dup2(terminal_fd, STDOUT);
-		dup2(redir_fd, STDOUT);
+		safe_dup2(terminal_fd, STDOUT);
+		safe_dup2(redir_fd, STDOUT);
 	}
-	close(redir_fd);
+	safe_close(redir_fd);
 	return (EXIT_SUCCESS);
 }
 

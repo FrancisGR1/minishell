@@ -1,8 +1,3 @@
-wrappers.c
-safe_close() e outras funções seguras?
-
----
-
 sigquite em "blocking commands"
 Makefile produz um ficheiro supressor de leaks SE não existir
 

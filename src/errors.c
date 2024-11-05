@@ -16,7 +16,7 @@ static void get_binary_path(char **cmd_args, char **t_env);
 
 void	freexit(int exit_code, t_terminal *t)
 {
-	close(t->terminal_fd);
+	safe_close(t->terminal_fd);
 	string_free(&t->input);
 	reset_term(&t);
 	destroy_term(&t);

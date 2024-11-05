@@ -19,3 +19,18 @@ t_string	ft_readline(char *prompt)
 	freen((void *)&tmp);
 	return (input);
 }
+
+void safe_close(int fd_to_close)
+{
+	if (fd_to_close < 0)
+		return ;
+	close(fd_to_close);
+}
+
+void safe_dup2(int fd, int duplicate_to)
+{
+	if (fd < 0 || duplicate_to < 0)
+		return ;
+	if (dup2(fd, duplicate_to) == -1)
+		perror("dup2");
+}

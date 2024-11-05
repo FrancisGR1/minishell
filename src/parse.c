@@ -123,8 +123,6 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 			expand(&args_ptr[i], t->env, t->exit_code, 0);
 			rearrange_args_after_expansion(&args_ptr, i, &argc);
 		}
-		printf("INDEX: %ld\n", i);
-		debug_args("ARGS_PTR", args_ptr);
 		remove_quotes(&args_ptr[i]);
 		if (args_ptr[i].len <= 0)
 		{

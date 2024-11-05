@@ -193,6 +193,8 @@ void	alloc_args(t_cmd *cmds, int commands_num, char **t_env);
 //wrappers
 void ft_add_history(t_string input);
 t_string	ft_readline(char *prompt);
+void safe_dup2(int fd, int duplicate_to);
+void safe_close(int fd_to_close);
 
 // initializers
 void							init_redirs(t_parser_buffer *pb, size_t idx);

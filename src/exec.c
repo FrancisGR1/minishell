@@ -94,16 +94,16 @@ static void	dup2_pipe(int fds[][2], int idx, int last)
 {
 	if (idx == 0)
 	{
-		dup2(fds[idx][PIPE_WRITE], STDOUT);
+		safe_dup2(fds[idx][PIPE_WRITE], STDOUT);
 	}
 	else if (idx == last)
 	{
-		dup2(fds[idx - 1][PIPE_READ], STDIN);
+		safe_dup2(fds[idx - 1][PIPE_READ], STDIN);
 	}
 	else
 	{
-		dup2(fds[idx - 1][PIPE_READ], STDIN);
-		dup2(fds[idx][PIPE_WRITE], STDOUT);
+		safe_dup2(fds[idx - 1][PIPE_READ], STDIN);
+		safe_dup2(fds[idx][PIPE_WRITE], STDOUT);
 	}
 }
 
@@ -114,8 +114,8 @@ static void	close_fds(int fds[][2], int cmds_num)
 	i = 0;
 	while (i < cmds_num)
 	{
-		close(fds[i][0]);
-		close(fds[i][1]);
+		safe_close(fds[i][0]);
+		safe_close(fds[i][1]);
 		i++;
 	}
 }
