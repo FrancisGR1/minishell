@@ -6,42 +6,42 @@
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 00:01:34 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/10/20 00:01:34 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/06 21:57:14 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static void handle_exec_error(int redir_error, int idx, t_cmd *cmds, t_terminal *t);
+static void	handle_exec_error(int redir_error, int idx, t_cmd *cmds,
+				t_terminal *t);
 static void	exec_subprocess(int fds[][2], t_cmd *cmds, int idx, t_terminal *t);
 
 int	exec(t_cmd *cmds, t_terminal *t)
 {
-	int			fds[CMD_MAX][2];
-	pid_t		pids[CMD_MAX];
-	int			i;
+	int		fds[CMD_MAX][2];
+	pid_t	pids[CMD_MAX];
+	int		i;
 
 	init_pipes(fds, t->cmds_num - 1);
 	i = -1;
 	while (++i < (int)t->cmds_num)
 	{
-		if (cmds[i].has_heredoc)
+		if (cmds[i].ri.has_heredoc)
 			load_signals(DO_NOTHING);
 		else
 			load_signals(BLOCK);
 		pids[i] = fork();
-		//if (pids[i] == SUBPROCESS && is_builtin(cmds[i]))
-		//	exec_builtin(fds, cmds, i, t);
-		if (pids[i] == SUBPROCESS) 
+		if (pids[i] == SUBPROCESS)
 			exec_subprocess(fds, cmds, i, t);
-		if (cmds[i].has_heredoc)
-			wait_heredoc(&cmds[i].heredoc_wstatus, pids[i]);
+		if (cmds[i].ri.has_heredoc)
+			wait_heredoc(&cmds[i].ri.heredoc_wstatus, pids[i]);
 	}
 	close_fds(fds, t->cmds_num - 1);
 	return (wait_subprocesses(pids, t->cmds_num, cmds));
 }
 
-static void handle_exec_error(int redir_error, int idx, t_cmd *cmds, t_terminal *t)
+static void	handle_exec_error(int redir_error, int idx, t_cmd *cmds,
+		t_terminal *t)
 {
 	if (g_sig_received)
 		freexit(FATAL_ERROR + g_sig_received, t);
@@ -49,7 +49,7 @@ static void handle_exec_error(int redir_error, int idx, t_cmd *cmds, t_terminal 
 		freexit(redir_error, t);
 	else if (!cmds[idx].cstr_args && cmds[idx].redirs)
 		freexit(EXIT_SUCCESS, t);
-	else if (!cmds[idx].cstr_args[0] && !cmds[idx].redirs) 
+	else if (!cmds[idx].cstr_args[0] && !cmds[idx].redirs)
 		ft_fprintf(ERROR, "Command \'\' not found\n");
 	else if (errno == ENOENT)
 		ft_fprintf(ERROR, "%s: Command not found\n", cmds[idx].cstr_args[0]);
@@ -63,16 +63,21 @@ static void handle_exec_error(int redir_error, int idx, t_cmd *cmds, t_terminal 
 
 static void	exec_subprocess(int fds[][2], t_cmd *cmds, int idx, t_terminal *t)
 {
-	int redir_error;
+	int	redir_error;
 
 	if (t->cmds_num != 1)
 		dup2_pipe(fds, idx, t->cmds_num - 1);
-	redir_error = set_redirs(cmds[idx].redirs, cmds[idx].heredoc_file, t->terminal_fd, cmds[idx].last_input_ptr, cmds[idx].last_output_ptr);
+	redir_error = set_redirs(cmds[idx].redirs, t->terminal_fd, cmds[idx].ri);
 	close_fds(fds, t->cmds_num - 1);
-	if (g_sig_received || redir_error || !cmds[idx].cstr_args )
+	if (g_sig_received || redir_error || !cmds[idx].cstr_args)
 		handle_exec_error(redir_error, idx, cmds, t);
 	if (!cmds[idx].cstr_args[0])
 		handle_exec_error(redir_error, idx, cmds, t);
-	if (execve(cmds[idx].cstr_args[0], cmds[idx].cstr_args, t->env) == -1)
-		handle_exec_error(redir_error, idx, cmds, t);
+	if (false)
+		;
+	else
+	{
+		if (execve(cmds[idx].cstr_args[0], cmds[idx].cstr_args, t->env) == -1)
+			handle_exec_error(redir_error, idx, cmds, t);
+	}
 }

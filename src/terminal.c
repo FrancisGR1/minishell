@@ -6,7 +6,7 @@
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 00:01:36 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/10/20 00:01:36 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/06 21:57:17 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ t_terminal	*init_term(char **env)
 	t->terminal_fd = dup(STDOUT);
 	t->exit_code = 0;
 	t->env = env_dup(env);
+	t->prompt = BGRN "minishell> " RESET;
 	rl_catch_signals = 1;
 	return (t);
 }
@@ -30,7 +31,7 @@ void	reset_term(t_terminal **t)
 {
 	size_t	i;
 
-	g_sig_received  = 0;
+	g_sig_received = 0;
 	if (!t || !*t)
 		return ;
 	if ((*t)->cmds)
@@ -48,11 +49,11 @@ void	reset_term(t_terminal **t)
 	(*t)->cmds_num = 1;
 }
 
-//frees main struct and returns the last exit code
+// frees main struct and returns the last exit code
 int	destroy_term(t_terminal **t)
 {
-	int main_exit_code;
-	char **env;
+	int		main_exit_code;
+	char	**env;
 
 	if (!t)
 		return (0);

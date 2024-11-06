@@ -1,9 +1,21 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   format_args.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/06 20:03:48 by frmiguel          #+#    #+#             */
+/*   Updated: 2024/11/06 21:57:15 by frmiguel         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-void cleanup_arg(char *str)
+void	cleanup_arg(char *str)
 {
-	size_t i;
-	size_t j;
+	size_t	i;
+	size_t	j;
 
 	if (!str)
 		return ;
@@ -15,7 +27,7 @@ void cleanup_arg(char *str)
 		{
 			j++;
 			str[i] = str[j];
-			continue;
+			continue ;
 		}
 		else
 		{
@@ -39,10 +51,10 @@ void	alloc_args(t_cmd *cmds, int commands_num, char **t_env)
 	i = -1;
 	while (++i < commands_num)
 	{
-		cmd_args = ft_calloc(sizeof(char *),  (cmds[i].argc + 1));
+		cmd_args = ft_calloc(sizeof(char *), (cmds[i].argc + 1));
 		k = -1;
 		j = 0;
-		while (++k < (int) cmds[i].argc)
+		while (++k < (int)cmds[i].argc)
 		{
 			if (ft_strcmp(cmds[i].args[k].s, EMPTY_EXPANDED_STR) == 0)
 				continue ;
@@ -56,41 +68,43 @@ void	alloc_args(t_cmd *cmds, int commands_num, char **t_env)
 	}
 }
 
-t_string *make_rearranged_args(t_string *old_args, t_string *split_args, int current, int argc)
+t_string	*make_rearranged_args(t_string *old, t_string *split, int curr,
+		int c)
 {
-	t_string *new_args;
-	const int arr_len = strs_count(split_args);
+	t_string	*new_args;
+	const int	len = strs_count(split);
 
-	if (!old_args || !split_args)
+	if (!old || !split)
 		return (NULL);
-	new_args = malloc((argc + 1) * sizeof(t_string));
-	if (current == 0)
+	new_args = malloc((c + 1) * sizeof(t_string));
+	if (curr == 0)
 	{
-		ft_memcpy(new_args, split_args, sizeof(t_string) * arr_len);
-		if (argc > 1)
-			ft_memcpy(&new_args[arr_len], &old_args[1], sizeof(t_string) * (argc - arr_len));
+		ft_memcpy(new_args, split, sizeof(t_string) * len);
+		if (c > 1)
+			ft_memcpy(&new_args[len], &old[1], sizeof(t_string) * (c - len));
 	}
-	else if (current == argc - 1)
+	else if (curr == c - 1)
 	{
-		ft_memcpy(new_args, old_args, sizeof(t_string) * (argc - 1));
-		ft_memcpy(&new_args[argc - 1], split_args, sizeof(t_string) * arr_len);
+		ft_memcpy(new_args, old, sizeof(t_string) * (c - 1));
+		ft_memcpy(&new_args[c - 1], split, sizeof(t_string) * len);
 	}
 	else
 	{
-		ft_memcpy(new_args, old_args, sizeof(t_string) * current);
-		ft_memcpy(&new_args[current], split_args, sizeof(t_string) * arr_len);
-		ft_memcpy(&new_args[current + arr_len], old_args + current, sizeof(t_string) * (argc - 1 - current));
+		ft_memcpy(new_args, old, sizeof(t_string) * curr);
+		ft_memcpy(&new_args[curr], split, sizeof(t_string) * len);
+		ft_memcpy(&new_args[curr + len], old + curr, sizeof(t_string) * (c - 1
+				- curr));
 	}
-	new_args[argc] = new_str(NULL, 0);
-	return (new_args);
+	return (new_args[c] = new_str(NULL, 0), new_args);
 }
 
-void rearrange_args_after_expansion(t_string **arg, int current, size_t *argc)
+void	rearrange_args_after_expansion(t_string **arg, int current,
+		size_t *argc)
 {
-	t_string *split_args;
-	t_string *new_args;
-	t_string *expanded_str_ptr;
-	int arr_len;
+	t_string	*split_args;
+	t_string	*new_args;
+	t_string	*expanded_str_ptr;
+	int			arr_len;
 
 	if (!arg || !*arg || !(*arg)->s || !argc || *argc <= 0)
 		return ;
@@ -109,4 +123,3 @@ void rearrange_args_after_expansion(t_string **arg, int current, size_t *argc)
 	free(split_args);
 	*arg = new_args;
 }
-

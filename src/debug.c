@@ -6,10 +6,11 @@
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 00:01:34 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/10/20 00:01:34 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/06 21:57:14 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+/*
 #include "minishell.h"
 
 void	debug_fds(const char *message, int fd)
@@ -55,7 +56,7 @@ int	debug_args(char *msg, t_string *args)
 {
 	ft_fprintf(STDOUT, "=======%s=======\n", msg);
 	if (!args)
-		return(ft_fprintf(ERROR, "t_string *args null\n"));
+		return (ft_fprintf(ERROR, "t_string *args null\n"));
 	ft_fprintf(STDOUT, "num of args: %d\n");
 	for (int j = 0; args[j].s; ++j)
 	{
@@ -67,9 +68,11 @@ int	debug_args(char *msg, t_string *args)
 
 int	debug_cmds(char *msg, t_cmd *cmds, size_t cmds_num)
 {
-	char allocated[] = "STR_ALLOCATED";
-	char pointer[] = "STR_PTR";
-	char null[] = "STR_NULL";
+	char	allocated[] = "STR_ALLOCATED";
+	char	pointer[] = "STR_PTR";
+	char	null[] = "STR_NULL";
+	char	*str_type;
+
 	if (!cmds)
 		return (ft_fprintf(ERROR, "cmds null\n"));
 	if (!cmds_num)
@@ -81,7 +84,6 @@ int	debug_cmds(char *msg, t_cmd *cmds, size_t cmds_num)
 	{
 		for (size_t j = 0; j < cmds[i].argc; ++j)
 		{
-			char *str_type;
 			if (cmds[i].args[j].type == STR_POINTER)
 				str_type = pointer;
 			else if (cmds[i].args[j].type == STR_ALLOCATED)
@@ -101,11 +103,11 @@ int	debug_redirections(t_cmd *cmds, size_t cmds_num)
 	t_list	*redirs;
 
 	if (!cmds)
-		return(ft_fprintf(ERROR, "cmds null\n"));
+		return (ft_fprintf(ERROR, "cmds null\n"));
 	if (!cmds_num)
-		return(ft_fprintf(ERROR, "cmds num: 0\n"));
+		return (ft_fprintf(ERROR, "cmds num: 0\n"));
 	if (!cmds->redirs)
-		return(ft_fprintf(ERROR, "no redirs\n"));
+		return (ft_fprintf(ERROR, "no redirs\n"));
 	for (size_t i = 0; i < cmds_num; ++i)
 	{
 		redirs = cmds[i].redirs;
@@ -113,7 +115,7 @@ int	debug_redirections(t_cmd *cmds, size_t cmds_num)
 		{
 			r = (t_redir *)redirs->content;
 			ft_fprintf(STDOUT, "\n-----------------\ntype: %d\nstring: %S\n",
-					r->type, r->fd);
+				r->type, r->fd);
 			redirs = redirs->next;
 		}
 	}
@@ -126,3 +128,5 @@ void	catch_subprocess_segv(int n)
 	printf("subprocess segfaulted at pid %d\n", getpid());
 	exit(EXIT_FAILURE);
 }
+
+*/

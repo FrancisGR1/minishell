@@ -6,23 +6,26 @@
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 00:01:35 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/10/20 00:01:35 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/06 21:57:15 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static int hd_write_to_file(int write_fd, char *delimiter);
-static void hd_change_stdin(char *heredoc_file, bool is_last_input, int terminal_fd);
-static void hd_set_temporary_std(int *saved_out, int *saved_in, int terminal_fd);
-static void hd_restore_previous_piped_fds(int saved_out, int saved_in);
+static int	hd_write_to_file(int write_fd, char *delimiter);
+static void	hd_change_stdin(char *heredoc_file, bool is_last_input,
+				int terminal_fd);
+static void	hd_set_temporary_std(int *saved_out, int *saved_in,
+				int terminal_fd);
+static void	hd_restore_previous_piped_fds(int saved_out, int saved_in);
 
-int	heredoc(char *delimiter, char *heredoc_file, int terminal_fd, bool is_last_input)
+int	heredoc(char *delimiter, char *heredoc_file, int terminal_fd,
+		bool is_last_input)
 {
-	int		write_fd;
-	int		exit_status;
-	int		saved_out;
-	int		saved_in;
+	int	write_fd;
+	int	exit_status;
+	int	saved_out;
+	int	saved_in;
 
 	write_fd = open(heredoc_file, O_WRONLY | O_TRUNC | O_CREAT, 0644);
 	if (write_fd == -1)
@@ -36,14 +39,15 @@ int	heredoc(char *delimiter, char *heredoc_file, int terminal_fd, bool is_last_i
 	return (exit_status);
 }
 
-static int hd_write_to_file(int write_fd, char *delimiter)
+static int	hd_write_to_file(int write_fd, char *delimiter)
 {
-	char *input;
+	char	*input;
 
 	while (true)
 	{
 		input = readline("> ");
-		if (!input || ft_strcmp(input, delimiter) == 0 || (g_sig_received && ft_strlen(input) == 0))
+		if (!input || ft_strcmp(input, delimiter) == 0 || (g_sig_received
+				&& ft_strlen(input) == 0))
 		{
 			freen((void *)&input);
 			if (g_sig_received)
@@ -58,9 +62,10 @@ static int hd_write_to_file(int write_fd, char *delimiter)
 	return (EXIT_SUCCESS);
 }
 
-static void hd_change_stdin(char *heredoc_file, bool is_last_input, int terminal_fd)
+static void	hd_change_stdin(char *heredoc_file, bool is_last_input,
+		int terminal_fd)
 {
-	int read_fd;
+	int	read_fd;
 
 	read_fd = open(heredoc_file, O_RDONLY);
 	if (is_last_input)
@@ -71,7 +76,7 @@ static void hd_change_stdin(char *heredoc_file, bool is_last_input, int terminal
 	safe_close(read_fd);
 }
 
-static void hd_set_temporary_std(int *saved_out, int *saved_in, int terminal_fd)
+static void	hd_set_temporary_std(int *saved_out, int *saved_in, int terminal_fd)
 {
 	*saved_out = dup(STDOUT);
 	*saved_in = dup(STDIN);
@@ -79,7 +84,7 @@ static void hd_set_temporary_std(int *saved_out, int *saved_in, int terminal_fd)
 	safe_dup2(terminal_fd, STDOUT);
 }
 
-static void hd_restore_previous_piped_fds(int saved_out, int saved_in)
+static void	hd_restore_previous_piped_fds(int saved_out, int saved_in)
 {
 	safe_dup2(saved_in, STDIN);
 	safe_dup2(saved_out, STDOUT);

@@ -6,13 +6,14 @@
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 00:01:35 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/10/20 00:01:35 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/06 21:57:16 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static bool	format_args(t_parser_buffer *pb, t_cmd *current_cmd, int *redir_idx);
+static bool	format_args(t_parser_buffer *pb, t_cmd *current_cmd,
+				int *redir_idx);
 static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t);
 static int	mark_special_characters(t_string input, size_t *cmds_num);
 static int	remove_quotes(t_string *arg);
@@ -23,27 +24,27 @@ t_cmd	*parse(t_string input, t_terminal *t)
 
 	init_parser(&pb, t);
 	if (!!mark_special_characters(input, &t->cmds_num))
-		return (free_on_error(WRONG_FORMAT, "Format error: Quotes unclosed", &pb));
+		return (frerror(WRONG_FORMAT, ERROR_QUOTES, &pb));
 	pb.cmds = ft_calloc((t->cmds_num + 1), sizeof(t_cmd));
 	pb.pipe_sides = string_split(input, "\1", &pb.split_len);
 	if (!pb.pipe_sides)
-		return (free_on_error(NO_INPUT, NULL, &pb));
+		return (frerror(NO_INPUT, NULL, &pb));
 	while (++pb.idx < (int)t->cmds_num)
 	{
 		init_redirs(&pb, pb.idx);
-		pb.args_ptr = string_split(pb.pipe_sides[pb.idx], DELIMITERS, &pb.split_len);
+		pb.args_ptr = string_split(pb.pipe_sides[pb.idx], DELIMITERS,
+				&pb.split_len);
 		if (!pb.args_ptr)
-			return (free_on_error(WRONG_FORMAT, "Format error: Missing command", &pb));
+			return (frerror(WRONG_FORMAT, ERROR_NO_CMD, &pb));
 		while (pb.redir_ptrs && ++pb.redir_idx < (int)pb.redir_ptrs->len)
 			if (!format_args(&pb, &pb.cmds[pb.idx], &pb.redir_idx))
-				return (free_on_error(WRONG_FORMAT, "Format error: No redirection file", &pb));
+				return (frerror(WRONG_FORMAT, ERROR_NO_REDIR, &pb));
 		if (!set_cmd(pb.cmds, pb.idx, pb.args_ptr, t) && !pb.redir_ptrs)
-			return (free_on_error(WRONG_FORMAT, "Format error: No command", &pb));
+			return (frerror(WRONG_FORMAT, ERROR_NO_CMD, &pb));
 		darr_free(pb.redir_ptrs);
 	}
-	free(pb.pipe_sides);
 	alloc_args(pb.cmds, t->cmds_num, t->env);
-	return (pb.cmds);
+	return (free(pb.pipe_sides), pb.cmds);
 }
 
 static int	remove_quotes(t_string *arg)
@@ -106,12 +107,12 @@ int	mark_special_characters(t_string input, size_t *cmds_num)
 static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 {
 	size_t	i;
-	size_t argc;
+	size_t	argc;
 
 	if (!cmds || !args_ptr || !t)
 		return (false);
 	i = 0;
-	argc = strs_count(args_ptr); 
+	argc = strs_count(args_ptr);
 	while (i < argc)
 	{
 		if (string_find(args_ptr[i], 0, args_ptr[i].len, "$") >= 0)
@@ -140,4 +141,3 @@ static bool	format_args(t_parser_buffer *pb, t_cmd *current_cmd, int *redir_idx)
 		remove_redirections(pb, current_cmd);
 	return (true);
 }
-

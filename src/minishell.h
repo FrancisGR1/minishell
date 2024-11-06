@@ -6,7 +6,7 @@
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 00:03:16 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/10/20 00:03:16 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/06 21:52:58 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,8 @@
 // our lib
 # include "../libft/libft.h"
 
-//TODO: TEMPORÁRIO
-#include <assert.h>
+// TODO: TEMPORÁRIO
+# include <assert.h>
 
 // Readline includes
 # include <readline/history.h>
@@ -45,19 +45,22 @@ extern int						g_sig_received;
 # define EMPTY_STR "\5"
 # define EMPTY_EXPANDED_STR "\6"
 
-// Prompts
-# define RL_PROMPT BGRN "minishell> " RESET
 # define HEREDOC_PROMPT "> "
 
 // Max cmds possible in minishell
 # define CMD_MAX 1000
+
+// Parse error messages
+# define ERROR_QUOTES "Format error: Quotes unclosed"
+# define ERROR_NO_CMD "Format error: Missing command"
+# define ERROR_NO_REDIR "Format error: No redirection file"
 
 // Exit codes
 # define NO_ERROR 0
 # define NO_INPUT 0
 # define FILE_ERROR 1
 # define WRONG_FORMAT 2
-# define NOT_EXECUTABLE 126 
+# define NOT_EXECUTABLE 126
 # define CMD_NOT_FOUND 127
 # define FATAL_ERROR 128
 
@@ -68,15 +71,15 @@ extern int						g_sig_received;
 // Pid of subprocess spawned is 0
 # define SUBPROCESS 0
 
-//output redirections open files in this mode
+// output redirections open files in this mode
 # define DEFAULT_FILE_PERM 0644
 
-//signal modes
-//ignore every signal
+// signal modes
+// ignore every signal
 # define DO_NOTHING 1
 /*handle ctr + c; ctrl + \ */
 # define DEFAULT 2
-//setup sigquit for block mode 
+// setup sigquit for block mode
 # define BLOCK 4
 
 // Main struct
@@ -110,27 +113,32 @@ enum							e_redir_type
 	REDIR_HEREDOC,
 };
 
-//every redirection has a: 1)type; 2)file number associated
+// every redirection has a: 1)type; 2)file number associated
 struct							s_redirections
 {
 	enum e_redir_type			type;
 	t_string					fd;
 };
 
+//general information about the redirections of a command
+typedef struct s_redir_info
+{
+	t_redir						*li_ptr;
+	t_redir						*lo_ptr;
+	bool						has_heredoc;
+	char						heredoc_file[PATH_MAX];
+	int							heredoc_wstatus;
+}								t_redir_info;
+
 struct							s_command
 {
 	t_string					binary;
 	t_string					*args;
-	size_t		argc;
+	size_t						argc;
 	char						**cstr_args;
-	size_t		cstr_argc;
+	size_t						cstr_argc;
 	t_list						*redirs;
-	//redir info
-	t_redir						*last_input_ptr;
-	t_redir						*last_output_ptr;
-	bool						has_heredoc;
-	char						heredoc_file[PATH_MAX];
-	int						heredoc_wstatus;
+	t_redir_info				ri;
 };
 
 struct							s_terminal
@@ -141,6 +149,7 @@ struct							s_terminal
 	int							terminal_fd;
 	int							exit_code;
 	t_string					input;
+	char						*prompt;
 };
 
 // parse
@@ -148,73 +157,87 @@ t_cmd							*parse(t_string input, t_terminal *t);
 
 // parse redirections
 t_redir							*new_redir(t_string *args, t_string r_ptr);
-void	remove_redirections(t_parser_buffer *pb, t_cmd *current_cmd);
-bool	get_redir(t_parser_buffer *pb, t_cmd *current_cmd, int *redir_idx);
-void	define_redir_type(t_redir *redir, t_string r_ptr);
+void							remove_redirections(t_parser_buffer *pb,
+									t_cmd *current_cmd);
+bool							get_redir(t_parser_buffer *pb,
+									t_cmd *current_cmd, int *redir_idx);
+void							define_redir_type(t_redir *redir,
+									t_string r_ptr);
 
-//expansion
-void expand(t_string *s, char **env, int exit_code, int start);
+// expansion
+void							expand(t_string *s, char **env, int exit_code,
+									int start);
 
-//expansion utils
-int valid_dollar_char(int c);
-void remove_empty_codes(t_string *str);
+// expansion utils
+int								valid_dollar_char(int c);
+void							remove_empty_codes(t_string *str);
 
-//reformat args after expansion
-void rearrange_args_after_expansion(t_string **arg, int current, size_t *argc);
-t_string *make_rearranged_args(t_string *old_args, t_string *split_args, int current, int argc);
-void cleanup_arg(char *str);
-void	alloc_args(t_cmd *cmds, int commands_num, char **t_env);
+// reformat args after expansion
+void							rearrange_args_after_expansion(t_string **arg,
+									int current, size_t *argc);
+t_string						*make_rearranged_args(t_string *old_args,
+									t_string *split_args, int current,
+									int argc);
+void							cleanup_arg(char *str);
+void							alloc_args(t_cmd *cmds, int commands_num,
+									char **t_env);
 
-//paths
-char *find_path(char *cmd, char **env);
-void get_binary_path(char **cmd_args, char **t_env);
+// paths
+char							*find_path(char *cmd, char **env);
+void							get_binary_path(char **cmd_args, char **t_env);
 
 // execution
 int								exec(t_cmd *cmds, t_terminal *t);
 
-//execution helper functions
-void	dup2_pipe(int fds[][2], int idx, int last);
-void	close_fds(int fds[][2], int cmds_num);
+// execution helper functions
+void							dup2_pipe(int fds[][2], int idx, int last);
+void							close_fds(int fds[][2], int cmds_num);
 
-//wait for subprocesses
-int	wait_subprocesses(pid_t *subprocesses, int commands, t_cmd *cmds);
-void wait_heredoc(int *hd_exit_status, pid_t pid);
+// wait for subprocesses
+int								wait_subprocesses(pid_t *subprocesses,
+									int commands, t_cmd *cmds);
+void							wait_heredoc(int *hd_exit_status, pid_t pid);
 
 // redirections
-int	set_redirs(t_list *redirs, char *heredoc_file, int terminal_fd, t_redir *li_ptr, t_redir *lo_ptr);
-int	print_redir_error(int redir_error, t_redir *r, char *heredoc_file, char *file_name);
-int	open_and_redirect_output(char *file, int flags, int terminal_fd, bool is_last_output);
-int	open_and_redirect_input(char *file, int terminal_fd, bool is_last_output);
+int								set_redirs(t_list *redirs, int terminal_fd,
+									t_redir_info ri);
+int								print_redir_error(int redir_error, t_redir *r,
+									char *heredoc_file, char *file_name);
+int								open_and_redirect_output(char *file, int flags,
+									int terminal_fd, bool is_last_output);
+int								open_and_redirect_input(char *file,
+									int terminal_fd, bool is_last_output);
 
 // redirection: heredoc
-int	heredoc(char *delimiter, char *heredoc_file, int terminal_fd, bool is_last_input);
-void wait_heredoc(int *hd_exit_status, pid_t pid);
-void							write_path(char dest[], char *src);
+int								heredoc(char *delimiter, char *heredoc_file,
+									int terminal_fd, bool is_last_input);
+void							wait_heredoc(int *hd_exit_status, pid_t pid);
+void							write_heredoc_path(char dest[], char *src);
 
 // terminal struct utils
 t_terminal						*init_term(char **env);
 void							reset_term(t_terminal **t);
-int	destroy_term(t_terminal **t);
+int								destroy_term(t_terminal **t);
 
 // signals
-void	load_signals(int at);
+void							load_signals(int at);
 void							signals_handler(int signum, siginfo_t *inf,
-		void *ctx);
-//environment
-char **env_dup(char **env);
-char *env_lookup(char **env, char *target);
+									void *ctx);
+// environment
+char							**env_dup(char **env);
+char							*env_lookup(char **env, char *target);
 
 // errors and memory management
-void							*free_on_error(int exit_code,
-		char *error_message, t_parser_buffer *pb);
+void							*frerror(int exit_code, char *error_message,
+									t_parser_buffer *pb);
 void							freexit(int exit_code, t_terminal *t);
-void	free_cmd_args(t_cmd *current_cmd);
+void							free_cmd_args(t_cmd *current_cmd);
 
-//wrappers
-void ft_add_history(t_string input);
-t_string	ft_readline(char *prompt);
-void safe_dup2(int fd, int duplicate_to);
-void safe_close(int fd_to_close);
+// wrappers
+void							ft_add_history(t_string input);
+t_string						ft_readline(char *prompt);
+void							safe_dup2(int fd, int duplicate_to);
+void							safe_close(int fd_to_close);
 
 // initializers
 void							init_redirs(t_parser_buffer *pb, size_t idx);
@@ -223,11 +246,13 @@ void							init_pipes(int fds[][2], int cmds_num);
 
 // debug utils
 void							debug_fds(const char *message, int fd);
-int	debug_cmds(char *msg, t_cmd *cmds, size_t cmds_num);
-int	debug_cstr_args(char *msg, t_cmd *cmds, int cmds_num);
-int	debug_args(char *msg, t_string *args);
-int							debug_redirections(t_cmd *cmds,
-		size_t cmds_num);
+int								debug_cmds(char *msg, t_cmd *cmds,
+									size_t cmds_num);
+int								debug_cstr_args(char *msg, t_cmd *cmds,
+									int cmds_num);
+int								debug_args(char *msg, t_string *args);
+int								debug_redirections(t_cmd *cmds,
+									size_t cmds_num);
 void							catch_subprocess_segv(int n);
 
 #endif /*MINISHELL_H*/

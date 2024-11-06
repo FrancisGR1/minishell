@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   errors.c                                           :+:      :+:    :+:   */
+/*   cleanup.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 00:01:34 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/10/20 00:01:34 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/06 21:57:14 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ void	freexit(int exit_code, t_terminal *t)
 	exit(exit_code);
 }
 
-void	*free_on_error(int exit_code, char *error_message, t_parser_buffer *pb)
+void	*frerror(int exit_code, char *error_message, t_parser_buffer *pb)
 {
 	int	i;
 

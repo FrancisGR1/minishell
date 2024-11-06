@@ -6,7 +6,7 @@
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 00:01:35 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/10/20 00:01:35 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/06 21:57:16 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,13 +60,13 @@ bool	get_redir(t_parser_buffer *pb, t_cmd *current_cmd, int *redir_idx)
 	define_redir_type(redir, *pb->redir_ptr);
 	if (redir->type == REDIR_HEREDOC)
 	{
-		current_cmd->has_heredoc = true;
-		write_path(current_cmd->heredoc_file, rand_string());
+		current_cmd->ri.has_heredoc = true;
+		write_heredoc_path(current_cmd->ri.heredoc_file, rand_string());
 	}
 	if (redir->type == REDIR_INPUT || redir->type == REDIR_HEREDOC)
-		current_cmd->last_input_ptr = redir;
+		current_cmd->ri.li_ptr = redir;
 	if (redir->type == REDIR_OUTPUT || redir->type == REDIR_APPEND)
-		current_cmd->last_output_ptr = redir;
+		current_cmd->ri.lo_ptr = redir;
 	if (redir->type == REDIR_HEREDOC || redir->type == REDIR_APPEND)
 		(*redir_idx)++;
 	if (!redir || !redir->fd.s)
@@ -96,7 +96,26 @@ void	remove_redirections(t_parser_buffer *pb, t_cmd *current_cmd)
 	nbytes = (argc + 1 - i) * (sizeof(t_string));
 	ft_memmove(&pb->args_ptr[i], &pb->args_ptr[i + 1], nbytes);
 	if (argc == 0)
-		freen ((void *)&pb->args_ptr);
+		freen((void *)&pb->args_ptr);
 	else
 		pb->args_ptr[argc].s = NULL;
+}
+
+void	write_heredoc_path(char dest[], char *src)
+{
+	const char		*current_path = (const char *)getcwd(NULL, 0);
+	const size_t	current_path_size = ft_strlen(current_path);
+	const size_t	src_size = ft_strlen(src);
+	const size_t	total_size = current_path_size + src_size + 1;
+
+	if (!current_path || total_size >= PATH_MAX || ft_strlcpy(dest,
+			current_path, current_path_size + 1) == 0)
+	{
+		dest[0] = '\0';
+		free((char *)current_path);
+		return ;
+	}
+	free((char *)current_path);
+	ft_strlcat(dest, "/", current_path_size + 2);
+	ft_strlcat(dest, src, current_path_size + 2 + src_size);
 }

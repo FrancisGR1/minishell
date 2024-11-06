@@ -6,7 +6,7 @@
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 00:01:36 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/10/20 00:01:36 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/06 21:57:17 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ void	load_signals(int at)
 
 void	signals_handler(int signum, siginfo_t *inf, void *ctx)
 {
-	(void) ctx;
+	(void)ctx;
 	if (signum == SIGINT)
 	{
 		if (inf->si_pid == SUBPROCESS)
