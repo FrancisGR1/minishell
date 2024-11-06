@@ -19,7 +19,7 @@ int	set_redirs(t_list *redirs, char *heredoc_file, int terminal_fd, t_redir *li_
 	char	file_name[FILENAME_MAX];
 
 	redir_error = 0;
-	while (redirs && !redir_error) 
+	while (redirs && !redir_error && !g_sig_received) 
 	{
 		r = (t_redir *)redirs->content;
 		ft_strlcpy(file_name, r->fd.s, r->fd.len + 1);

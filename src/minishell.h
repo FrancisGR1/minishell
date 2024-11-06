@@ -71,11 +71,13 @@ extern int						g_sig_received;
 //output redirections open files in this mode
 # define DEFAULT_FILE_PERM 0644
 
-//main process: 
+//signal modes
 //ignore every signal
-# define DO_NOTHING -1
+# define DO_NOTHING 1
 /*handle ctr + c; ctrl + \ */
-# define DEFAULT 0
+# define DEFAULT 2
+//setup sigquit for block mode 
+# define BLOCK 4
 
 // Main struct
 typedef struct s_terminal		t_terminal;

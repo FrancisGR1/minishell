@@ -56,11 +56,9 @@ void	free_cmd_args(t_cmd *current_cmd)
 		return ;
 	while (i < current_cmd->argc)
 	{
-		//TODO: mudar isto
 		string_free(&current_cmd->args[i]);
 		if (i < current_cmd->cstr_argc)
 		{
-			printf("freeing: %s\n",  current_cmd->cstr_args[i]);
 			freen((void *)&current_cmd->cstr_args[i]);
 		}
 		i++;
@@ -119,8 +117,6 @@ void	alloc_args(t_cmd *cmds, int commands_num, char **t_env)
 		{
 			if (ft_strcmp(cmds[i].args[k].s, EMPTY_EXPANDED_STR) == 0)
 				continue ;
-			//apanhar strings vazios
-			ft_fprintf(STDOUT, "evaluating: %d %S\n", k, cmds[i].args[k]);
 			cmd_args[j] = string_convert_back(cmds[i].args[k]);
 			cleanup_arg(cmd_args[j++]);
 		}

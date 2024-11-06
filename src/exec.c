@@ -19,52 +19,50 @@ static void	exec_subprocess(int fds[][2], t_cmd *cmds, int idx, t_terminal *t);
 
 int	exec(t_cmd *cmds, t_terminal *t)
 {
-	int	command_c = t->cmds_num - 1; //TODO: tirar isto daqui
 	int			fds[CMD_MAX][2];
 	pid_t		pids[CMD_MAX];
 	int			i;
 
-	init_pipes(fds, command_c);
-	i = 0;
-	while (i < (int)t->cmds_num)
+	init_pipes(fds, t->cmds_num - 1);
+	i = -1;
+	while (++i < (int)t->cmds_num)
 	{
-		pids[i] = fork();
-		if (pids[i] == SUBPROCESS) 
-		{
-			exec_subprocess(fds, cmds, i, t);
-		}
 		if (cmds[i].has_heredoc)
-		{
 			load_signals(DO_NOTHING);
+		else
+			load_signals(BLOCK);
+		pids[i] = fork();
+		//if (pids[i] == SUBPROCESS && is_builtin(cmds[i]))
+		//	exec_builtin(fds, cmds, i, t);
+		if (pids[i] == SUBPROCESS) 
+			exec_subprocess(fds, cmds, i, t);
+		if (cmds[i].has_heredoc)
 			wait_heredoc(&cmds[i].heredoc_wstatus, pids[i]);
-			load_signals(DEFAULT);
-		}
-		i++;
 	}
-	close_fds(fds, command_c);
+	close_fds(fds, t->cmds_num - 1);
 	return (wait_subprocesses(pids, t->cmds_num, cmds));
 }
 
 static void handle_exec_error(int redir_error, int idx, t_cmd *cmds, t_terminal *t)
 {
-		if (g_sig_received)
-			freexit(FATAL_ERROR + g_sig_received, t);
-		else if (redir_error)
-			freexit(redir_error, t);
-		else if (!cmds[idx].cstr_args && cmds[idx].redirs)
-			freexit(EXIT_SUCCESS, t);
-		else if (!cmds[idx].cstr_args[0] && !cmds[idx].redirs) 
-			ft_fprintf(ERROR, "Command \'\' not found\n");
-		else if (errno == ENOENT)
-			ft_fprintf(ERROR, "%s: Command not found\n", cmds[idx].cstr_args[0]);
-		else
-			perror(cmds[idx].cstr_args[0]);
-		if (errno == EACCES)
-			freexit(NOT_EXECUTABLE, t);
-		else
-			freexit(CMD_NOT_FOUND, t);
-		//TODO: tenho de incluir outros tipos de saídas
-		//falta a utilização errada de builtins (código de saída: 2)
+	if (g_sig_received)
+		freexit(FATAL_ERROR + g_sig_received, t);
+	else if (redir_error)
+		freexit(redir_error, t);
+	else if (!cmds[idx].cstr_args && cmds[idx].redirs)
+		freexit(EXIT_SUCCESS, t);
+	else if (!cmds[idx].cstr_args[0] && !cmds[idx].redirs) 
+		ft_fprintf(ERROR, "Command \'\' not found\n");
+	else if (errno == ENOENT)
+		ft_fprintf(ERROR, "%s: Command not found\n", cmds[idx].cstr_args[0]);
+	else
+		perror(cmds[idx].cstr_args[0]);
+	if (errno == EACCES)
+		freexit(NOT_EXECUTABLE, t);
+	else
+		freexit(CMD_NOT_FOUND, t);
+	//TODO: tenho de incluir outros tipos de saídas
+	//falta a utilização errada de builtins (código de saída: 2)
 
 }
 

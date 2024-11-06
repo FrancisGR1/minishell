@@ -22,16 +22,22 @@ void	load_signals(int at)
 	static struct sigaction	sa;
 
 	sigemptyset(&sa.sa_mask);
-	signal(SIGQUIT, SIG_IGN);
 	sa.sa_flags = SA_SIGINFO | SA_RESTART;
-	if (at == DO_NOTHING)
+	if (at & DO_NOTHING)
 	{
-		signal(SIGINT, SIG_IGN);
+		signal(SIGQUIT, SIG_IGN);
+	}
+	else if (at & BLOCK)
+	{
+		sa.sa_sigaction = signals_handler;
+		sigaction(SIGINT, &sa, NULL);
+		sigaction(SIGQUIT, &sa, NULL);
 	}
 	else
 	{
 		sa.sa_sigaction = signals_handler;
 		sigaction(SIGINT, &sa, NULL);
+		signal(SIGQUIT, SIG_IGN);
 	}
 	rl_event_hook = event_hook;
 }
@@ -47,5 +53,9 @@ void	signals_handler(int signum, siginfo_t *inf, void *ctx)
 		}
 		g_sig_received = signum;
 		rl_done = 1;
+	}
+	if (signum == SIGQUIT)
+	{
+		ft_fprintf(STDOUT, "Quit (core dumped)\n");
 	}
 }

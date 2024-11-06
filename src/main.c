@@ -22,9 +22,9 @@ int	main(int c, char **v, char **env)
 	if (c > 1)
 		return (EXIT_FAILURE);
 	t = init_term(env);
-	load_signals(DEFAULT);
 	while (true)
 	{
+		load_signals(DEFAULT);
 		t->input = ft_readline(RL_PROMPT);
 		if (!t->input.s)
 			break ;
