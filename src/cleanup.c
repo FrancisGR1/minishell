@@ -12,8 +12,6 @@
 
 #include "minishell.h"
 
-static void get_binary_path(char **cmd_args, char **t_env);
-
 void	freexit(int exit_code, t_terminal *t)
 {
 	safe_close(t->terminal_fd);
@@ -65,80 +63,4 @@ void	free_cmd_args(t_cmd *current_cmd)
 	}
 	freen((void *)&current_cmd->args);
 	freen((void *)&current_cmd->cstr_args);
-}
-
-
-//TODO: mudar função de sítio
-void cleanup_arg(char *str)
-{
-	size_t i;
-	size_t j;
-
-	if (!str)
-		return ;
-	i = 0;
-	j = 0;
-	while (str[i])
-	{
-		if (str[i] == '\5' || str[i] == '\6')
-		{
-			j++;
-			str[i] = str[j];
-			continue;
-		}
-		else
-		{
-			str[i] = str[j];
-			j++;
-		}
-		i++;
-	}
-	str[i] = '\0';
-}
-
-//TODO: mudar função de sítio
-//TODO: mudar nome
-void	alloc_args(t_cmd *cmds, int commands_num, char **t_env)
-{
-	int		i;
-	int		k;
-	int		j;
-	char	**cmd_args;
-
-	if (!cmds || !cmds->args)
-		return ;
-	i = -1;
-	while (++i < commands_num)
-	{
-		cmd_args = ft_calloc(sizeof(char *),  (cmds[i].argc + 1));
-		k = -1;
-		j = 0;
-		while (++k < (int) cmds[i].argc)
-		{
-			if (ft_strcmp(cmds[i].args[k].s, EMPTY_EXPANDED_STR) == 0)
-				continue ;
-			cmd_args[j] = string_convert_back(cmds[i].args[k]);
-			cleanup_arg(cmd_args[j++]);
-		}
-		cmds[i].cstr_argc = j;
-		cmd_args[j] = NULL;
-		get_binary_path(cmd_args, t_env);
-		cmds[i].cstr_args = cmd_args;
-	}
-}
-
-void get_binary_path(char **cmd_args, char **t_env)
-{
-	char *binary_path;
-
-	if (!cmd_args || !cmd_args[0] || !cmd_args[0][0])
-		return ;
-	//TODO:
-	//if (is_builtin(cmd_args[0][0]))
-	//return
-	binary_path = find_path(cmd_args[0], t_env);
-	if (!binary_path)
-		return ;
-	free(cmd_args[0]);
-	cmd_args[0] = binary_path;
 }

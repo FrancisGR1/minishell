@@ -5,7 +5,9 @@ LDFLAGS = -lreadline
 OPTIMIZE = -03
 
 SRC_DIR = src
-SRC_FILES = main.c parse.c parse_redirs.c exec.c redirections.c heredoc.c signals.c terminal.c errors.c expand.c env.c path.c wrappers.c initializers.c debug.c
+SRC_FILES = main.c parse.c parse_redirs.c exec.c exec_utils.c exec_wait.c redirections.c \
+	    format_args.c heredoc.c signals.c terminal.c cleanup.c expand.c expand_utils.c \
+	    env.c path.c  wrappers.c initializers.c debug.c
 SRC = $(addprefix $(SRC_DIR)/,$(SRC_FILES))
 
 OBJ_DIR = obj

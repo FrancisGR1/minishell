@@ -16,35 +16,6 @@ typedef struct s_expand_buffer
 	int next_start;
 }	t_expand_buf;
 
-void remove_empty_codes(t_string *str)
-{
-	size_t i;
-	size_t j;
-
-	if (!str)
-		return ;
-	i = 0;
-	j = 0;
-	while (j < str->len)
-	{
-		if (str->s[j] == '\6' && str->len == 1)
-		{
-			str->s[i] = '\0';
-		}
-		else if (str->s[j] == '\6')
-		{
-			;
-		}
-		else
-		{
-			str->s[i] = str->s[j];
-			i++;
-		}
-		j++;
-	}
-	str->len = i;
-}
-
 void expand(t_string *s, char **env, int exit_code, int start)
 {
 	const int dollar_pos = string_find(*s, start, s->len, "$");
@@ -78,18 +49,6 @@ static int is_invalid_dollar(char *s)
 		return (1);
 	next_c = *(s + 1);
 	return (!ft_isalpha(next_c) && next_c != '_' && next_c != '?');
-}
-
-int valid_dollar_char(int c)
-{
-	static int prev_char;
-	bool is_valid;
-	
-	is_valid = false;
-	if ((ft_isalnum(c) || c == '?') && prev_char != '?')
-		is_valid = true;
-	prev_char = c;
-	return (is_valid);
 }
 
 static t_string make_expanded_str(t_string *s, t_string expanded_dollar, t_string delimiter)

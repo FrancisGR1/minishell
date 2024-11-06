@@ -12,9 +12,7 @@
 
 #include "minishell.h"
 
-static void	close_fds(int fds[][2], int cmds_num);
-static void	dup2_pipe(int fds[][2], int idx, int last);
-static int	wait_subprocesses(pid_t *subprocesses, int commands, t_cmd *cmds);
+static void handle_exec_error(int redir_error, int idx, t_cmd *cmds, t_terminal *t);
 static void	exec_subprocess(int fds[][2], t_cmd *cmds, int idx, t_terminal *t);
 
 int	exec(t_cmd *cmds, t_terminal *t)
@@ -61,9 +59,6 @@ static void handle_exec_error(int redir_error, int idx, t_cmd *cmds, t_terminal 
 		freexit(NOT_EXECUTABLE, t);
 	else
 		freexit(CMD_NOT_FOUND, t);
-	//TODO: tenho de incluir outros tipos de saídas
-	//falta a utilização errada de builtins (código de saída: 2)
-
 }
 
 static void	exec_subprocess(int fds[][2], t_cmd *cmds, int idx, t_terminal *t)
@@ -75,74 +70,9 @@ static void	exec_subprocess(int fds[][2], t_cmd *cmds, int idx, t_terminal *t)
 	redir_error = set_redirs(cmds[idx].redirs, cmds[idx].heredoc_file, t->terminal_fd, cmds[idx].last_input_ptr, cmds[idx].last_output_ptr);
 	close_fds(fds, t->cmds_num - 1);
 	if (g_sig_received || redir_error || !cmds[idx].cstr_args )
-	{
 		handle_exec_error(redir_error, idx, cmds, t);
-	}
 	if (!cmds[idx].cstr_args[0])
-	{
 		handle_exec_error(redir_error, idx, cmds, t);
-	}
 	if (execve(cmds[idx].cstr_args[0], cmds[idx].cstr_args, t->env) == -1)
-	{
 		handle_exec_error(redir_error, idx, cmds, t);
-	}
-}
-
-static void	dup2_pipe(int fds[][2], int idx, int last)
-{
-	if (idx == 0)
-	{
-		safe_dup2(fds[idx][PIPE_WRITE], STDOUT);
-	}
-	else if (idx == last)
-	{
-		safe_dup2(fds[idx - 1][PIPE_READ], STDIN);
-	}
-	else
-	{
-		safe_dup2(fds[idx - 1][PIPE_READ], STDIN);
-		safe_dup2(fds[idx][PIPE_WRITE], STDOUT);
-	}
-}
-
-static void	close_fds(int fds[][2], int cmds_num)
-{
-	int	i;
-
-	i = 0;
-	while (i < cmds_num)
-	{
-		safe_close(fds[i][0]);
-		safe_close(fds[i][1]);
-		i++;
-	}
-}
-
-static int	wait_subprocesses(pid_t *subprocesses, int commands, t_cmd *cmds)
-{
-	int	exit_code;
-	int	wstatus;
-	int	i;
-
-	exit_code = 0;
-	wstatus = 0;
-	i = 0;
-	while (i < commands)
-	{
-		if (cmds[i].has_heredoc)
-		{
-			unlink(cmds[i].heredoc_file);
-			exit_code = cmds[i].heredoc_wstatus;
-		}
-		else
-		{
-			waitpid(subprocesses[i], &wstatus, 0);
-			if (WIFSIGNALED(wstatus))
-				exit_code = FATAL_ERROR + WTERMSIG(wstatus);
-			else if (WIFEXITED(wstatus))
-				exit_code = WEXITSTATUS(wstatus);
-		}
-		i++;
-	}
-	return (exit_code);
 }

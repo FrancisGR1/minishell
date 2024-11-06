@@ -26,6 +26,22 @@ char *find_path(char *cmd, char **env)
 	return (res);
 }
 
+
+void get_binary_path(char **cmd_args, char **t_env)
+{
+	char *binary_path;
+
+	if (!cmd_args || !cmd_args[0] || !cmd_args[0][0])
+		return ;
+	//TODO:
+	//if (is_builtin(cmd_args[0][0]))
+	//return
+	binary_path = find_path(cmd_args[0], t_env);
+	if (!binary_path)
+		return ;
+	free(cmd_args[0]);
+	cmd_args[0] = binary_path;
+}
 //TODO: mudar isto de sítio e nome
 //(é para o heredoc)
 void	write_path(char dest[], char *src)

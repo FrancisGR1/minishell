@@ -11,10 +11,6 @@
 /* ************************************************************************** */
 
 #include "minishell.h"
-//TODO: mudar se sítio 
-bool remove_empty_args(t_string *arg, int current, size_t *argc);
-void rearrange_args_after_expansion(t_string **arg, int current, size_t *argc);
-size_t strs_count(t_string *args);
 
 static bool	format_args(t_parser_buffer *pb, t_cmd *current_cmd, int *redir_idx);
 static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t);
@@ -143,71 +139,5 @@ static bool	format_args(t_parser_buffer *pb, t_cmd *current_cmd, int *redir_idx)
 	if (current_cmd)
 		remove_redirections(pb, current_cmd);
 	return (true);
-}
-
-size_t strs_count(t_string *args)
-{
-	size_t i;
-
-	if (!args)
-		return (0);
-	i = 0;
-	while (args[i].s)
-		i++;
-	return(i);
-}
-
-t_string *make_rearranged_args(t_string *old_args, t_string *split_args, int current, int argc)
-{
-	t_string *new_args;
-	const int arr_len = strs_count(split_args);
-
-	if (!old_args || !split_args)
-		return (NULL);
-	new_args = malloc((argc + 1) * sizeof(t_string));
-	if (current == 0)
-	{
-		ft_memcpy(new_args, split_args, sizeof(t_string) * arr_len);
-		if (argc > 1)
-			ft_memcpy(&new_args[arr_len], &old_args[1], sizeof(t_string) * (argc - arr_len));
-	}
-	else if (current == argc - 1)
-	{
-		ft_memcpy(new_args, old_args, sizeof(t_string) * (argc - 1));
-		ft_memcpy(&new_args[argc - 1], split_args, sizeof(t_string) * arr_len);
-	}
-	else
-	{
-		ft_memcpy(new_args, old_args, sizeof(t_string) * current);
-		ft_memcpy(&new_args[current], split_args, sizeof(t_string) * arr_len);
-		ft_memcpy(&new_args[current + arr_len], old_args + current, sizeof(t_string) * (argc - 1 - current));
-	}
-	new_args[argc] = new_str(NULL, 0);
-	return (new_args);
-}
-
-void rearrange_args_after_expansion(t_string **arg, int current, size_t *argc)
-{
-	t_string *split_args;
-	t_string *new_args;
-	t_string *expanded_str_ptr;
-	int arr_len;
-
-	if (!arg || !*arg || !(*arg)->s || !argc || *argc <= 0)
-		return ;
-	if (*(*arg)->s == '\'' || *(*arg)->s == '\"')
-		return ;
-	expanded_str_ptr = *arg + current;
-	if (!expanded_str_ptr)
-		return ;
-	split_args = string_split_dup(*expanded_str_ptr, " ", &arr_len);
-	if (!split_args || arr_len < 2)
-		return (string_arr_free(&split_args));
-	*argc += arr_len - 1;
-	new_args = make_rearranged_args(*arg, split_args, current, *argc);
-	string_free((t_string *)expanded_str_ptr);
-	string_arr_free(arg);
-	free(split_args);
-	*arg = new_args;
 }
 

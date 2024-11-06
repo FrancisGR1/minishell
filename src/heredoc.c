@@ -86,19 +86,3 @@ static void hd_restore_previous_piped_fds(int saved_out, int saved_in)
 	safe_close(saved_in);
 	safe_close(saved_out);
 }
-
-//TODO: mudar de sítio
-void wait_heredoc(int *hd_exit_status, pid_t pid)
-{
-	int wstatus;
-
-	waitpid(pid, &wstatus, 0);
-	if (WIFSIGNALED(wstatus))
-	{
-		*hd_exit_status = FATAL_ERROR + WTERMSIG(wstatus);
-	}
-	else  if (WIFEXITED(wstatus))
-	{
-		*hd_exit_status = WEXITSTATUS(wstatus);
-	}
-}

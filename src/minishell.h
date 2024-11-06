@@ -155,11 +155,30 @@ void	define_redir_type(t_redir *redir, t_string r_ptr);
 //expansion
 void expand(t_string *s, char **env, int exit_code, int start);
 
+//expansion utils
+int valid_dollar_char(int c);
+void remove_empty_codes(t_string *str);
+
+//reformat args after expansion
+void rearrange_args_after_expansion(t_string **arg, int current, size_t *argc);
+t_string *make_rearranged_args(t_string *old_args, t_string *split_args, int current, int argc);
+void cleanup_arg(char *str);
+void	alloc_args(t_cmd *cmds, int commands_num, char **t_env);
+
 //paths
 char *find_path(char *cmd, char **env);
+void get_binary_path(char **cmd_args, char **t_env);
 
 // execution
 int								exec(t_cmd *cmds, t_terminal *t);
+
+//execution helper functions
+void	dup2_pipe(int fds[][2], int idx, int last);
+void	close_fds(int fds[][2], int cmds_num);
+
+//wait for subprocesses
+int	wait_subprocesses(pid_t *subprocesses, int commands, t_cmd *cmds);
+void wait_heredoc(int *hd_exit_status, pid_t pid);
 
 // redirections
 int	set_redirs(t_list *redirs, char *heredoc_file, int terminal_fd, t_redir *li_ptr, t_redir *lo_ptr);
@@ -190,7 +209,6 @@ void							*free_on_error(int exit_code,
 		char *error_message, t_parser_buffer *pb);
 void							freexit(int exit_code, t_terminal *t);
 void	free_cmd_args(t_cmd *current_cmd);
-void	alloc_args(t_cmd *cmds, int commands_num, char **t_env);
 
 //wrappers
 void ft_add_history(t_string input);
