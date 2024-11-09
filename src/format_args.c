@@ -6,7 +6,7 @@
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 20:03:48 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/11/06 21:57:15 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/09 14:33:38 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,34 +68,43 @@ void	alloc_args(t_cmd *cmds, int commands_num, char **t_env)
 	}
 }
 
-t_string	*make_rearranged_args(t_string *old, t_string *split, int curr,
+//TODO: fazer func que copia args
+t_string	*make_rearranged_args(t_string *old, t_string *split, int cur,
 		int c)
 {
-	t_string	*new_args;
+	t_string	*na;
+	t_string	*old_duped;
 	const int	len = strs_count(split);
 
 	if (!old || !split)
 		return (NULL);
-	new_args = malloc((c + 1) * sizeof(t_string));
-	if (curr == 0)
+
+	na = malloc((c + 1) * sizeof(t_string));
+	//TODO: dá leaks
+	old_duped = str_arr_dup(old);
+	string_arr_free(&old);
+	if (cur == 0)
 	{
-		ft_memcpy(new_args, split, sizeof(t_string) * len);
+		ft_memcpy(na, split, sizeof(t_string) * len);
 		if (c > 1)
-			ft_memcpy(&new_args[len], &old[1], sizeof(t_string) * (c - len));
+			ft_memcpy(&na[len], &old_duped[1], sizeof(t_string) * (c - len));
 	}
-	else if (curr == c - 1)
+	else if (cur == c - 1)
 	{
-		ft_memcpy(new_args, old, sizeof(t_string) * (c - 1));
-		ft_memcpy(&new_args[c - 1], split, sizeof(t_string) * len);
+		ft_memcpy(na, old_duped, sizeof(t_string) * (c - 1));
+		ft_memcpy(&na[c - 1], split, sizeof(t_string) * len);
 	}
 	else
 	{
-		ft_memcpy(new_args, old, sizeof(t_string) * curr);
-		ft_memcpy(&new_args[curr], split, sizeof(t_string) * len);
-		ft_memcpy(&new_args[curr + len], old + curr, sizeof(t_string) * (c - 1
-				- curr));
+		ft_memcpy(na, old_duped, sizeof(t_string) * cur);
+		ft_memcpy(&na[cur], split, sizeof(t_string) * len);
+		if (c > (cur + len))
+			ft_memcpy(&na[cur + len], old_duped + cur + 1, sizeof(t_string) * (c - cur - len));
 	}
-	return (new_args[c] = new_str(NULL, 0), new_args);
+	//TODO: dá leaks se comentar, dá erros de escrita de descomentar
+	//string_arr_free(&old_duped);
+	na[c] = new_str(NULL, 0);
+	return (na);
 }
 
 void	rearrange_args_after_expansion(t_string **arg, int current,
@@ -118,8 +127,7 @@ void	rearrange_args_after_expansion(t_string **arg, int current,
 		return (string_arr_free(&split_args));
 	*argc += arr_len - 1;
 	new_args = make_rearranged_args(*arg, split_args, current, *argc);
-	string_free((t_string *)expanded_str_ptr);
-	string_arr_free(arg);
+	//string_free((t_string *)expanded_str_ptr);
 	free(split_args);
 	*arg = new_args;
 }
