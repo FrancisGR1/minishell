@@ -109,7 +109,10 @@ void	rearrange_args_after_expansion(t_string **arg, int current,
 		return ;
 	split_args = string_split_dup(*expanded_str_ptr, " ", &arr_len);
 	if (!split_args || arr_len < 2)
+	{
+		printf("YES\n");
 		return (string_arr_free(&split_args));
+	}
 	*argc += arr_len - 1;
 	new_args = make_rearranged_args(*arg, split_args, current, *argc);
 	string_arr_free(&split_args);

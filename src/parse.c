@@ -111,14 +111,15 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 
 	if (!cmds || !args_ptr || !t)
 		return (false);
-	i = 0;
+	i = -1;
 	argc = strs_count(args_ptr);
-	while (i < argc)
+	while (++i < argc)
 	{
 		if (string_find(args_ptr[i], 0, args_ptr[i].len, "$") >= 0)
 		{
 			expand(&args_ptr[i], t->env, t->exit_code, 0);
-			rearrange_args_after_expansion(&args_ptr, i, &argc);
+			if (ft_strncmp(args_ptr[0].s, "export", args_ptr[0].len) != 0)
+				rearrange_args_after_expansion(&args_ptr, i, &argc);
 		}
 		remove_quotes(&args_ptr[i]);
 		if (args_ptr[i].len <= 0)
@@ -126,7 +127,6 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t)
 			string_free(&args_ptr[i]);
 			args_ptr[i] = cstr_to_str(EMPTY_STR);
 		}
-		i++;
 	}
 	cmds[idx].args = args_ptr;
 	cmds[idx].argc = argc;
