@@ -24,8 +24,7 @@ void	init_parser(t_parser_buffer *pb, t_terminal *t)
 	pb->t = t;
 }
 
-// TODO: mudar nome
-void	init_redirs(t_parser_buffer *pb, size_t idx)
+void	init_cmds(t_parser_buffer *pb, size_t idx)
 {
 	pb->cmds[idx].cstr_args = NULL;
 	pb->cmds[idx].args = NULL;

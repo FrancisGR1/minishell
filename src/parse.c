@@ -18,6 +18,17 @@ static bool	set_cmd(t_cmd *cmds, size_t idx, t_string *args_ptr, t_terminal *t);
 static int	mark_special_characters(t_string input, size_t *cmds_num);
 static int	remove_quotes(t_string *arg);
 
+t_string *get_args_ptrs(t_parser_buffer *pb)
+{
+	t_string *args_ptrs;
+
+	args_ptrs = string_split(pb->pipe_sides[pb->idx], DELIMITERS, &pb->split_len);
+	if (!args_ptrs)
+		return (NULL);
+	ft_lstadd_back(&pb->t->all_args_ptrs, ft_lstnew(args_ptrs));
+	return (args_ptrs);
+}
+
 t_cmd	*parse(t_string input, t_terminal *t)
 {
 	t_parser_buffer	pb;
@@ -31,9 +42,8 @@ t_cmd	*parse(t_string input, t_terminal *t)
 		return (frerror(NO_INPUT, NULL, &pb));
 	while (++pb.idx < (int)t->cmds_num)
 	{
-		init_redirs(&pb, pb.idx);
-		pb.args_ptr = string_split(pb.pipe_sides[pb.idx], DELIMITERS,
-				&pb.split_len);
+		init_cmds(&pb, pb.idx);
+		pb.args_ptr = get_args_ptrs(&pb);
 		if (!pb.args_ptr)
 			return (frerror(WRONG_FORMAT, ERROR_NO_CMD, &pb));
 		while (pb.redir_ptrs && ++pb.redir_idx < (int)pb.redir_ptrs->len)
@@ -44,7 +54,8 @@ t_cmd	*parse(t_string input, t_terminal *t)
 		darr_free(pb.redir_ptrs);
 	}
 	alloc_args(pb.cmds, t->cmds_num, t->env);
-	return (free(pb.pipe_sides), pb.cmds);
+	free(pb.pipe_sides);
+	return (pb.cmds);
 }
 
 static int	remove_quotes(t_string *arg)
