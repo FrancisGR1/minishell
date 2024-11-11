@@ -26,7 +26,9 @@ int	exec(t_cmd *cmds, t_terminal *t)
 	i = -1;
 	while (++i < (int)t->cmds_num)
 	{
-		if (cmds[i].ri.has_heredoc)
+		if (is_nested_term(cmds[i], t))
+			load_signals(DEFAULT);
+		else if (cmds[i].ri.has_heredoc)
 			load_signals(DO_NOTHING);
 		else
 			load_signals(BLOCK);
@@ -35,6 +37,8 @@ int	exec(t_cmd *cmds, t_terminal *t)
 			exec_subprocess(fds, cmds, i, t);
 		if (cmds[i].ri.has_heredoc)
 			wait_heredoc(&cmds[i].ri.heredoc_wstatus, pids[i]);
+		if (should_exec_in_main(cmds[i].cstr_args, t))
+			t->exit_code = exec_builtin(cmds[i].cstr_args, cmds[i].cstr_argc, t);
 	}
 	close_fds(fds, t->cmds_num - 1);
 	return (wait_subprocesses(pids, t->cmds_num, cmds));
@@ -73,8 +77,10 @@ static void	exec_subprocess(int fds[][2], t_cmd *cmds, int idx, t_terminal *t)
 		handle_exec_error(redir_error, idx, cmds, t);
 	if (!cmds[idx].cstr_args[0])
 		handle_exec_error(redir_error, idx, cmds, t);
-	if (false)
-		;
+	if (should_exec_in_main(cmds[idx].cstr_args, t) && !redir_error)
+		freexit(EXIT_SUCCESS, t);
+	if (is_builtin(cmds[idx].cstr_args[0]))
+		exec_builtin(cmds[idx].cstr_args, cmds[idx].cstr_argc, t);
 	else
 	{
 		if (execve(cmds[idx].cstr_args[0], cmds[idx].cstr_args, t->env) == -1)
