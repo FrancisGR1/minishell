@@ -18,23 +18,21 @@ int	main(int c, char **v, char **env)
 {
 	t_terminal	*t;
 
-	(void)v;
 	if (c > 1)
 		return (EXIT_FAILURE);
-	t = init_term(env);
-	while (true)
+	t = init_term(v[0], env);
+	while (t->is_running)
 	{
 		load_signals(DEFAULT);
-		t->input = ft_readline(t->prompt);
+		t->input = ft_readline(t->prompt, t);
 		if (!t->input.s)
 			break ;
 		ft_add_history(t->input);
 		t->cmds = parse(t->input, t);
 		if (t->cmds && t->cmds_num < CMD_MAX)
 			t->exit_code = exec(t->cmds, t);
-		else if (g_sig_received)
-			t->exit_code = g_sig_received + FATAL_ERROR;
-		// TODO: exit() aqui?
+		if (term_should_stop_running(t))
+			t->is_running = false;
 		reset_term(&t);
 	}
 	return (destroy_term(&t));

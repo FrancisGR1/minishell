@@ -26,6 +26,7 @@ int	exec(t_cmd *cmds, t_terminal *t)
 	i = -1;
 	while (++i < (int)t->cmds_num)
 	{
+		//TODO: setup_subprocess_signals()
 		if (is_nested_term(cmds[i], t))
 			load_signals(DEFAULT);
 		else if (cmds[i].ri.has_heredoc)
@@ -37,10 +38,22 @@ int	exec(t_cmd *cmds, t_terminal *t)
 			exec_subprocess(fds, cmds, i, t);
 		if (cmds[i].ri.has_heredoc)
 			wait_heredoc(&cmds[i].ri.heredoc_wstatus, pids[i]);
+		if (cmds[i].ri.heredoc_wstatus >= FATAL_ERROR)
+		{
+			printf("cmds[i].ri.heredoc_wstatus: %d\n", cmds[i].ri.heredoc_wstatus);
+			break ;
+		}
 		if (should_exec_in_main(cmds[i].cstr_args, t))
 			t->exit_code = exec_builtin(cmds[i].cstr_args, cmds[i].cstr_argc, t);
 	}
 	close_fds(fds, t->cmds_num - 1);
+	//TODO: subtituir por end_exec() = wait_subs + retorna logo se recebeu sinal
+	if (cmds[i].ri.heredoc_wstatus >= FATAL_ERROR)
+	{
+		printf("exec: g_sig: %d\n", g_sig_received);
+		wait_subprocesses(pids, t->cmds_num, cmds);
+		return (cmds[i].ri.heredoc_wstatus);
+	}
 	return (wait_subprocesses(pids, t->cmds_num, cmds));
 }
 
