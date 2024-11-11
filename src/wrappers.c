@@ -21,14 +21,30 @@ void	ft_add_history(t_string input)
 	add_history(input.s);
 }
 
-t_string	ft_readline(char *prompt)
+t_string	ft_readline(char *prompt, t_terminal *t)
 {
 	char		*tmp;
 	t_string	input;
 
-	tmp = readline(prompt);
-	input = cstr_to_str(tmp);
-	freen((void *)&tmp);
+	while (true)
+	{
+		tmp = readline(prompt);
+		if (!tmp)
+		{
+			ft_fprintf(STDOUT, "exit\n");
+			return (new_str(NULL, 0));
+		}
+		input = cstr_to_str(tmp);
+		freen((void *)&tmp);
+		if (g_sig_received)
+		{
+			string_free(&input);
+			t->exit_code = FATAL_ERROR + g_sig_received;
+			g_sig_received = 0;
+			continue ;
+		}
+		break ;
+	}
 	return (input);
 }
 
