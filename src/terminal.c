@@ -77,8 +77,11 @@ bool term_should_stop_running(t_terminal *t)
 	if (!t->cmds || !t->cmds->cstr_args)
 		return (false);
 	if (t->cmds_num == 1 && !ft_strcmp(t->cmds[0].cstr_args[0], "exit")
-			&& t->exit_code != DONT_EXIT && !g_sig_received)
+			&& t->cmds 
+			&& (t->cmds->ri.heredoc_wstatus < FATAL_ERROR
+				&& t->exit_code != GENERAL_ERROR))
 	{
+
 		ft_fprintf(STDOUT, "exit\n");
 		return (true);
 	}

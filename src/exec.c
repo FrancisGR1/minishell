@@ -39,18 +39,23 @@ int	exec(t_cmd *cmds, t_terminal *t)
 		if (cmds[i].ri.has_heredoc)
 			wait_heredoc(&cmds[i].ri.heredoc_wstatus, pids[i]);
 		if (cmds[i].ri.heredoc_wstatus >= FATAL_ERROR)
-		{
-			printf("cmds[i].ri.heredoc_wstatus: %d\n", cmds[i].ri.heredoc_wstatus);
 			break ;
-		}
 		if (should_exec_in_main(cmds[i].cstr_args, t))
+		{
 			t->exit_code = exec_builtin(cmds[i].cstr_args, cmds[i].cstr_argc, t);
+			printf("should exec in main\n");
+		}
 	}
 	close_fds(fds, t->cmds_num - 1);
 	//TODO: subtituir por end_exec() = wait_subs + retorna logo se recebeu sinal
+	//tem de ter em conta o error do exit() -> general_error
+	if (t->exit_code == GENERAL_ERROR)
+	{
+		wait_subprocesses(pids, t->cmds_num, cmds);
+		return (GENERAL_ERROR);
+	}
 	if (cmds[i].ri.heredoc_wstatus >= FATAL_ERROR)
 	{
-		printf("exec: g_sig: %d\n", g_sig_received);
 		wait_subprocesses(pids, t->cmds_num, cmds);
 		return (cmds[i].ri.heredoc_wstatus);
 	}
