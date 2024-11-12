@@ -1,8 +1,7 @@
 #include "minishell.h"
 
 static bool is_flag(char *str);
-//
-//TODO: flag não estã a funcionar?
+
 int builtin_echo(char **argv, int argc)
 {
 	bool should_print_newline;
@@ -31,10 +30,11 @@ int builtin_echo(char **argv, int argc)
 
 static bool is_flag(char *str)
 {
-	if (!str)
+	if (!str || !(str+1))
 		return (false);
-	if (*str == '-')
-		str++;
+	if (*str != '-' || str[1] != 'n')
+		return (false);
+	str++;
 	while (*str && *str == 'n')
 	{
 		str++;
