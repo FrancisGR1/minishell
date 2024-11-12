@@ -27,15 +27,17 @@ int	exec(t_cmd *cmds, t_terminal *t)
 	while (++i < (int)t->cmds_num)
 	{
 		//TODO: setup_subprocess_signals()
-		if (is_nested_term(cmds[i], t))
-			load_signals(DEFAULT);
-		else if (cmds[i].ri.has_heredoc)
+		if (cmds[i].ri.has_heredoc || is_nested_term(cmds[i], t))
 			load_signals(DO_NOTHING);
 		else
 			load_signals(BLOCK);
 		pids[i] = fork();
 		if (pids[i] == SUBPROCESS)
+		{
+			if (cmds[i].ri.has_heredoc)
+				load_signals(HEREDOC);
 			exec_subprocess(fds, cmds, i, t);
+		}
 		if (cmds[i].ri.has_heredoc)
 			wait_heredoc(&cmds[i].ri.heredoc_wstatus, pids[i]);
 		if (cmds[i].ri.heredoc_wstatus >= FATAL_ERROR)
@@ -43,7 +45,6 @@ int	exec(t_cmd *cmds, t_terminal *t)
 		if (should_exec_in_main(cmds[i].cstr_args, t))
 		{
 			t->exit_code = exec_builtin(cmds[i].cstr_args, cmds[i].cstr_argc, t);
-			printf("should exec in main\n");
 		}
 	}
 	close_fds(fds, t->cmds_num - 1);

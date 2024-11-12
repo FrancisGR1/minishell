@@ -23,23 +23,40 @@ void	load_signals(int at)
 
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = SA_SIGINFO | SA_RESTART;
+	sa.sa_sigaction = signals_handler;
+	sigaction(SIGINT, &sa, NULL);
 	if (at & DO_NOTHING)
 	{
+		signal(SIGQUIT, SIG_IGN);
+		signal(SIGINT, SIG_IGN);
+	}
+	else if (at & HEREDOC)
+	{
+		sa.sa_sigaction = heredoc_handler;
 		signal(SIGQUIT, SIG_IGN);
 	}
 	else if (at & BLOCK)
 	{
-		sa.sa_sigaction = signals_handler;
-		sigaction(SIGINT, &sa, NULL);
 		sigaction(SIGQUIT, &sa, NULL);
 	}
 	else
 	{
-		sa.sa_sigaction = signals_handler;
-		sigaction(SIGINT, &sa, NULL);
 		signal(SIGQUIT, SIG_IGN);
 	}
 	rl_event_hook = event_hook;
+}
+
+void	heredoc_handler(int signum, siginfo_t *inf, void *ctx)
+{
+	(void)ctx;
+	(void)inf;
+	if (signum == SIGINT)
+	{
+		g_sig_received = signum;
+		rl_done = 1;
+	}
+	if (signum == SIGQUIT)
+		return ;
 }
 
 void	signals_handler(int signum, siginfo_t *inf, void *ctx)
@@ -50,6 +67,7 @@ void	signals_handler(int signum, siginfo_t *inf, void *ctx)
 		if (inf->si_pid == SUBPROCESS)
 		{
 			ft_fprintf(STDOUT, "\n");
+			return ;
 		}
 		g_sig_received = signum;
 		rl_done = 1;

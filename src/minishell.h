@@ -1,4 +1,4 @@
-/* ************************************************************************** */
+/* t_************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
@@ -16,9 +16,6 @@
 // our lib
 # include "../libft/libft.h"
 
-// TODO: TEMPORÁRIO
-# include <assert.h>
-
 // Readline includes
 # include <readline/history.h>
 # include <readline/readline.h>
@@ -27,6 +24,8 @@
 # include <sys/wait.h>
 // open()
 # include <fcntl.h>
+// stat()
+# include <sys/stat.h>
 
 // error handling
 # include <errno.h>
@@ -59,7 +58,10 @@ extern int						g_sig_received;
 # define NO_ERROR 0
 # define NO_INPUT 0
 # define FILE_ERROR 1
+# define GENERAL_ERROR 1
 # define WRONG_FORMAT 2
+# define BUILTIN_ERROR 2
+# define DONT_EXIT 3
 # define NOT_EXECUTABLE 126
 # define CMD_NOT_FOUND 127
 # define FATAL_ERROR 128
@@ -81,6 +83,14 @@ extern int						g_sig_received;
 # define DEFAULT 2
 // setup sigquit for block mode
 # define BLOCK 4
+# define HEREDOC 8
+
+// array size for the storage of variables
+# define ENV_INITIAL_SIZE 200
+
+//modes of environmente variables lookup
+# define VALUE 0
+# define START 1
 
 // Main struct
 typedef struct s_terminal		t_terminal;
@@ -144,12 +154,17 @@ struct							s_command
 struct							s_terminal
 {
 	t_cmd						*cmds;
+	t_list						*all_args_ptrs;
 	char						**env;
+	int						env_size;
+	int						env_capacity;
 	size_t						cmds_num;
 	int							terminal_fd;
 	int							exit_code;
 	t_string					input;
 	char						*prompt;
+	bool	is_running;
+	struct stat stat;
 };
 
 // parse
@@ -175,9 +190,8 @@ void							remove_empty_codes(t_string *str);
 // reformat args after expansion
 void							rearrange_args_after_expansion(t_string **arg,
 									int current, size_t *argc);
-t_string						*make_rearranged_args(t_string *old_args,
-									t_string *split_args, int current,
-									int argc);
+t_string	*make_rearranged_args(t_string *old, t_string *split, int cur,
+		int c);
 void							cleanup_arg(char *str);
 void							alloc_args(t_cmd *cmds, int commands_num,
 									char **t_env);
@@ -192,6 +206,19 @@ int								exec(t_cmd *cmds, t_terminal *t);
 // execution helper functions
 void							dup2_pipe(int fds[][2], int idx, int last);
 void							close_fds(int fds[][2], int cmds_num);
+bool  is_builtin(char *command);
+int	exec_builtin(char **argv, int argc, t_terminal *t);
+bool should_exec_in_main(char **argv, t_terminal *t);
+bool is_nested_term(t_cmd cmd, t_terminal *t);
+
+//builtins
+int builtin_pwd(void);
+int builtin_unset(char **argv, int argc, t_terminal *t);
+int builtin_exit(char **argv, int argc, t_terminal *t);
+int builtin_echo(char **argv, int argc);
+int builtin_env(t_terminal *t);
+int builtin_cd(char **argv, int argc, t_terminal *t);
+int builtin_export(char **argv, int argc, t_terminal *t);
 
 // wait for subprocesses
 int								wait_subprocesses(pid_t *subprocesses,
@@ -215,17 +242,21 @@ void							wait_heredoc(int *hd_exit_status, pid_t pid);
 void							write_heredoc_path(char dest[], char *src);
 
 // terminal struct utils
-t_terminal						*init_term(char **env);
+t_terminal	*init_term(char *program, char **env);
 void							reset_term(t_terminal **t);
 int								destroy_term(t_terminal **t);
+bool term_should_stop_running(t_terminal *t);
 
 // signals
 void							load_signals(int at);
 void							signals_handler(int signum, siginfo_t *inf,
 									void *ctx);
+void	heredoc_handler(int signum, siginfo_t *inf, void *ctx);
 // environment
-char							**env_dup(char **env);
-char							*env_lookup(char **env, char *target);
+char							**env_dup(char **env, t_terminal *t);
+char	*env_lookup(char **env, char *key, int should_lookup);
+void env_set(char **env, char *key, char *new_value, t_terminal *t);
+int env_get_idx(char **env, char *key);
 
 // errors and memory management
 void							*frerror(int exit_code, char *error_message,
@@ -235,12 +266,12 @@ void							free_cmd_args(t_cmd *current_cmd);
 
 // wrappers
 void							ft_add_history(t_string input);
-t_string						ft_readline(char *prompt);
+t_string	ft_readline(char *prompt, t_terminal *t);
 void							safe_dup2(int fd, int duplicate_to);
 void							safe_close(int fd_to_close);
 
 // initializers
-void							init_redirs(t_parser_buffer *pb, size_t idx);
+void							init_cmds(t_parser_buffer *pb, size_t idx);
 void							init_parser(t_parser_buffer *pb, t_terminal *t);
 void							init_pipes(int fds[][2], int cmds_num);
 
