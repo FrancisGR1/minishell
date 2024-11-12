@@ -17,7 +17,7 @@ int builtin_unset(char **argv, int argc, t_terminal *t)
 			var_to_delete_ptr = t->env[var_to_delete_idx];
 			if (offset > 0)
 				ft_memmove(&t->env[var_to_delete_idx], &t->env[var_to_delete_idx + 1], offset);
-			free(var_to_delete_ptr);
+			freen((void *)&var_to_delete_ptr);
 			t->env_size--;
 		}
 	}
