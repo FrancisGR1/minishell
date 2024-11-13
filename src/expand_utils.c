@@ -29,7 +29,7 @@ void	remove_empty_codes(t_string *str)
 	size_t	i;
 	size_t	j;
 
-	if (!str)
+	if (!str || str->len <= 1)
 		return ;
 	i = 0;
 	j = 0;
