@@ -1,11 +1,23 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   builtin_echo.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/13 00:20:14 by frmiguel          #+#    #+#             */
+/*   Updated: 2024/11/13 00:20:14 by frmiguel         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-static bool is_flag(char *str);
+static bool	is_flag(char *str);
 
-int builtin_echo(char **argv, int argc)
+int	builtin_echo(char **argv, int argc)
 {
-	bool should_print_newline;
-	size_t i;
+	bool	should_print_newline;
+	size_t	i;
 
 	if (argc == 1)
 	{
@@ -28,9 +40,9 @@ int builtin_echo(char **argv, int argc)
 	return (EXIT_SUCCESS);
 }
 
-static bool is_flag(char *str)
+static bool	is_flag(char *str)
 {
-	if (!str || !(str+1))
+	if (!str || !(str + 1))
 		return (false);
 	if (*str != '-' || str[1] != 'n')
 		return (false);

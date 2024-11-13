@@ -1,14 +1,26 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   builtin_exit.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/13 00:20:14 by frmiguel          #+#    #+#             */
+/*   Updated: 2024/11/13 00:20:14 by frmiguel         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-static bool str_is_num(char *s);
+static bool	str_is_num(char *s);
 
-int builtin_exit(char **argv, int argc, t_terminal *t)
+int	builtin_exit(char **argv, int argc, t_terminal *t)
 {
-	long exit_code;
+	long	exit_code;
 
 	if (argc == 1)
 	{
-		freexit(EXIT_SUCCESS, t);
+		freexit(GENERAL_ERROR, t);
 	}
 	if (argc > 2)
 	{
@@ -25,7 +37,7 @@ int builtin_exit(char **argv, int argc, t_terminal *t)
 	return (0);
 }
 
-static bool str_is_num(char *s)
+static bool	str_is_num(char *s)
 {
 	if (!s)
 		return (false);

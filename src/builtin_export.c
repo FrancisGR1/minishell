@@ -1,13 +1,25 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   builtin_export.c                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/13 00:20:14 by frmiguel          #+#    #+#             */
+/*   Updated: 2024/11/13 00:20:14 by frmiguel         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-static char **get_sorted_env(t_terminal *t);
-static void print_export(t_terminal *t);
-static bool is_valid_identifier(char *arg);
-static void save_var(char *arg, t_terminal *t);
+static char	**get_sorted_env(t_terminal *t);
+static void	print_export(t_terminal *t);
+static bool	is_valid_identifier(char *arg);
+static void	save_var(char *arg, t_terminal *t);
 
-int builtin_export(char **argv, int argc, t_terminal *t)
+int	builtin_export(char **argv, int argc, t_terminal *t)
 {
-	int exit_code;
+	int	exit_code;
 
 	if (!t || !t->env || !argv)
 		return (EXIT_SUCCESS);
@@ -26,37 +38,35 @@ int builtin_export(char **argv, int argc, t_terminal *t)
 			continue ;
 		}
 		save_var(*argv, t);
-
 	}
 	return (exit_code);
 }
 
-static void save_var(char *arg, t_terminal *t)
+static void	save_var(char *arg, t_terminal *t)
 {
-	size_t key_len;
-	char *key;
-	char *val;
+	size_t	key_len;
+	char	*key;
+	char	*val;
 
 	if (!arg)
-		return;
+		return ;
 	key_len = ft_len_until(arg, '=');
 	key = ft_strndup(arg, key_len);
-	if (key_len  == ft_strlen(arg))
+	if (key_len == ft_strlen(arg))
 		val = ft_strdup("\0");
 	else
 		val = ft_strdup(arg + key_len + 1);
 	env_set(t->env, key, val, t);
 	freen((void *)&key);
 	freen((void *)&val);
-
 }
 
-static char **get_sorted_env(t_terminal *t)
+static char	**get_sorted_env(t_terminal *t)
 {
-	char **sorted_env;
-	char *tmp;
-	size_t i;
-	size_t j;
+	char	**sorted_env;
+	char	*tmp;
+	size_t	i;
+	size_t	j;
 
 	if (!t || !t->env)
 		return (NULL);
@@ -80,13 +90,13 @@ static char **get_sorted_env(t_terminal *t)
 	return (sorted_env);
 }
 
-static void print_export(t_terminal *t)
+static void	print_export(t_terminal *t)
 {
-	size_t i;
-	char *val;
-	char *key;
-	size_t key_len;
-	char **env_tmp;
+	size_t	i;
+	char	*val;
+	char	*key;
+	size_t	key_len;
+	char	**env_tmp;
 
 	if (!t || !t->env)
 		return ;
@@ -109,15 +119,15 @@ static void print_export(t_terminal *t)
 	free(env_tmp);
 }
 
-static bool is_valid_identifier(char *arg)
+static bool	is_valid_identifier(char *arg)
 {
 	if (!arg || (!ft_isalpha(*arg) && *arg != '_'))
 		return (false);
-	while(*arg)
+	while (*arg)
 	{
 		if (!ft_isalpha(*arg) && *arg != '_')
 			break ;
 		arg++;
 	}
-	return (*arg  == '=' || *arg == '\0');
+	return (*arg == '=' || *arg == '\0');
 }

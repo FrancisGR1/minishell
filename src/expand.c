@@ -6,13 +6,13 @@
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 20:03:47 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/11/06 21:57:15 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/13 00:20:16 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static int		is_invalid_dollar(char *s);
+static bool		is_valid_dollar(char *str, int dollar_pos);
 int				valid_dollar_char(int c);
 static t_string	make_expanded_str(t_string *s, t_string expanded_dollar,
 					t_string delimiter);
@@ -39,7 +39,7 @@ void	expand(t_string *s, char **env, int exit_code, int start)
 	if (!s || dollar_pos < 0 || !s->s || *s->s == '\'' || s->len == 0)
 		return ;
 	e.offset = dollar_end_pos - dollar_pos;
-	if (is_invalid_dollar(s->s + dollar_pos))
+	if (!is_valid_dollar(s->s, dollar_pos))
 		return (expand(s, env, exit_code, dollar_pos + 1));
 	e.delimiter = cstr_to_str_ptr(s->s + dollar_pos, e.offset);
 	e.expanded_dollar = expand_dollar(e.delimiter, env, exit_code);
@@ -54,14 +54,29 @@ void	expand(t_string *s, char **env, int exit_code, int start)
 	expand(s, env, exit_code, e.next_start);
 }
 
-static int	is_invalid_dollar(char *s)
+static bool	is_valid_dollar(char *str, int dollar_pos)
 {
-	char	next_c;
+	char		next_c;
+	char		quote;
+	const char	*s = (const char *)str + dollar_pos;
+	size_t		i;
 
 	if (!s || !(s + 1) || !*s)
-		return (1);
+		return (false);
 	next_c = *(s + 1);
-	return (!ft_isalpha(next_c) && next_c != '_' && next_c != '?');
+	if (!ft_isalpha(next_c) && next_c != '_' && next_c != '?')
+		return (false);
+	i = 0;
+	quote = '\0';
+	while (str[i] && i < (size_t)dollar_pos)
+	{
+		if ((!quote && (str[i] == '\'' || str[i] == '\"')))
+			quote = str[i];
+		else if (quote && str[i] == quote)
+			quote = '\0';
+		i++;
+	}
+	return (quote != '\'');
 }
 
 static t_string	make_expanded_str(t_string *s, t_string expanded_dollar,
@@ -108,7 +123,7 @@ static t_string	expand_dollar(t_string delimiter, char **env, int exit_code)
 		free(dollar_key);
 		return (expanded_dollar);
 	}
-	dollar_value_ptr = env_lookup(env, dollar_key + 1);
+	dollar_value_ptr = env_lookup(env, dollar_key + 1, VALUE);
 	if (!dollar_value_ptr)
 		expanded_dollar = cstr_to_str_nsize(EMPTY_EXPANDED_STR, 1);
 	else

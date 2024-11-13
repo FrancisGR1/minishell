@@ -14,7 +14,6 @@
 
 int	g_sig_received = 0;
 
-
 int	main(int c, char **v, char **env)
 {
 	t_terminal	*t;

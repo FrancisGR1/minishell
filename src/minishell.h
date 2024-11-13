@@ -1,12 +1,12 @@
-/* t_************************************************************************** */
+/* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/10/20 00:03:16 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/11/06 21:52:58 by frmiguel         ###   ########.fr       */
+/*   Created: 2024/11/13 00:21:59 by frmiguel          #+#    #+#             */
+/*   Updated: 2024/11/13 00:31:09 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,9 +86,9 @@ extern int						g_sig_received;
 # define HEREDOC 8
 
 // array size for the storage of variables
-# define ENV_INITIAL_SIZE 200
+# define ENV_INITIAL_SIZE 300
 
-//modes of environmente variables lookup
+// modes of environmente variables lookup
 # define VALUE 0
 # define START 1
 
@@ -130,7 +130,7 @@ struct							s_redirections
 	t_string					fd;
 };
 
-//general information about the redirections of a command
+// general information about the redirections of a command
 typedef struct s_redir_info
 {
 	t_redir						*li_ptr;
@@ -156,19 +156,29 @@ struct							s_terminal
 	t_cmd						*cmds;
 	t_list						*all_args_ptrs;
 	char						**env;
-	int						env_size;
-	int						env_capacity;
+	int							env_size;
+	int							env_capacity;
 	size_t						cmds_num;
 	int							terminal_fd;
 	int							exit_code;
 	t_string					input;
 	char						*prompt;
-	bool	is_running;
-	struct stat stat;
+	bool						is_running;
+	struct stat					stat;
 };
 
 // parse
 t_cmd							*parse(t_string input, t_terminal *t);
+
+// parse utils
+t_string						*get_args_ptrs(t_parser_buffer *pb);
+bool							format_args(t_parser_buffer *pb,
+									t_cmd *current_cmd, int *redir_idx);
+bool							set_cmd(t_cmd *cmds, size_t idx,
+									t_string *args_ptr, t_terminal *t);
+int								mark_special_characters(t_string input,
+									size_t *cmds_num);
+int								remove_quotes(t_string *arg);
 
 // parse redirections
 t_redir							*new_redir(t_string *args, t_string r_ptr);
@@ -190,8 +200,8 @@ void							remove_empty_codes(t_string *str);
 // reformat args after expansion
 void							rearrange_args_after_expansion(t_string **arg,
 									int current, size_t *argc);
-t_string	*make_rearranged_args(t_string *old, t_string *split, int cur,
-		int c);
+t_string						*make_rearranged_args(t_string *old,
+									t_string *split, int cur, int c);
 void							cleanup_arg(char *str);
 void							alloc_args(t_cmd *cmds, int commands_num,
 									char **t_env);
@@ -206,19 +216,25 @@ int								exec(t_cmd *cmds, t_terminal *t);
 // execution helper functions
 void							dup2_pipe(int fds[][2], int idx, int last);
 void							close_fds(int fds[][2], int cmds_num);
-bool  is_builtin(char *command);
-int	exec_builtin(char **argv, int argc, t_terminal *t);
-bool should_exec_in_main(char **argv, t_terminal *t);
-bool is_nested_term(t_cmd cmd, t_terminal *t);
+bool							is_builtin(char *command);
+int								exec_builtin(char **argv, int argc,
+									t_terminal *t);
+bool							should_exec(t_cmd *cmds, t_terminal *t);
+bool							should_exec_in_main(char **argv, t_terminal *t);
+bool							is_nested_term(t_cmd cmd, t_terminal *t);
 
-//builtins
-int builtin_pwd(void);
-int builtin_unset(char **argv, int argc, t_terminal *t);
-int builtin_exit(char **argv, int argc, t_terminal *t);
-int builtin_echo(char **argv, int argc);
-int builtin_env(t_terminal *t);
-int builtin_cd(char **argv, int argc, t_terminal *t);
-int builtin_export(char **argv, int argc, t_terminal *t);
+// builtins
+int								builtin_pwd(void);
+int								builtin_unset(char **argv, int argc,
+									t_terminal *t);
+int								builtin_exit(char **argv, int argc,
+									t_terminal *t);
+int								builtin_echo(char **argv, int argc);
+int								builtin_env(t_terminal *t);
+int								builtin_cd(char **argv, int argc,
+									t_terminal *t);
+int								builtin_export(char **argv, int argc,
+									t_terminal *t);
 
 // wait for subprocesses
 int								wait_subprocesses(pid_t *subprocesses,
@@ -242,21 +258,26 @@ void							wait_heredoc(int *hd_exit_status, pid_t pid);
 void							write_heredoc_path(char dest[], char *src);
 
 // terminal struct utils
-t_terminal	*init_term(char *program, char **env);
+t_terminal						*init_term(char *program, char **env);
 void							reset_term(t_terminal **t);
 int								destroy_term(t_terminal **t);
-bool term_should_stop_running(t_terminal *t);
+bool							term_should_stop_running(t_terminal *t);
 
 // signals
 void							load_signals(int at);
 void							signals_handler(int signum, siginfo_t *inf,
 									void *ctx);
-void	heredoc_handler(int signum, siginfo_t *inf, void *ctx);
+void							heredoc_handler(int signum, siginfo_t *inf,
+									void *ctx);
+void							load_subprocess_signals(t_cmd *current_cmd,
+									t_terminal *t);
 // environment
 char							**env_dup(char **env, t_terminal *t);
-char	*env_lookup(char **env, char *key, int should_lookup);
-void env_set(char **env, char *key, char *new_value, t_terminal *t);
-int env_get_idx(char **env, char *key);
+char							*env_lookup(char **env, char *key,
+									int should_lookup);
+void							env_set(char **env, char *key, char *new_value,
+									t_terminal *t);
+int								env_get_idx(char **env, char *key);
 
 // errors and memory management
 void							*frerror(int exit_code, char *error_message,
@@ -266,7 +287,7 @@ void							free_cmd_args(t_cmd *current_cmd);
 
 // wrappers
 void							ft_add_history(t_string input);
-t_string	ft_readline(char *prompt, t_terminal *t);
+t_string						ft_readline(char *prompt, t_terminal *t);
 void							safe_dup2(int fd, int duplicate_to);
 void							safe_close(int fd_to_close);
 
@@ -276,6 +297,7 @@ void							init_parser(t_parser_buffer *pb, t_terminal *t);
 void							init_pipes(int fds[][2], int cmds_num);
 
 // debug utils
+/*
 void							debug_fds(const char *message, int fd);
 int								debug_cmds(char *msg, t_cmd *cmds,
 									size_t cmds_num);
@@ -285,5 +307,5 @@ int								debug_args(char *msg, t_string *args);
 int								debug_redirections(t_cmd *cmds,
 									size_t cmds_num);
 void							catch_subprocess_segv(int n);
-
+*/
 #endif /*MINISHELL_H*/

@@ -6,7 +6,7 @@
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 20:09:43 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/11/06 21:57:16 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/13 00:20:18 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,8 @@ char	*find_path(char *cmd, char **env)
 {
 	size_t		i;
 	size_t		split_path_size;
-	const char	**split_paths = (const char **)ft_split(env_lookup(env, "PATH"),
-			":");
+	const char	**split_paths = (const char **)ft_split(env_lookup(env, "PATH",
+				VALUE), ":");
 	char		path_to_be_written[PATH_MAX];
 	char		*res;
 
@@ -45,10 +45,13 @@ void	get_binary_path(char **cmd_args, char **t_env)
 	char	*binary_path;
 
 	if (!cmd_args || !cmd_args[0] || !cmd_args[0][0])
+	{
 		return ;
-	// TODO:
-	// if (is_builtin(cmd_args[0][0]))
-	// sair
+	}
+	if (is_builtin(cmd_args[0]))
+	{
+		return ;
+	}
 	binary_path = find_path(cmd_args[0], t_env);
 	if (!binary_path)
 		return ;

@@ -6,7 +6,7 @@
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 00:01:36 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/11/06 21:57:17 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/13 00:20:19 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,4 +76,14 @@ void	signals_handler(int signum, siginfo_t *inf, void *ctx)
 	{
 		ft_fprintf(STDOUT, "Quit (core dumped)\n");
 	}
+}
+
+void	load_subprocess_signals(t_cmd *current_cmd, t_terminal *t)
+{
+	if (!current_cmd || !t)
+		return ;
+	if (current_cmd->ri.has_heredoc || is_nested_term(*current_cmd, t))
+		load_signals(DO_NOTHING);
+	else
+		load_signals(BLOCK);
 }

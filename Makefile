@@ -5,9 +5,12 @@ LDFLAGS = -lreadline
 OPTIMIZE = -03
 
 SRC_DIR = src
-SRC_FILES = main.c parse.c parse_redirs.c exec.c exec_utils.c exec_wait.c redirections.c \
-	    format_args.c heredoc.c signals.c terminal.c cleanup.c expand.c expand_utils.c \
-	    env.c path.c  wrappers.c initializers.c debug.c
+SRC_FILES = main.c parse.c parse_utils.c parse_redirs.c exec.c exec_utils.c exec_wait.c \
+	    builtin_cd.c builtin_export.c builtin_echo.c builtin_pwd.c \
+	    builtin_exit.c builtin_env.c builtin_unset.c \
+	    redirections.c format_args.c heredoc.c signals.c terminal.c cleanup.c \
+	    expand.c expand_utils.c env.c path.c  wrappers.c initializers.c debug.c
+
 SRC = $(addprefix $(SRC_DIR)/,$(SRC_FILES))
 
 OBJ_DIR = obj
@@ -66,5 +69,6 @@ re: fclean all
 
 watch:
 	@while inotifywait -r -e modify,delete,move src; do \
+		$(MAKE) clean; \
 		$(MAKE); \
 		done

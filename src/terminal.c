@@ -6,7 +6,7 @@
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 00:01:36 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/11/06 21:57:17 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/13 00:20:19 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,16 +72,14 @@ int	destroy_term(t_terminal **t)
 	return (main_exit_code);
 }
 
-bool term_should_stop_running(t_terminal *t)
+bool	term_should_stop_running(t_terminal *t)
 {
 	if (!t->cmds || !t->cmds->cstr_args)
 		return (false);
 	if (t->cmds_num == 1 && !ft_strcmp(t->cmds[0].cstr_args[0], "exit")
-			&& t->cmds 
-			&& (t->cmds->ri.heredoc_wstatus < FATAL_ERROR
-				&& t->exit_code != GENERAL_ERROR))
+		&& t->cmds && (t->cmds->ri.heredoc_wstatus < FATAL_ERROR
+			&& t->exit_code != GENERAL_ERROR))
 	{
-
 		ft_fprintf(STDOUT, "exit\n");
 		return (true);
 	}
@@ -90,14 +88,14 @@ bool term_should_stop_running(t_terminal *t)
 	return (false);
 }
 
-bool is_nested_term(t_cmd cmd, t_terminal *t)
+bool	is_nested_term(t_cmd cmd, t_terminal *t)
 {
-	struct stat prog_info;
+	struct stat	prog_info;
 
 	if (!cmd.cstr_args)
 		return (false);
 	if (stat(cmd.cstr_args[0], &prog_info) == -1)
 		return (false);
-	return (prog_info.st_ino == t->stat.st_ino &&
-			prog_info.st_dev == t->stat.st_dev);
+	return (prog_info.st_ino == t->stat.st_ino
+		&& prog_info.st_dev == t->stat.st_dev);
 }
