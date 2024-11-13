@@ -6,7 +6,7 @@
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 00:01:35 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/11/06 21:57:16 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/13 00:20:18 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ t_redir	*new_redir(t_string *args, t_string r_ptr)
 	int		i;
 	t_redir	*redir;
 
+	if (!args)
+		return (NULL);
 	i = 0;
 	redir = malloc(sizeof(t_redir));
 	if (!redir)
@@ -57,6 +59,8 @@ bool	get_redir(t_parser_buffer *pb, t_cmd *current_cmd, int *redir_idx)
 
 	pb->redir_ptr = &(((t_string *)pb->redir_ptrs->data)[*redir_idx]);
 	redir = new_redir(pb->args_ptr, *pb->redir_ptr);
+	if (!redir)
+		return (free(redir), false);
 	define_redir_type(redir, *pb->redir_ptr);
 	if (redir->type == REDIR_HEREDOC)
 	{
@@ -95,9 +99,7 @@ void	remove_redirections(t_parser_buffer *pb, t_cmd *current_cmd)
 		argc--;
 	nbytes = (argc + 1 - i) * (sizeof(t_string));
 	ft_memmove(&pb->args_ptr[i], &pb->args_ptr[i + 1], nbytes);
-	if (argc == 0)
-		freen((void *)&pb->args_ptr);
-	else
+	if (argc > 0)
 		pb->args_ptr[argc].s = NULL;
 }
 
