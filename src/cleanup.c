@@ -6,7 +6,7 @@
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 00:01:34 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/11/06 21:57:14 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/13 00:20:15 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,7 @@ void	*frerror(int exit_code, char *error_message, t_parser_buffer *pb)
 	i = pb->idx;
 	if (pb->pipe_sides)
 		freen((void *)&pb->pipe_sides);
-	if (pb->args_ptr)
-		freen((void *)&pb->args_ptr);
+	ft_lstclear(&pb->t->all_args_ptrs, free);
 	if (pb->redir_ptrs)
 		darr_free(pb->redir_ptrs);
 	while (i >= 0)
