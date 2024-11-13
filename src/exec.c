@@ -6,7 +6,7 @@
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 00:01:34 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/11/06 21:57:14 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/13 21:11:11 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 static void	handle_exec_error(int redir_error, int idx, t_cmd *cmds,
 				t_terminal *t);
 static void	exec_subprocess(int fds[][2], t_cmd *cmds, int idx, t_terminal *t);
+static int	end_execution(pid_t pids[], t_cmd *cmds, int curr_cmd,
+				t_terminal *t);
 
 int	exec(t_cmd *cmds, t_terminal *t)
 {
@@ -26,11 +28,7 @@ int	exec(t_cmd *cmds, t_terminal *t)
 	i = -1;
 	while (++i < (int)t->cmds_num)
 	{
-		//TODO: setup_subprocess_signals()
-		if (cmds[i].ri.has_heredoc || is_nested_term(cmds[i], t))
-			load_signals(DO_NOTHING);
-		else
-			load_signals(BLOCK);
+		load_subprocess_signals(&cmds[i], t);
 		pids[i] = fork();
 		if (pids[i] == SUBPROCESS)
 		{
@@ -43,22 +41,32 @@ int	exec(t_cmd *cmds, t_terminal *t)
 		if (cmds[i].ri.heredoc_wstatus >= FATAL_ERROR)
 			break ;
 		if (should_exec_in_main(cmds[i].cstr_args, t))
-		{
-			t->exit_code = exec_builtin(cmds[i].cstr_args, cmds[i].cstr_argc, t);
-		}
+			t->exit_code = exec_builtin(cmds[i].cstr_args, cmds[i].cstr_argc,
+					t);
 	}
-	close_fds(fds, t->cmds_num - 1);
-	//TODO: subtituir por end_exec() = wait_subs + retorna logo se recebeu sinal
-	//tem de ter em conta o error do exit() -> general_error
+	return (close_fds(fds, t->cmds_num - 1), end_execution(pids, cmds, i, t));
+}
+
+bool	should_exec(t_cmd *cmds, t_terminal *t)
+{
+	return ((cmds && t->cmds_num < CMD_MAX) && (t->cmds_num > 1
+			|| ((cmds->cstr_args && cmds->cstr_args[0]) || cmds->redirs)));
+}
+
+static int	end_execution(pid_t pids[], t_cmd *cmds, int curr_cmd,
+		t_terminal *t)
+{
+	if (!cmds || !t)
+		return (1);
 	if (t->exit_code == GENERAL_ERROR)
 	{
 		wait_subprocesses(pids, t->cmds_num, cmds);
 		return (GENERAL_ERROR);
 	}
-	if (cmds[i].ri.heredoc_wstatus >= FATAL_ERROR)
+	if (cmds[curr_cmd].ri.heredoc_wstatus >= FATAL_ERROR)
 	{
 		wait_subprocesses(pids, t->cmds_num, cmds);
-		return (cmds[i].ri.heredoc_wstatus);
+		return (cmds[curr_cmd].ri.heredoc_wstatus);
 	}
 	return (wait_subprocesses(pids, t->cmds_num, cmds));
 }
