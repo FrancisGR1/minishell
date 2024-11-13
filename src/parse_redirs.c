@@ -6,7 +6,7 @@
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 00:01:35 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/11/13 00:20:18 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/13 23:43:43 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,10 +29,10 @@ t_redir	*new_redir(t_string *args, t_string r_ptr)
 	return (redir);
 }
 
-void	define_redir_type(t_redir *redir, t_string r_ptr)
+bool	define_redir_type(t_redir *redir, t_string r_ptr)
 {
 	if (!r_ptr.s)
-		return ;
+		return (false);
 	if (*r_ptr.s == LESS && *(r_ptr.s + 1) == LESS)
 	{
 		redir->type = REDIR_HEREDOC;
@@ -50,7 +50,8 @@ void	define_redir_type(t_redir *redir, t_string r_ptr)
 		redir->type = REDIR_OUTPUT;
 	}
 	else
-		redir->type = -1;
+		return (false);
+	return (true);
 }
 
 bool	get_redir(t_parser_buffer *pb, t_cmd *current_cmd, int *redir_idx)
@@ -59,9 +60,10 @@ bool	get_redir(t_parser_buffer *pb, t_cmd *current_cmd, int *redir_idx)
 
 	pb->redir_ptr = &(((t_string *)pb->redir_ptrs->data)[*redir_idx]);
 	redir = new_redir(pb->args_ptr, *pb->redir_ptr);
-	if (!redir)
-		return (free(redir), false);
-	define_redir_type(redir, *pb->redir_ptr);
+	if (!redir || !pb->redir_ptr)
+		return (freen((void *)&redir), false);
+	if (!define_redir_type(redir, *pb->redir_ptr))
+		return (freen((void *)&redir), false);
 	if (redir->type == REDIR_HEREDOC)
 	{
 		current_cmd->ri.has_heredoc = true;

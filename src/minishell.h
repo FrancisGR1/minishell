@@ -6,7 +6,7 @@
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 00:21:59 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/11/13 00:31:09 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/13 23:43:33 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,8 +186,8 @@ void							remove_redirections(t_parser_buffer *pb,
 									t_cmd *current_cmd);
 bool							get_redir(t_parser_buffer *pb,
 									t_cmd *current_cmd, int *redir_idx);
-void							define_redir_type(t_redir *redir,
-									t_string r_ptr);
+bool							get_redir(t_parser_buffer *pb,
+									t_cmd *current_cmd, int *redir_idx);
 
 // expansion
 void							expand(t_string *s, char **env, int exit_code,
@@ -299,12 +299,12 @@ void							init_pipes(int fds[][2], int cmds_num);
 // debug utils
 /*
 void							debug_fds(const char *message, int fd);
-int								debug_cmds(char *msg, t_cmd *cmds,
+int	debug_cmds(char *msg, t_cmd *cmds,
 									size_t cmds_num);
-int								debug_cstr_args(char *msg, t_cmd *cmds,
+int	debug_cstr_args(char *msg, t_cmd *cmds,
 									int cmds_num);
 int								debug_args(char *msg, t_string *args);
-int								debug_redirections(t_cmd *cmds,
+int	debug_redirections(t_cmd *cmds,
 									size_t cmds_num);
 void							catch_subprocess_segv(int n);
 */

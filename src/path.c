@@ -22,7 +22,7 @@ char	*find_path(char *cmd, char **env)
 	char		*res;
 
 	if (!split_paths || !cmd || !cmd[0])
-		return (freen_arr((void **)split_paths), freen((void *)&cmd), NULL);
+		return (freen_arr((void **)split_paths), NULL);
 	res = NULL;
 	i = 0;
 	while (!res && split_paths[i])
