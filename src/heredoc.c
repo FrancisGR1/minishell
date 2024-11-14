@@ -46,14 +46,12 @@ static int	hd_write_to_file(int write_fd, char *delimiter)
 	while (true)
 	{
 		input = readline("> ");
-		if (!input || ft_strcmp(input, delimiter) == 0 || (g_sig_received
-				&& ft_strlen(input) == 0))
+		if (!input || ft_strcmp(input, delimiter) == 0 || g_sig_received)
 		{
 			freen((void *)&input);
 			if (g_sig_received)
 				return (g_sig_received);
-			else
-				break ;
+			break ;
 		}
 		ft_putendl_fd(input, write_fd);
 		freen((void *)&input);
