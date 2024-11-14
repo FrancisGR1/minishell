@@ -6,7 +6,7 @@
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 20:03:48 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/11/13 00:20:17 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/14 12:20:02 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,17 @@ void	cleanup_arg(char *str)
 	str[i] = '\0';
 }
 
+static void	set_cstr_args(t_cmd *curr_cmd, int num_of_args, char **cstr_args,
+		char **t_env)
+{
+	if (num_of_args == 0 && curr_cmd->redirs)
+		curr_cmd->only_redirs = true;
+	curr_cmd->cstr_argc = num_of_args;
+	cstr_args[num_of_args] = NULL;
+	get_binary_path(cstr_args, t_env);
+	curr_cmd->cstr_args = cstr_args;
+}
+
 void	alloc_args(t_cmd *cmds, int commands_num, char **t_env)
 {
 	int		i;
@@ -61,10 +72,7 @@ void	alloc_args(t_cmd *cmds, int commands_num, char **t_env)
 			cmd_args[j] = string_convert_back(cmds[i].args[k]);
 			cleanup_arg(cmd_args[j++]);
 		}
-		cmds[i].cstr_argc = j;
-		cmd_args[j] = NULL;
-		get_binary_path(cmd_args, t_env);
-		cmds[i].cstr_args = cmd_args;
+		set_cstr_args(&cmds[i], j, cmd_args, t_env);
 	}
 }
 

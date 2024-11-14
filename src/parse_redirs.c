@@ -6,7 +6,7 @@
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 00:01:35 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/11/13 23:43:43 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/14 12:21:48 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,8 +101,7 @@ void	remove_redirections(t_parser_buffer *pb, t_cmd *current_cmd)
 		argc--;
 	nbytes = (argc + 1 - i) * (sizeof(t_string));
 	ft_memmove(&pb->args_ptr[i], &pb->args_ptr[i + 1], nbytes);
-	if (argc > 0)
-		pb->args_ptr[argc].s = NULL;
+	pb->args_ptr[argc].s = NULL;
 }
 
 void	write_heredoc_path(char dest[], char *src)

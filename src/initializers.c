@@ -33,6 +33,7 @@ void	init_cmds(t_parser_buffer *pb, size_t idx)
 	pb->cmds[idx].ri.li_ptr = NULL;
 	pb->cmds[idx].ri.lo_ptr = NULL;
 	pb->cmds[idx].ri.has_heredoc = false;
+	pb->cmds[idx].only_redirs = false;
 	pb->cmds[idx].ri.heredoc_wstatus = 0;
 	pb->redir_idx = -1;
 	pb->redir_ptrs = string_findall(pb->pipe_sides[idx], "\2\3");

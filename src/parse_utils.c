@@ -115,6 +115,8 @@ bool	format_args(t_parser_buffer *pb, t_cmd *current_cmd, int *redir_idx)
 	if (!get_redir(pb, current_cmd, redir_idx))
 		return (false);
 	if (current_cmd)
+	{
 		remove_redirections(pb, current_cmd);
+	}
 	return (true);
 }

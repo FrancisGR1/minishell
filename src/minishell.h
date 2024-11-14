@@ -6,7 +6,7 @@
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/13 00:21:59 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/11/13 23:43:33 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/14 12:20:14 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,6 +149,7 @@ struct							s_command
 	size_t						cstr_argc;
 	t_list						*redirs;
 	t_redir_info				ri;
+	bool						only_redirs;
 };
 
 struct							s_terminal
