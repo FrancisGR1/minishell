@@ -27,7 +27,6 @@ int	main(int c, char **v, char **env)
 		t->input = ft_readline(t->prompt, t);
 		if (!t->input.s)
 			break ;
-		ft_add_history(t->input);
 		t->cmds = parse(t->input, t);
 		if (should_exec(t->cmds, t))
 			t->exit_code = exec(t->cmds, t);

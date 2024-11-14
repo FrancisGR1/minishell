@@ -6,19 +6,16 @@
 /*   By: frmiguel <frmiguel@student.42Lisboa.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 20:03:49 by frmiguel          #+#    #+#             */
-/*   Updated: 2024/11/13 00:20:19 by frmiguel         ###   ########.fr       */
+/*   Updated: 2024/11/14 18:39:33 by frmiguel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	ft_add_history(t_string input)
+static void	save_signal(t_terminal *t)
 {
-	if (g_sig_received)
-		return ;
-	if ((int)input.len == str_iter(input, 0, input.len, ft_isspace))
-		return ;
-	add_history(input.s);
+	t->exit_code = FATAL_ERROR + g_sig_received;
+	g_sig_received = 0;
 }
 
 t_string	ft_readline(char *prompt, t_terminal *t)
@@ -36,16 +33,17 @@ t_string	ft_readline(char *prompt, t_terminal *t)
 		}
 		input = cstr_to_str(tmp);
 		freen((void *)&tmp);
-		if (g_sig_received)
+		if (g_sig_received || (int)input.len == str_iter(input, 0, input.len,
+				ft_isspace))
 		{
 			string_free(&input);
-			t->exit_code = FATAL_ERROR + g_sig_received;
-			g_sig_received = 0;
+			if (g_sig_received)
+				save_signal(t);
 			continue ;
 		}
-		break ;
+		add_history(input.s);
+		return (input);
 	}
-	return (input);
 }
 
 void	safe_close(int fd_to_close)
